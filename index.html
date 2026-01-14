@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#ffffff">
+  <title>Caisse iPad – Produits + Inventaire + Cash</title>
+  <style>
+    :root{
+      --bg:#f5f5f7; --card:#ffffff; --text:#111; --muted:#6b7280;
+      --border:#e5e7eb; --btn:#111; --btn2:#e9e9ee; --danger:#d92d20;
+      --green:#1a7f37; --radius:16px; --shadow:0 1px 10px rgba(0,0,0,.07); --pad:12px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{
+      position:sticky;top:0;z-index:50;background:var(--card);
+      box-shadow:0 1px 8px rgba(0,0,0,.06);
+      padding:14px 16px calc(10px + env(safe-area-inset-top)) 16px;
+    }
+    h1{margin:0;font-size:18px}
+    .sub{margin-top:4px;color:var(--muted);font-size:13px}
+    .wrap{padding:var(--pad);display:grid;grid-template-columns:1.15fr .85fr;gap:var(--pad);align-items:start}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--pad)}
+    .row{display:flex;gap:10px;align-items:center}
+    .row.space{justify-content:space-between}
+    input,select{
+      width:100%;padding:12px;border-radius:14px;border:1px solid var(--border);
+      font-size:16px;background:#fff
+    }
+    button{
+      border:0;border-radius:14px;padding:14px 10px;font-size:16px;background:var(--btn);color:#fff;
+      user-select:none;-webkit-tap-highlight-color:transparent;cursor:pointer;
+      white-space:pre-line;
+    }
+    button.secondary{background:var(--btn2);color:var(--text)}
+    button.danger{background:var(--danger)}
+    button.success{background:var(--green)}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .pill{font-size:12px;color:var(--muted);border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:#fff}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    @media(max-width:520px){.grid{grid-template-columns:repeat(2,1fr)}}
+    .total{font-size:26px;font-weight:800}
+    .muted{color:var(--muted);font-size:13px}
+    .line{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px}
+    .name{font-weight:700}
+    .qty{display:flex;align-items:center;gap:8px;background:var(--bg);padding:6px;border-radius:14px}
+    .qty button{padding:10px 12px;border-radius:12px;font-size:18px;line-height:1}
+    .qty .n{min-width:28px;text-align:center;font-weight:800}
+    .smallBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    pre{margin:12px 0 0 0;background:var(--bg);border:1px solid var(--border);padding:10px;border-radius:14px;white-space:pre-wrap;display:none;max-height:320px;overflow:auto}
+    .hint{color:var(--muted);font-size:13px;margin-top:10px}
+
+    /* MODALS */
+    .backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;z-index:100;
+      padding:16px;padding-top:calc(16px + env(safe-area-inset-top));
+    }
+    .modal{
+      background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.25);
+      max-width:1100px;margin:0 auto;height:calc(100vh - 32px - env(safe-area-inset-top));
+      display:flex;flex-direction:column;overflow:hidden;
+    }
+    .modalHeader{
+      padding:14px 16px;border-bottom:1px solid var(--border);
+      display:flex;gap:10px;align-items:center;justify-content:space-between;
+    }
+    .modalHeader h2{margin:0;font-size:18px}
+    .modalBody{padding:12px 16px;overflow:auto}
+    .tableWrap{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#fff}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    thead th{position:sticky;top:0;background:#fff;z-index:5;text-align:left;padding:10px;border-bottom:1px solid var(--border);color:#111}
+    tbody td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle}
+    tbody tr:last-child td{border-bottom:none}
+    .unitTag{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:var(--muted);background:#fafafa}
+    .num{width:92px;padding:10px;border-radius:12px;border:1px solid var(--border);font-size:14px}
+    .miniBtns{display:flex;gap:8px;flex-wrap:wrap}
+    .miniBtns button{padding:10px 10px;font-size:14px;border-radius:12px}
+    .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:900px){.twoCols{grid-template-columns:1fr}}
+    .panel{border:1px solid var(--border);border-radius:16px;padding:12px;background:#fff}
+    .bigNum{font-size:24px;font-weight:900}
+    .denoms{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+    @media(max-width:520px){.denoms{grid-template-columns:repeat(2,1fr)}}
+    .denoms button{padding:12px 10px;border-radius:12px;font-size:15px}
+    .denoms .tiny{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+
+    /* SPECIAL RED BUTTON */
+    .special-btn{
+      background:#c81e1e !important;
+      color:#fff !important;
+      box-shadow:0 2px 10px rgba(200,30,30,.45);
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🧾 Caisse – iPad</h1>
+  <div class="sub">Produits + inventaire + rhum (oz) + cash réel (arrondi .25) • Offline</div>
+</header>
+
+<main class="wrap">
+  <section class="card">
+    <div class="row" style="margin-bottom:10px;">
+      <input id="search" placeholder="Rechercher un produit…" />
+      <button class="secondary" id="resetCart" style="white-space:nowrap;">Reset</button>
+    </div>
+
+    <div class="row space">
+      <div class="pill" id="productCount">0 produits</div>
+      <div class="pill" id="shiftLabel">Soirée: Jeudi</div>
+    </div>
+
+    <div class="grid" id="btns"></div>
+    <div class="hint" id="rumInfo"></div>
+  </section>
+
+  <aside class="card">
+    <div class="row space" style="align-items:flex-end;">
+      <div>
+        <div class="muted">Total</div>
+        <div class="total" id="total">$0.00</div>
+        <div class="muted" id="taxNote">Taxes: désactivées</div>
+        <div class="hint" id="cashHint"></div>
+      </div>
+      <div class="row" style="gap:10px;">
+        <button class="secondary" id="export">CSV</button>
+        <button id="pay">Payer</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <select id="taxMode" title="Taxes">
+        <option value="none">Taxes: Aucune</option>
+        <option value="qc">Taxes: Québec (TPS+TVQ)</option>
+      </select>
+    </div>
+
+    <div id="cart" style="margin-top:8px;"></div>
+
+    <div class="smallBtns">
+      <button class="secondary" id="openInv">Inventaire</button>
+      <button class="secondary" id="openDrawer">Caisse $</button>
+      <button class="secondary" id="undoSale">Annuler dernière vente</button>
+      <button class="secondary" id="toggleSales">Voir ventes</button>
+      <button class="secondary" id="endNight">Fin de soirée</button>
+      <button class="danger" id="clearAll">Tout effacer</button>
+    </div>
+
+    <pre id="salesView"></pre>
+  </aside>
+</main>
+
+<!-- INVENTAIRE MODAL -->
+<div class="backdrop" id="invBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modalHeader">
+      <div>
+        <h2>📦 Inventaire (réappro)</h2>
+        <div class="sub">Modifie stock/prix, puis “Appliquer”.</div>
+      </div>
+      <div class="miniBtns">
+        <button class="secondary" id="invClose">Fermer</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="row" style="margin-bottom:10px;">
+        <input id="invSearch" placeholder="Filtrer inventaire (ex: bud, pepsi, rhum)..." />
+        <button class="secondary" id="invResetInputs" style="white-space:nowrap;">Reset champs</button>
+        <button class="success" id="invApply" style="white-space:nowrap;">Appliquer</button>
+      </div>
+
+      <div class="row" style="margin-bottom:10px;">
+        <div class="pill" id="invSummary">—</div>
+        <div class="pill" id="invRumSummary">—</div>
+      </div>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th><th>Type</th><th>Stock</th><th>Prix</th>
+              <th>Ajouter / Retirer</th><th>Set stock</th><th>Set prix</th>
+            </tr>
+          </thead>
+          <tbody id="invTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="hint" style="margin-top:10px;">
+        🍹 Cocktails: <b>Rhum-Pepsi</b> enlève 1 oz rhum + 1 Pepsi • <b>Rhum-7-Up</b> enlève 1 oz rhum + 1 7-Up.
+        <br>🥃 Rhum: boutons <b>+40 oz</b> ou <b>+60 oz</b>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER MODAL -->
+<div class="backdrop" id="drawerBackdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modalHeader">
+      <div>
+        <h2>💵 Caisse – Fonds de départ</h2>
+        <div class="sub">Entre tes quantités de pièces/billets. Ça va donner ton total de caisse.</div>
+      </div>
+      <div class="miniBtns">
+        <button class="secondary" id="drawerClose">Fermer</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="panel">
+        <div class="row space">
+          <div>
+            <div class="muted">Total caisse (actuel)</div>
+            <div class="bigNum" id="drawerTotal">$0.00</div>
+          </div>
+          <button class="secondary" id="drawerStart">Début de soirée</button>
+          <button class="secondary" id="drawerReset">Reset caisse</button>
+        </div>
+        <div class="tableWrap" style="margin-top:10px;">
+          <table>
+            <thead><tr><th>Coupure</th><th>Qté</th><th>+ / - / Set</th></tr></thead>
+            <tbody id="drawerTbody"></tbody>
+          </table>
+        </div>
+        <div class="hint" style="margin-top:10px;">Astuce: tu peux l’utiliser pour entrer le cash de départ ou corriger la caisse.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAY MODAL -->
+<div class="backdrop" id="cashBackdrop" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:900px">
+    <div class="modalHeader">
+      <div>
+        <h2>💳 Paiement</h2>
+        <div class="sub">Cash: clique les billets/pièces reçus. On calcule le change et on met à jour la caisse.</div>
+      </div>
+      <div class="miniBtns">
+        <button class="secondary" id="cashClose">Annuler</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="twoCols">
+        <div class="panel">
+          <div class="muted">Total à payer (arrondi 0.25)</div>
+          <div class="bigNum" id="dueDisplay">$0.00</div>
+          <div class="hint">Ce total inclut taxes si activées.</div>
+
+          <div class="row" style="margin-top:12px;">
+            <button class="secondary" id="payInterac" style="flex:1;">Interac / Autre</button>
+            <button class="success" id="payCashMode" style="flex:1;">Cash</button>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            Fonds de caisse: <b id="drawerMini">$0.00</b>
+          </div>
+        </div>
+
+        <div class="panel" id="cashPanel" style="display:none;">
+          <div class="row space">
+            <div>
+              <div class="muted">Cash reçu</div>
+              <div class="bigNum" id="receivedDisplay">$0.00</div>
+            </div>
+            <button class="secondary" id="receivedReset">Reset reçu</button>
+          </div>
+
+          <div class="hint">Clique sur ce que le client te donne:</div>
+          <div class="denoms" id="receivedDenoms"></div>
+
+          <div class="hint" style="margin-top:12px;">Change à redonner</div>
+          <div class="bigNum" id="changeDisplay">$0.00</div>
+          <pre id="changeBreakdown" style="margin-top:10px; display:block"></pre>
+
+          <div class="row space" style="margin-top:12px;">
+            <button class="secondary" id="removeOne">Retirer 1 clic</button>
+            <button class="success" id="confirmCash">Confirmer cash</button>
+          </div>
+        </div>
+
+        <div class="panel" id="interacPanel" style="display:none;">
+          <div class="muted">Interac / Autre</div>
+          <div class="hint">Aucun change. La caisse ne bouge pas.</div>
+          <div class="row" style="margin-top:12px;">
+            <button class="success" id="confirmInterac" style="flex:1;">Confirmer Interac</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- END OF NIGHT MODAL -->
+<div class="backdrop" id="endBackdrop" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:1000px">
+    <div class="modalHeader">
+      <div>
+        <h2>📊 Rapport – Fin de soirée</h2>
+        <div class="sub" id="endSub">Résumé des ventes, inventaire et caisse.</div>
+      </div>
+      <div class="miniBtns">
+        <button class="secondary" id="endCopy">Copier</button>
+        <button class="secondary" id="endClose">Fermer</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="twoCols">
+        <div class="panel">
+          <div class="muted">Résumé</div>
+          <div class="bigNum" id="endTotalSales">$0.00</div>
+          <div class="hint" id="endMeta">—</div>
+          <div class="tableWrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Paiement</th><th># ventes</th><th>Total</th></tr></thead>
+              <tbody id="endPayRows"></tbody>
+            </table>
+          </div>
+          <div class="tableWrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Caisse</th><th>Début</th><th>Fin</th><th>Diff</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><b>Total caisse</b></td>
+                  <td id="drawerStartCell">—</td>
+                  <td id="drawerEndCell">—</td>
+                  <td id="drawerDiffCell">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="hint" style="margin-top:10px;">
+            Astuce: pour avoir “Début”, clique <b>Début de soirée</b> dans <b>Caisse $</b> au début.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="muted">Items vendus</div>
+          <div class="hint">Top + quantités</div>
+          <div class="tableWrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Produit</th><th>Qté</th><th>Total</th></tr></thead>
+              <tbody id="endItemRows"></tbody>
+            </table>
+          </div>
+          <div class="muted" style="margin-top:14px;">Inventaire restant</div>
+          <div class="hint">Stock actuel (pour réappro)</div>
+          <div class="tableWrap" style="margin-top:10px;">
+            <table>
+              <thead><tr><th>Item</th><th>Stock</th><th>Type</th></tr></thead>
+              <tbody id="endInvRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <pre id="endText" style="display:block; margin-top:12px;"></pre>
+
+      <div class="row space" style="margin-top:12px;">
+        <button class="secondary" id="endExportCSV">Exporter ventes CSV</button>
+        <button class="danger" id="endResetShift">Clôturer & reset panier</button>
+      </div>
+      <div class="hint" style="margin-top:8px;">
+        “Clôturer & reset panier” ne supprime pas tes ventes: ça vide juste le panier et enregistre une nouvelle base “Début de soirée” avec la caisse actuelle.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== CONFIG PRODUITS / INVENTAIRE ====== */
+const DEFAULT_INV = {
+  "Corona":    { unit: "bottle", stock: 24, price: 6.00 },
+  "Gatorade":  { unit: "bottle", stock: 12, price: 4.00 },
+  "Eau":       { unit: "bottle", stock: 24, price: 2.00 },
+
+  "Bud":       { unit: "can",    stock: 24, price: 5.00 },
+  "Bud Light": { unit: "can",    stock: 24, price: 5.00 },
+  "Pepsi":     { unit: "can",    stock: 24, price: 3.00 },
+  "7-Up":      { unit: "can",    stock: 24, price: 3.00 },
+
+  "Rhum (oz)": { unit: "oz",     stock: 60, price: 0 }
+};
+
+const PRODUCTS = [
+  // ✅ SPÉCIAL (rouge) : 6 Corona pour 20$
+  { type:"bundle", name:"🔴 Corona – 6 pour 20$", invItem:"Corona", bundleQty:6, price:20.00 },
+
+  { type:"simple", name:"Corona",    invItem:"Corona" },
+  { type:"simple", name:"Bud",       invItem:"Bud" },
+  { type:"simple", name:"Bud Light", invItem:"Bud Light" },
+  { type:"simple", name:"Eau",       invItem:"Eau" },
+  { type:"simple", name:"Pepsi",     invItem:"Pepsi" },
+  { type:"simple", name:"7-Up",      invItem:"7-Up" },
+  { type:"simple", name:"Gatorade",  invItem:"Gatorade" },
+
+  { type:"combo",  name:"Rhum-Pepsi", price: 7.00, rumOzPerDrink: 1, mixerItem:"Pepsi" },
+  { type:"combo",  name:"Rhum-7-Up",  price: 7.00, rumOzPerDrink: 1, mixerItem:"7-Up" },
+];
+
+/* ====== CONFIG CASH DRAWER ====== */
+const DENOMS = [100,50,20,10,5,2,1,0.25];
+const ROUND_STEP = 0.25;
+
+/* ====== STORAGE KEYS (anti-cache) ====== */
+const KEY = {
+  cart: "pos_cart_v12",
+  sales:"pos_sales_v12",
+  shift:"pos_shift_v12",
+  tax: "pos_tax_v12",
+  inv: "pos_inv_v12",
+  drawer:"pos_drawer_v12",
+  drawerStart:"pos_drawer_start_v12",
+  shiftStartTs:"pos_shift_start_ts_v12"
+};
+
+const $ = id=>document.getElementById(id);
+const money = (n)=>"$"+(Math.round(Number(n||0)*100)/100).toFixed(2);
+const clone = (o)=>JSON.parse(JSON.stringify(o));
+const roundStep = (n)=>Math.round(n/ROUND_STEP)*ROUND_STEP;
+
+/* ====== STATE ====== */
+let cart = JSON.parse(localStorage.getItem(KEY.cart) || "{}");
+let sales = JSON.parse(localStorage.getItem(KEY.sales) || "[]");
+let shift = localStorage.getItem(KEY.shift) || "Jeudi";
+let taxMode = localStorage.getItem(KEY.tax) || "none";
+let inv = JSON.parse(localStorage.getItem(KEY.inv) || "null");
+if(!inv) inv = clone(DEFAULT_INV);
+
+let drawer = JSON.parse(localStorage.getItem(KEY.drawer) || "null");
+if(!drawer){
+  drawer = {"100":0,"50":0,"20":0,"10":0,"5":0,"2":0,"1":0,"0.25":0};
+}
+let drawerStart = JSON.parse(localStorage.getItem(KEY.drawerStart) || "null");
+let shiftStartTs = localStorage.getItem(KEY.shiftStartTs) || null;
+
+function save(){
+  localStorage.setItem(KEY.cart, JSON.stringify(cart));
+  localStorage.setItem(KEY.sales, JSON.stringify(sales));
+  localStorage.setItem(KEY.shift, shift);
+  localStorage.setItem(KEY.tax, taxMode);
+  localStorage.setItem(KEY.inv, JSON.stringify(inv));
+  localStorage.setItem(KEY.drawer, JSON.stringify(drawer));
+  localStorage.setItem(KEY.drawerStart, JSON.stringify(drawerStart));
+  if(shiftStartTs) localStorage.setItem(KEY.shiftStartTs, shiftStartTs);
+}
+
+/* ====== TAX ====== */
+function taxRates(){
+  if(taxMode==="qc") return {tps:0.05, tvq:0.09975};
+  return {tps:0, tvq:0};
+}
+
+/* ====== INVENTORY HELPERS ====== */
+function invStock(name){ return Number(inv[name]?.stock || 0); }
+function invPrice(name){ return Number(inv[name]?.price || 0); }
+function invUnit(name){ return inv[name]?.unit || ""; }
+function rumOz(){ return invStock("Rhum (oz)"); }
+function qtyInCart(name){ return Number(cart[name]||0); }
+
+function productPrice(p){
+  if(p.type==="bundle") return Number(p.price||0);
+  return p.type==="simple" ? invPrice(p.invItem) : Number(p.price||0);
+}
+
+function availableForProduct(p){
+  const q = qtyInCart(p.name);
+  if(p.type==="bundle"){
+    const remainingBottles = Math.max(0, invStock(p.invItem) - q*p.bundleQty);
+    return Math.floor(remainingBottles / p.bundleQty);
+  }
+  if(p.type==="simple"){
+    return Math.max(0, invStock(p.invItem) - q);
+  }
+  const rumLeft = rumOz() - q*p.rumOzPerDrink;
+  const mixLeft = invStock(p.mixerItem) - q;
+  const byRum = Math.floor(Math.max(0, rumLeft)/p.rumOzPerDrink);
+  const byMix = Math.floor(Math.max(0, mixLeft));
+  return Math.max(0, Math.min(byRum, byMix));
+}
+
+/* ====== CASH DRAWER HELPERS ====== */
+function drawerTotal(){
+  return DENOMS.reduce((s,d)=> s + d * Number(drawer[String(d)]||0), 0);
+}
+function updateCashHint(){
+  $("cashHint").innerHTML = `Caisse: <b>${money(drawerTotal())}</b> (arrondi .25)`;
+}
+function renderDrawerTable(){
+  $("drawerTotal").textContent = money(drawerTotal());
+  $("drawerMini").textContent = money(drawerTotal());
+  const tbody = $("drawerTbody");
+  tbody.innerHTML = "";
+  for(const d of DENOMS){
+    const k = String(d);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><b>${money(d)}</b></td>
+      <td>${Number(drawer[k]||0)}</td>
+      <td>
+        <div class="miniBtns">
+          <button class="secondary" data-d="${k}" data-a="plus">+</button>
+          <button class="secondary" data-d="${k}" data-a="minus">-</button>
+          <input class="num" inputmode="numeric" placeholder="Set" data-d="${k}" style="width:80px">
+          <button class="secondary" data-d="${k}" data-a="applyset">OK</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+  tbody.querySelectorAll("button[data-a]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const k = btn.getAttribute("data-d");
+      const a = btn.getAttribute("data-a");
+      if(a==="plus") drawer[k] = Number(drawer[k]||0)+1;
+      if(a==="minus") drawer[k] = Math.max(0, Number(drawer[k]||0)-1);
+      if(a==="applyset"){
+        const inp = tbody.querySelector(`input[data-d="${k}"]`);
+        const v = Number(inp.value);
+        if(Number.isFinite(v) && v>=0) drawer[k] = Math.floor(v);
+        inp.value="";
+      }
+      save(); renderDrawerTable(); updateCashHint();
+    });
+  });
+}
+function makeChange(amount, drawerState){
+  amount = roundStep(amount);
+  let remaining = amount;
+  const out = {};
+  for(const d of DENOMS){
+    const k = String(d);
+    const avail = Number(drawerState[k]||0);
+    const use = Math.min(Math.floor(remaining/d), avail);
+    if(use>0){
+      out[k] = use;
+      remaining = roundStep(remaining - use*d);
+    }
+  }
+  if(remaining > 0) return null;
+  return out;
+}
+
+/* ====== UI PRODUCTS ====== */
+function filteredProducts(){
+  const q = $("search").value.trim().toLowerCase();
+  if(!q) return PRODUCTS;
+  return PRODUCTS.filter(p=>p.name.toLowerCase().includes(q));
+}
+function renderRumInfo(){
+  $("rumInfo").innerHTML = `Rhum: <b>${rumOz().toFixed(0)} oz</b> • Pepsi: <b>${invStock("Pepsi")}</b> • 7-Up: <b>${invStock("7-Up")}</b>`;
+}
+function renderButtons(){
+  const div = $("btns");
+  const list = filteredProducts();
+  div.innerHTML = "";
+  $("productCount").textContent = `${list.length} produits`;
+  $("shiftLabel").textContent = `Soirée: ${shift}`;
+
+  for(const p of list){
+    const left = availableForProduct(p);
+    const b = document.createElement("button");
+    b.disabled = left<=0;
+
+    if(p.type==="bundle") b.classList.add("special-btn");
+
+    if(p.type==="bundle"){
+      b.textContent = `${p.name}\n${money(productPrice(p))} • Paquets: ${left}`;
+    } else if(p.type==="simple"){
+      const unit = invUnit(p.invItem);
+      const label = unit==="bottle" ? "Bouteilles" : unit==="can" ? "Canettes" : unit;
+      b.textContent = `${p.name}\n${money(productPrice(p))} • ${label}: ${left}`;
+    } else {
+      b.textContent = `${p.name}\n${money(productPrice(p))} • Verres: ${left}`;
+    }
+
+    b.onclick = ()=>{
+      if(availableForProduct(p)<=0){ alert("❌ Stock insuffisant"); return; }
+      cart[p.name] = qtyInCart(p.name) + 1;
+      save(); renderCart(); renderButtons(); renderRumInfo();
+    };
+
+    div.appendChild(b);
+  }
+  renderRumInfo();
+}
+
+/* ====== CART + TOTAL ====== */
+function renderCart(){
+  const cartDiv = $("cart");
+  cartDiv.innerHTML = "";
+  const entries = Object.entries(cart).filter(([_,q])=>Number(q)>0);
+  if(entries.length===0){
+    cartDiv.innerHTML = `<div class="muted" style="padding:10px 0;">Panier vide.</div>`;
+    $("total").textContent = money(0);
+    $("taxNote").textContent = (taxMode==="qc") ? "Taxes activées (TPS+TVQ)" : "Taxes désactivées";
+    return;
+  }
+  let subtotal = 0;
+  for(const [name, qRaw] of entries){
+    const qty = Number(qRaw);
+    const p = PRODUCTS.find(x=>x.name===name);
+    if(!p) continue;
+    const pr = productPrice(p);
+    const lineTotal = qty*pr;
+    subtotal += lineTotal;
+    const row = document.createElement("div");
+    row.className = "line";
+    row.innerHTML = `
+      <div>
+        <div class="name">${name}</div>
+        <div class="muted">${money(pr)} • Sous-total: ${money(lineTotal)}</div>
+      </div>
+      <div class="qty">
+        <button class="secondary">−</button>
+        <div class="n">${qty}</div>
+        <button>+</button>
+      </div>
+    `;
+    const [minusBtn, plusBtn] = row.querySelectorAll("button");
+    minusBtn.onclick = ()=>{ cart[name] = Math.max(0, qty-1); save(); renderCart(); renderButtons(); renderRumInfo(); };
+    plusBtn.onclick = ()=>{
+      if(availableForProduct(p)<=0){ alert("❌ Stock insuffisant"); return; }
+      cart[name] = qty+1; save(); renderCart(); renderButtons(); renderRumInfo();
+    };
+    cartDiv.appendChild(row);
+  }
+  const {tps,tvq} = taxRates();
+  const tax = subtotal*(tps+tvq);
+  const total = subtotal+tax;
+  $("total").textContent = money(total);
+  $("taxNote").textContent = (taxMode==="qc") ? "Taxes activées (TPS 5% + TVQ 9.975%)" : "Taxes désactivées";
+}
+
+/* ====== SALE -> INVENTORY ====== */
+function applySaleToInventory(){
+  for(const p of PRODUCTS){
+    const q = qtyInCart(p.name);
+    if(q<=0) continue;
+
+    if(p.type==="bundle"){
+      if(invStock(p.invItem) < q*p.bundleQty) return {ok:false, msg:`Stock insuffisant: ${p.name}`};
+    } else if(p.type==="simple"){
+      if(invStock(p.invItem) < q) return {ok:false, msg:`Stock insuffisant: ${p.name}`};
+    } else {
+      const rumNeed = q*p.rumOzPerDrink;
+      if(rumOz() < rumNeed) return {ok:false, msg:`Rhum insuffisant: ${p.name}`};
+      if(invStock(p.mixerItem) < q) return {ok:false, msg:`${p.mixerItem} insuffisant: ${p.name}`};
+    }
+  }
+
+  const before = clone(inv);
+  const items = [];
+  let subtotal = 0;
+
+  for(const p of PRODUCTS){
+    const q = qtyInCart(p.name);
+    if(q<=0) continue;
+
+    const pr = productPrice(p);
+    subtotal += q*pr;
+
+    if(p.type==="bundle"){
+      inv[p.invItem].stock = invStock(p.invItem) - q*p.bundleQty;
+      items.push({name:p.name, qty:q, price:pr, detail:`-${q*p.bundleQty} ${p.invItem}`});
+    } else if(p.type==="simple"){
+      inv[p.invItem].stock = invStock(p.invItem) - q;
+      items.push({name:p.name, qty:q, price:pr});
+    }
+  }
+
+  for(const p of PRODUCTS){
+    const q = qtyInCart(p.name);
+    if(q<=0 || p.type!=="combo") continue;
+    const rumNeed = q*p.rumOzPerDrink;
+    inv["Rhum (oz)"].stock = rumOz() - rumNeed;
+    inv[p.mixerItem].stock = invStock(p.mixerItem) - q;
+    items.push({name:p.name, qty:q, price:productPrice(p), detail:`-${rumNeed} oz rhum, -${q} ${p.mixerItem}`});
+  }
+
+  const {tps,tvq} = taxRates();
+  const tax = subtotal*(tps+tvq);
+  const total = subtotal+tax;
+  return {ok:true, before, after:clone(inv), items, subtotal, tax, total};
+}
+
+function recordSale(sale, payment){
+  sales.push({
+    ts: new Date().toISOString(),
+    shift,
+    taxMode,
+    subtotal: Math.round(sale.subtotal*100)/100,
+    tax: Math.round(sale.tax*100)/100,
+    total: Math.round(sale.total*100)/100,
+    items: sale.items,
+    inv_before: sale.before,
+    inv_after: sale.after,
+    payment
+  });
+  cart = {};
+  save();
+  renderCart(); renderButtons(); renderRumInfo();
+}
+
+/* ====== UNDO ====== */
+function undoLastSale(){
+  const last = sales.pop();
+  if(!last){ alert("Rien à annuler."); return; }
+  if(last.inv_before) inv = clone(last.inv_before);
+  if(last.payment && last.payment.type==="cash" && last.payment.drawer_before){
+    drawer = clone(last.payment.drawer_before);
+  }
+  save();
+  renderCart(); renderButtons(); renderRumInfo();
+  renderDrawerTable(); updateCashHint();
+  alert("✅ Dernière vente annulée.");
+}
+
+/* ====== EXPORT CSV ====== */
+function exportCSV(){
+  const rows = [["date_iso","soiree","payment","received","change","total","produit","qty","prix","detail"]];
+  for(const s of sales){
+    const pay = s.payment || {};
+    for(const it of (s.items||[])){
+      rows.push([s.ts, s.shift, pay.type||"", pay.received??"", pay.change??"", s.total, it.name, it.qty, it.price, it.detail||""]);
+    }
+  }
+  const csv = rows.map(r=>r.map(x=>String(x).replaceAll('"','""')).map(x=>`"${x}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "ventes_caisse.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ====== SALES VIEW ====== */
+function toggleSales(){
+  const pre = $("salesView");
+  pre.style.display = (pre.style.display==="none") ? "block" : "none";
+  if(pre.style.display==="block"){
+    const last = sales.slice(-15).reverse();
+    pre.textContent = last.length ? last.map(s=>{
+      const d = new Date(s.ts);
+      const pay = s.payment || {};
+      const payLine = pay.type==="cash" ? ` | CASH reçu ${money(pay.received)} change ${money(pay.change)}` : (pay.type==="interac" ? " | Interac" : "");
+      const lines = (s.items||[]).map(it=>`  - ${it.name} x${it.qty} (${money(it.price)})${it.detail?` [${it.detail}]`:""}`).join("\n");
+      return `${d.toLocaleString()} | ${s.shift} | Total ${money(s.total)}${payLine}\n${lines}`;
+    }).join("\n\n") : "Aucune vente.";
+  }
+}
+
+/* ====== INVENTORY MODAL ====== */
+let pendingInvEdits = {};
+function unitLabel(u){ if(u==="bottle") return "Bouteille"; if(u==="can") return "Canette"; if(u==="oz") return "Oz"; return u; }
+function invList(){
+  return Object.keys(inv).map(name=>({name, unit:invUnit(name), stock:invStock(name), price:invPrice(name)}))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+}
+function renderInvSummary(){
+  const list = invList();
+  const bottles = list.filter(x=>x.unit==="bottle").reduce((a,x)=>a+x.stock,0);
+  const cans = list.filter(x=>x.unit==="can").reduce((a,x)=>a+x.stock,0);
+  $("invSummary").textContent = `Total: ${bottles} bouteilles • ${cans} canettes`;
+  $("invRumSummary").textContent = `Rhum: ${rumOz().toFixed(0)} oz`;
+}
+function renderInvTable(){
+  renderInvSummary();
+  const filter = $("invSearch").value.trim().toLowerCase();
+  const tbody = $("invTbody");
+  tbody.innerHTML = "";
+  const list = invList().filter(x=>!filter || x.name.toLowerCase().includes(filter));
+
+  for(const item of list){
+    const name = item.name;
+    const isRum = (name==="Rhum (oz)");
+    const edit = pendingInvEdits[name] || {delta:"", setStock:"", setPrice:""};
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><b>${name}</b></td>
+      <td><span class="unitTag">${unitLabel(item.unit)}</span></td>
+      <td><b>${item.stock}</b></td>
+      <td>${item.unit==="oz" ? "—" : money(item.price)}</td>
+      <td>
+        <div class="miniBtns">
+          <input class="num" inputmode="numeric" placeholder="+ / -" value="${edit.delta}" data-k="delta" data-name="${name}"/>
+          <button class="secondary" data-act="plus12" data-name="${name}">+12</button>
+          <button class="secondary" data-act="minus12" data-name="${name}">-12</button>
+          ${isRum?`<button class="secondary" data-act="rum40" data-name="${name}">+40 oz</button>
+                   <button class="secondary" data-act="rum60" data-name="${name}">+60 oz</button>`:""}
+        </div>
+      </td>
+      <td><input class="num" inputmode="numeric" placeholder="ex: 24" value="${edit.setStock}" data-k="setStock" data-name="${name}"/></td>
+      <td>${item.unit==="oz"?"—":`<input class="num" inputmode="decimal" placeholder="ex: 5.00" value="${edit.setPrice}" data-k="setPrice" data-name="${name}"/>`}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  tbody.querySelectorAll("input[data-k]").forEach(inp=>{
+    inp.addEventListener("input",(e)=>{
+      const k = e.target.getAttribute("data-k");
+      const name = e.target.getAttribute("data-name");
+      pendingInvEdits[name] = pendingInvEdits[name] || {delta:"", setStock:"", setPrice:""};
+      pendingInvEdits[name][k] = e.target.value;
+    });
+  });
+
+  tbody.querySelectorAll("button[data-act]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const act = btn.getAttribute("data-act");
+      const name = btn.getAttribute("data-name");
+      if(act==="plus12") inv[name].stock = invStock(name)+12;
+      if(act==="minus12") inv[name].stock = Math.max(0, invStock(name)-12);
+      if(act==="rum40") inv[name].stock = invStock(name)+40;
+      if(act==="rum60") inv[name].stock = invStock(name)+60;
+      save();
+      renderInvTable(); renderButtons(); renderCart(); renderRumInfo();
+    });
+  });
+}
+function applyInvEdits(){
+  for(const [name, ed] of Object.entries(pendingInvEdits)){
+    if(!inv[name]) continue;
+    const deltaStr = String(ed.delta||"").trim();
+    if(deltaStr){
+      const delta = Number(deltaStr);
+      if(Number.isFinite(delta)) inv[name].stock = Math.max(0, invStock(name)+delta);
+    }
+    const ss = String(ed.setStock||"").trim();
+    if(ss){
+      const v = Number(ss);
+      if(Number.isFinite(v) && v>=0) inv[name].stock = v;
+    }
+    if(invUnit(name)!=="oz"){
+      const sp = String(ed.setPrice||"").trim();
+      if(sp){
+        const p = Number(sp);
+        if(Number.isFinite(p) && p>=0) inv[name].price = p;
+      }
+    }
+  }
+  pendingInvEdits = {};
+  save();
+  renderInvTable(); renderButtons(); renderCart(); renderRumInfo();
+  alert("✅ Inventaire mis à jour.");
+}
+
+/* ====== DRAWER MODAL ====== */
+function resetDrawer(){
+  if(!confirm("Reset caisse à zéro?")) return;
+  for(const d of DENOMS){ drawer[String(d)] = 0; }
+  save(); renderDrawerTable(); updateCashHint();
+}
+function setShiftStartBaseline(){
+  drawerStart = clone(drawer);
+  shiftStartTs = new Date().toISOString();
+  save();
+  alert("✅ Début de soirée enregistré.");
+}
+
+/* ====== CASH PAYMENT MODAL (BOUTONS) ====== */
+let dueNow = 0;
+let receivedNow = 0;
+let receivedClicks = [];
+let salePrepared = null;
+
+function openPay(){
+  const sale = applySaleToInventory();
+  if(!sale.ok){ alert("❌ " + sale.msg); return; }
+  salePrepared = sale;
+  dueNow = roundStep(sale.total);
+  receivedNow = 0;
+  receivedClicks = [];
+  $("cashBackdrop").style.display = "block";
+  $("dueDisplay").textContent = money(dueNow);
+  $("drawerMini").textContent = money(drawerTotal());
+  $("cashPanel").style.display = "none";
+  $("interacPanel").style.display = "none";
+  $("receivedDisplay").textContent = money(0);
+  $("changeDisplay").textContent = money(0);
+  $("changeBreakdown").textContent = "";
+}
+function closePay(){
+  $("cashBackdrop").style.display = "none";
+  if(salePrepared && salePrepared.before){
+    inv = clone(salePrepared.before);
+    save();
+    renderButtons(); renderCart(); renderRumInfo();
+  }
+  salePrepared = null;
+}
+function enterCashMode(){
+  $("cashPanel").style.display="block";
+  $("interacPanel").style.display="none";
+  buildDenomButtons();
+  refreshChange();
+}
+function enterInteracMode(){
+  $("interacPanel").style.display="block";
+  $("cashPanel").style.display="none";
+}
+function buildDenomButtons(){
+  const div = $("receivedDenoms");
+  div.innerHTML = "";
+  for(const d of DENOMS){
+    const k = String(d);
+    const b = document.createElement("button");
+    b.className = "secondary";
+    b.innerHTML = `${money(d)} <span class="tiny">en caisse: ${Number(drawer[k]||0)}</span>`;
+    b.onclick = ()=>{
+      receivedNow = roundStep(receivedNow + d);
+      receivedClicks.push(k);
+      $("receivedDisplay").textContent = money(receivedNow);
+      refreshChange();
+    };
+    div.appendChild(b);
+  }
+}
+function refreshChange(){
+  const changeAmt = roundStep(Math.max(0, receivedNow - dueNow));
+  $("changeDisplay").textContent = money(changeAmt);
+  if(receivedNow < dueNow){
+    $("changeBreakdown").textContent = "Montant insuffisant.";
+    return;
+  }
+  const simulated = clone(drawer);
+  for(const k of receivedClicks){ simulated[k] = Number(simulated[k]||0) + 1; }
+  const breakdown = makeChange(changeAmt, simulated);
+  if(breakdown===null){
+    $("changeBreakdown").textContent = "❌ Impossible de rendre ce change avec la caisse.";
+    return;
+  }
+  const lines = [];
+  for(const d of DENOMS){
+    const k = String(d);
+    if(breakdown[k]) lines.push(`${money(d)} x ${breakdown[k]}`);
+  }
+  $("changeBreakdown").textContent = lines.length ? lines.join("\n") : "Aucun change.";
+}
+function removeOneClick(){
+  const k = receivedClicks.pop();
+  if(!k) return;
+  receivedNow = roundStep(Math.max(0, receivedNow - Number(k)));
+  $("receivedDisplay").textContent = money(receivedNow);
+  refreshChange();
+}
+function confirmCash(){
+  if(!salePrepared) return;
+  if(receivedNow < dueNow){ alert("Montant insuffisant."); return; }
+  const changeAmt = roundStep(receivedNow - dueNow);
+
+  const drawerBefore = clone(drawer);
+  for(const k of receivedClicks){ drawer[k] = Number(drawer[k]||0) + 1; }
+
+  const breakdown = makeChange(changeAmt, drawer);
+  if(breakdown===null){
+    drawer = drawerBefore;
+    alert("❌ Impossible de rendre le change avec la caisse.");
+    return;
+  }
+  for(const [k,q] of Object.entries(breakdown)){
+    drawer[k] = Number(drawer[k]||0) - Number(q||0);
+  }
+
+  const payment = {
+    type:"cash",
+    received: Math.round(receivedNow*100)/100,
+    change: Math.round(changeAmt*100)/100,
+    change_breakdown: breakdown,
+    drawer_before: drawerBefore,
+    drawer_after: clone(drawer),
+  };
+  recordSale(salePrepared, payment);
+  salePrepared = null;
+  save();
+  renderDrawerTable(); updateCashHint();
+  $("cashBackdrop").style.display="none";
+  alert(`✅ Payé cash. Change: ${money(changeAmt)}`);
+}
+function confirmInterac(){
+  if(!salePrepared) return;
+  const payment = {type:"interac"};
+  recordSale(salePrepared, payment);
+  salePrepared = null;
+  save();
+  $("cashBackdrop").style.display="none";
+  alert("✅ Payé Interac.");
+}
+
+/* ====== END OF NIGHT REPORT ====== */
+function formatDateLocal(iso){ try{ return new Date(iso).toLocaleString(); }catch(e){ return iso; } }
+function buildEndReport(){
+  const totalSales = sales.reduce((a,s)=>a + Number(s.total||0), 0);
+  const cashSales = sales.filter(s=>s.payment && s.payment.type==="cash");
+  const interacSales = sales.filter(s=>s.payment && s.payment.type==="interac");
+  const cashTotal = cashSales.reduce((a,s)=>a + Number(s.total||0), 0);
+  const interacTotal = interacSales.reduce((a,s)=>a + Number(s.total||0), 0);
+
+  const itemAgg = {};
+  for(const s of sales){
+    for(const it of (s.items||[])){
+      const k = it.name;
+      itemAgg[k] = itemAgg[k] || {qty:0, total:0};
+      itemAgg[k].qty += Number(it.qty||0);
+      itemAgg[k].total += Number(it.qty||0) * Number(it.price||0);
+    }
+  }
+  const itemList = Object.entries(itemAgg).map(([name,v])=>({name, qty:v.qty, total:v.total}))
+    .sort((a,b)=>b.qty-a.qty || b.total-a.total);
+
+  const invRows = Object.keys(inv).map(name=>({name, stock:invStock(name), unit:invUnit(name)}))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+
+  const endDrawerTotal = drawerTotal();
+  const startDrawerTotal = drawerStart ? DENOMS.reduce((s,d)=> s + d*Number(drawerStart[String(d)]||0), 0) : null;
+  const diffDrawerTotal = (startDrawerTotal==null) ? null : (endDrawerTotal - startDrawerTotal);
+
+  $("endTotalSales").textContent = money(totalSales);
+  const firstTs = sales.length ? sales[0].ts : (shiftStartTs || null);
+  const lastTs = sales.length ? sales[sales.length-1].ts : null;
+  $("endMeta").textContent = `Soirée: ${shift} • Ventes: ${sales.length} • ${firstTs?`Début: ${formatDateLocal(firstTs)}`:""}${lastTs?` • Fin: ${formatDateLocal(lastTs)}`:""}`;
+
+  const payTbody = $("endPayRows");
+  payTbody.innerHTML = "";
+  const addPayRow = (label, n, t)=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><b>${label}</b></td><td>${n}</td><td>${money(t)}</td>`;
+    payTbody.appendChild(tr);
+  };
+  addPayRow("Cash", cashSales.length, cashTotal);
+  addPayRow("Interac/Autre", interacSales.length, interacTotal);
+  addPayRow("Total", sales.length, totalSales);
+
+  $("drawerStartCell").textContent = (startDrawerTotal==null) ? "—" : money(startDrawerTotal);
+  $("drawerEndCell").textContent = money(endDrawerTotal);
+  $("drawerDiffCell").textContent = (diffDrawerTotal==null) ? "—" : money(diffDrawerTotal);
+
+  const itemTbody = $("endItemRows");
+  itemTbody.innerHTML = "";
+  const top = itemList.slice(0, 20);
+  if(!top.length){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="3" class="muted">Aucune vente.</td>`;
+    itemTbody.appendChild(tr);
+  } else {
+    for(const it of top){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><b>${it.name}</b></td><td>${it.qty}</td><td>${money(it.total)}</td>`;
+      itemTbody.appendChild(tr);
+    }
+  }
+
+  const invTbody = $("endInvRows");
+  invTbody.innerHTML = "";
+  for(const it of invRows){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><b>${it.name}</b></td><td>${it.stock}</td><td><span class="unitTag">${unitLabel(it.unit)}</span></td>`;
+    invTbody.appendChild(tr);
+  }
+
+  const lines = [];
+  lines.push(`RAPPORT – FIN DE SOIRÉE`);
+  lines.push(`Soirée: ${shift}`);
+  lines.push(`Ventes: ${sales.length}`);
+  if(firstTs) lines.push(`Début: ${formatDateLocal(firstTs)}`);
+  if(lastTs) lines.push(`Fin: ${formatDateLocal(lastTs)}`);
+  lines.push(``);
+  lines.push(`TOTAL VENTES: ${money(totalSales)}`);
+  lines.push(`Cash: ${cashSales.length} ventes • ${money(cashTotal)}`);
+  lines.push(`Interac/Autre: ${interacSales.length} ventes • ${money(interacTotal)}`);
+  lines.push(``);
+  if(startDrawerTotal!=null){
+    lines.push(`CAISSE: Début ${money(startDrawerTotal)} • Fin ${money(endDrawerTotal)} • Diff ${money(diffDrawerTotal)}`);
+  } else {
+    lines.push(`CAISSE: Fin ${money(endDrawerTotal)} (début non enregistré)`);
+  }
+  lines.push(``);
+  lines.push(`TOP ITEMS:`);
+  for(const it of top.slice(0,10)){
+    lines.push(`- ${it.name}: ${it.qty} • ${money(it.total)}`);
+  }
+  lines.push(``);
+  lines.push(`INVENTAIRE RESTANT:`);
+  for(const it of invRows){
+    lines.push(`- ${it.name}: ${it.stock} (${unitLabel(it.unit)})`);
+  }
+  $("endText").textContent = lines.join("\n");
+}
+function openEndNight(){ buildEndReport(); $("endBackdrop").style.display="block"; }
+function closeEndNight(){ $("endBackdrop").style.display="none"; }
+function copyEndReport(){
+  const txt = $("endText").textContent || "";
+  if(!txt) return;
+  navigator.clipboard?.writeText(txt).then(()=>alert("✅ Rapport copié."))
+    .catch(()=>{
+      const ta = document.createElement("textarea");
+      ta.value = txt; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("✅ Rapport copié.");
+    });
+}
+function closeAndResetForNext(){
+  cart = {};
+  setShiftStartBaseline();
+  save();
+  renderCart(); renderButtons(); renderRumInfo();
+  closeEndNight();
+  alert("✅ Soirée clôturée. Panier reset + nouveau début enregistré.");
+}
+
+/* ====== EVENTS ====== */
+$("search").addEventListener("input", renderButtons);
+$("resetCart").onclick = ()=>{ cart = {}; save(); renderCart(); renderButtons(); renderRumInfo(); };
+
+$("taxMode").value = taxMode;
+$("taxMode").addEventListener("change",(e)=>{ taxMode=e.target.value; save(); renderCart(); });
+
+$("export").onclick = exportCSV;
+$("toggleSales").onclick = toggleSales;
+$("endNight").onclick = openEndNight;
+
+$("clearAll").onclick = ()=>{
+  if(!confirm("⚠️ Tout effacer (panier + ventes + inventaire + caisse) ?")) return;
+  cart = {}; sales = []; shift="Jeudi"; taxMode="none"; inv = clone(DEFAULT_INV);
+  drawer = {"100":0,"50":0,"20":0,"10":0,"5":0,"2":0,"1":0,"0.25":0};
+  drawerStart = null;
+  shiftStartTs = null;
+  save();
+  $("salesView").style.display="none";
+  renderButtons(); renderCart(); renderRumInfo();
+  renderDrawerTable(); updateCashHint();
+};
+
+$("openInv").onclick = ()=>{ pendingInvEdits = {}; $("invBackdrop").style.display="block"; $("invSearch").value=""; renderInvTable(); };
+$("invClose").onclick = ()=>{ $("invBackdrop").style.display="none"; };
+$("invBackdrop").addEventListener("click",(e)=>{ if(e.target.id==="invBackdrop") $("invBackdrop").style.display="none"; });
+$("invSearch").addEventListener("input", renderInvTable);
+$("invResetInputs").onclick = ()=>{ pendingInvEdits = {}; renderInvTable(); };
+$("invApply").onclick = applyInvEdits;
+
+$("openDrawer").onclick = ()=>{ $("drawerBackdrop").style.display="block"; renderDrawerTable(); };
+$("drawerClose").onclick = ()=>{ $("drawerBackdrop").style.display="none"; };
+$("drawerBackdrop").addEventListener("click",(e)=>{ if(e.target.id==="drawerBackdrop") $("drawerBackdrop").style.display="none"; });
+$("drawerStart").onclick = setShiftStartBaseline;
+$("drawerReset").onclick = resetDrawer;
+
+$("undoSale").onclick = undoLastSale;
+
+$("pay").onclick = openPay;
+$("cashClose").onclick = closePay;
+$("cashBackdrop").addEventListener("click",(e)=>{ if(e.target.id==="cashBackdrop") closePay(); });
+$("payCashMode").onclick = enterCashMode;
+$("payInterac").onclick = enterInteracMode;
+$("receivedReset").onclick = ()=>{ receivedNow=0; receivedClicks=[]; $("receivedDisplay").textContent=money(0); refreshChange(); };
+$("removeOne").onclick = removeOneClick;
+$("confirmCash").onclick = confirmCash;
+$("confirmInterac").onclick = confirmInterac;
+
+$("endClose").onclick = closeEndNight;
+$("endCopy").onclick = copyEndReport;
+$("endExportCSV").onclick = exportCSV;
+$("endResetShift").onclick = closeAndResetForNext;
+$("endBackdrop").addEventListener("click",(e)=>{ if(e.target.id==="endBackdrop") closeEndNight(); });
+
+/* ====== INIT ====== */
+save();
+renderButtons();
+renderCart();
+renderRumInfo();
+renderDrawerTable();
+updateCashHint();
+</script>
+</body>
+</html>
