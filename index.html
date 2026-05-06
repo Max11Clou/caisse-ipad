@@ -1,1406 +1,341 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Caisse Bar Dek Hockey</title>
-  <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-
-    body {
-      margin: 0;
-      background: #0b1120;
-      color: white;
-    }
-
-    header {
-      background: linear-gradient(90deg, #020617, #111827);
-      padding: 18px;
-      text-align: center;
-      border-bottom: 4px solid #facc15;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 34px;
-      color: #facc15;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 430px;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .section {
-      background: #1e293b;
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-      border: 1px solid #334155;
-    }
-
-    .section h2 {
-      margin: 0 0 14px;
-      color: #facc15;
-      border-bottom: 1px solid #475569;
-      padding-bottom: 10px;
-      font-size: 23px;
-    }
-
-    .category-title {
-      margin: 18px 0 10px;
-      font-size: 18px;
-      color: #e5e7eb;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-      gap: 12px;
-    }
-
-    .product {
-      border: none;
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 118px;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-align: left;
-      transition: transform 0.08s, opacity 0.08s;
-      box-shadow: inset 0 -5px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.25);
-    }
-
-    .product:active {
-      transform: scale(0.96);
-      opacity: 0.85;
-    }
-
-    .beer { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-    .drink { background: linear-gradient(135deg, #16a34a, #15803d); }
-    .rhum { background: linear-gradient(135deg, #9a3412, #7c2d12); }
-    .food { background: linear-gradient(135deg, #dc2626, #b91c1c); }
-    .special { background: linear-gradient(135deg, #ef4444, #991b1b); }
-
-    .price {
-      font-size: 27px;
-      color: #fff7ed;
-      margin-top: 8px;
-    }
-
-    .stock {
-      font-size: 12px;
-      color: #e5e7eb;
-      font-weight: normal;
-      margin-top: 8px;
-    }
-
-    .right-side {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      padding: 8px 6px;
-      border-bottom: 1px solid #334155;
-      text-align: left;
-    }
-
-    th {
-      color: #facc15;
-      font-size: 13px;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-weight: bold;
-      font-size: 14px;
-      color: white;
-    }
-
-    .delete-btn { background: #ef4444; }
-    .primary { background: #22c55e; }
-    .warning { background: #f97316; }
-    .danger { background: #dc2626; }
-    .gray { background: #64748b; }
-    .blue { background: #2563eb; }
-
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .total-box {
-      font-size: 40px;
-      font-weight: bold;
-      color: #facc15;
-      text-align: right;
-      margin-top: 12px;
-      background: #0f172a;
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px;
-      font-size: 18px;
-      border-radius: 12px;
-      border: none;
-      margin-top: 6px;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      color: #e5e7eb;
-    }
-
-    .change {
-      font-size: 24px;
-      color: #22c55e;
-      font-weight: bold;
-      margin-top: 10px;
-      text-align: right;
-      min-height: 30px;
-    }
-
-    .radio-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .active {
-      outline: 3px solid #facc15;
-      box-shadow: 0 0 12px rgba(250,204,21,0.45);
-    }
-
-    .cash-summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .cash-box {
-      background: #0f172a;
-      border-radius: 14px;
-      padding: 12px;
-      border: 1px solid #334155;
-    }
-
-    .cash-box small {
-      color: #cbd5e1;
-      display: block;
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
-
-    .cash-box strong {
-      color: #facc15;
-      font-size: 22px;
-    }
-
-    .inventory-scroll {
-      max-height: 320px;
-      overflow-y: auto;
-    }
-
-    .inv-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .inv-actions input {
-      width: 64px;
-      padding: 7px;
-      font-size: 13px;
-      margin: 0;
-    }
-
-    .inv-actions button {
-      padding: 7px 9px;
-    }
-
-    ul {
-      max-height: 180px;
-      overflow-y: auto;
-      padding-left: 20px;
-      font-size: 12px;
-    }
-
-    .option-box {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 50;
-      justify-content: center;
-      align-items: center;
-      padding: 14px;
-    }
-
-    .option-card {
-      background: #1e293b;
-      border: 2px solid #facc15;
-      border-radius: 20px;
-      padding: 24px;
-      width: min(540px, 94vw);
-      text-align: center;
-      max-height: 92vh;
-      overflow: auto;
-    }
-
-    .option-card h2 {
-      color: #facc15;
-      margin-top: 0;
-    }
-
-    .option-card button {
-      width: 100%;
-      margin-top: 10px;
-      font-size: 19px;
-      padding: 16px;
-    }
-
-    .cash-denom {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-      text-align: left;
-    }
-
-    .cash-denom input { margin: 0; }
-
-    .empty-note {
-      color: #94a3b8;
-      text-align: center;
-      padding: 16px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 1050px) {
-      .container { grid-template-columns: 1fr; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caisse Bar Dek Hockey</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#0b1120;color:white}
+header{background:#020617;padding:16px;text-align:center;border-bottom:4px solid #facc15}
+header h1{margin:0;color:#facc15;font-size:32px;text-transform:uppercase}
+.container{display:grid;grid-template-columns:1fr 430px;gap:16px;padding:16px}
+.section{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+h2{margin:0 0 12px;color:#facc15;border-bottom:1px solid #475569;padding-bottom:8px;font-size:22px}
+.cat{margin:18px 0 10px;font-weight:bold;color:#e5e7eb;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.product{border:0;border-radius:18px;padding:14px;min-height:118px;color:white;font-weight:bold;font-size:18px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;text-align:left;box-shadow:inset 0 -5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.25)}
+.product:active{transform:scale(.96);opacity:.85}
+.beer{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+.drink{background:linear-gradient(135deg,#16a34a,#15803d)}
+.rhum{background:linear-gradient(135deg,#9a3412,#7c2d12)}
+.food{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+.special{background:linear-gradient(135deg,#ef4444,#991b1b)}
+.price{font-size:27px;color:#fff7ed}
+.stock{font-size:12px;color:#e5e7eb;font-weight:normal}
+.right{display:flex;flex-direction:column;gap:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px 6px;border-bottom:1px solid #334155;text-align:left}
+th{color:#facc15;font-size:13px}
+button{cursor:pointer;border:0;border-radius:12px;padding:11px 12px;font-weight:bold;font-size:14px;color:white}
+.green{background:#22c55e}.orange{background:#f97316}.red{background:#dc2626}.gray{background:#64748b}.blue{background:#2563eb}
+.active{outline:3px solid #facc15;box-shadow:0 0 12px rgba(250,204,21,.45)}
+.actions,.payrow,.cashgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.total{font-size:40px;font-weight:900;color:#facc15;text-align:right;background:#0f172a;border-radius:14px;padding:12px;margin-top:10px}
+input{width:100%;padding:13px;font-size:18px;border-radius:12px;border:0;margin-top:6px}
+label{display:block;margin-top:10px;font-weight:bold;color:#e5e7eb}
+.change{text-align:right;color:#22c55e;font-size:24px;font-weight:bold;min-height:30px;margin-top:10px}
+.cashbox{background:#0f172a;border:1px solid #334155;border-radius:14px;padding:12px}
+.cashbox small{display:block;color:#cbd5e1;font-size:12px;margin-bottom:4px}
+.cashbox strong{color:#facc15;font-size:22px}
+.scroll{max-height:320px;overflow:auto}
+.invact{display:flex;gap:6px;align-items:center}
+.invact input{width:64px;padding:7px;font-size:13px;margin:0}
+.invact button{padding:7px 9px}
+ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
+.modalbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;justify-content:center;align-items:center;padding:14px}
+.modal{background:#1e293b;border:2px solid #facc15;border-radius:20px;padding:24px;width:min(540px,94vw);text-align:center;max-height:92vh;overflow:auto}
+.modal h2{border:0;margin-top:0}
+.modal button{width:100%;margin-top:10px;font-size:19px;padding:16px}
+.denom{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;text-align:left;margin-bottom:8px}
+.denom input{margin:0}
+.empty{color:#94a3b8;text-align:center;padding:14px}
+@media(max-width:1050px){.container{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <header><h1>Caisse Bar Dek Hockey</h1></header>
+<header><h1>Caisse Bar Dek Hockey</h1></header>
 
-  <div class="container">
-    <div class="section">
-      <h2>Produits</h2>
-      <div class="category-title">🍺 Bières</div>
-      <div id="beer-products" class="products-grid"></div>
-      <div class="category-title">🥤 Boissons</div>
-      <div id="drink-products" class="products-grid"></div>
-      <div class="category-title">🥃 Rhum</div>
-      <div id="rhum-products" class="products-grid"></div>
-      <div class="category-title">🍫 Collations</div>
-      <div id="food-products" class="products-grid"></div>
-    </div>
+<div class="container">
+  <main class="section">
+    <h2>Produits</h2>
+    <div class="cat">🍺 Bières</div><div id="beer" class="grid"></div>
+    <div class="cat">🥤 Boissons</div><div id="drink" class="grid"></div>
+    <div class="cat">🥃 Rhum</div><div id="rhum" class="grid"></div>
+    <div class="cat">🍫 Collations</div><div id="food" class="grid"></div>
+  </main>
 
-    <div class="right-side">
-      <div class="section">
-        <h2>Facture</h2>
-        <table>
-          <thead><tr><th>Article</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr></thead>
-          <tbody id="cart-body"></tbody>
-        </table>
-        <div id="empty-cart" class="empty-note">Aucun produit dans la facture</div>
-        <div class="total-box" id="total">0.00 $</div>
+  <aside class="right">
+    <section class="section">
+      <h2>Facture</h2>
+      <table><thead><tr><th>Article</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr></thead><tbody id="cartBody"></tbody></table>
+      <div id="emptyCart" class="empty">Aucun produit dans la facture</div>
+      <div class="total" id="total">0.00 $</div>
 
-        <div class="radio-row">
-          <button id="btn-cash" class="blue active" onclick="setPaymentMode('cash')">Cash</button>
-          <button id="btn-interac" class="gray" onclick="setPaymentMode('interac')">Interac</button>
-        </div>
-
-        <label id="received-label">Argent reçu</label>
-        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()">
-        <div class="change" id="change-display"></div>
-
-        <div class="action-row">
-          <button class="primary" onclick="finaliserFacture()">Finaliser</button>
-          <button class="warning" onclick="resetCart()">Vider facture</button>
-        </div>
+      <div class="payrow">
+        <button id="cashBtn" class="blue active" onclick="setPay('cash')">Cash</button>
+        <button id="interacBtn" class="gray" onclick="setPay('interac')">Interac</button>
       </div>
 
-      <div class="section">
-        <h2>Caisse Cash</h2>
-        <div class="cash-summary">
-          <div class="cash-box"><small>Cash initial</small><strong id="cash-initial">0.00 $</strong></div>
-          <div class="cash-box"><small>Cash actuel/final</small><strong id="cash-current">0.00 $</strong></div>
-          <div class="cash-box"><small>Ventes cash</small><strong id="cash-sales">0.00 $</strong></div>
-          <div class="cash-box"><small>Interac</small><strong id="interac-sales">0.00 $</strong></div>
-        </div>
-        <div class="action-row">
-          <button class="blue" onclick="openCashModal()">Entrer cash initial</button>
-          <button class="gray" onclick="openReport()">Fin de soirée</button>
-        </div>
+      <label id="receivedLabel">Argent reçu</label>
+      <input id="received" type="number" placeholder="Ex: 20" oninput="calcChange()">
+      <div class="change" id="change"></div>
+
+      <div class="actions">
+        <button class="green" onclick="finalizeSale()">Finaliser</button>
+        <button class="orange" onclick="clearCart()">Vider facture</button>
       </div>
+    </section>
 
-      <div class="section">
-        <h2>Inventaire</h2>
-        <div class="inventory-scroll">
-          <table>
-            <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
-            <tbody id="inventory-body"></tbody>
-          </table>
-        </div>
+    <section class="section">
+      <h2>Caisse Cash</h2>
+      <div class="cashgrid">
+        <div class="cashbox"><small>Cash initial</small><strong id="cashInitial">0.00 $</strong></div>
+        <div class="cashbox"><small>Cash actuel/final</small><strong id="cashCurrent">0.00 $</strong></div>
+        <div class="cashbox"><small>Ventes cash</small><strong id="cashSales">0.00 $</strong></div>
+        <div class="cashbox"><small>Interac</small><strong id="interacSales">0.00 $</strong></div>
       </div>
-
-      <div class="section">
-        <h2>Historique</h2>
-        <ul id="sale-log"></ul>
-        <div class="action-row">
-          <button class="gray" onclick="exportCSV()">Exporter CSV</button>
-          <button class="danger" onclick="resetData()">Effacer historique</button>
-        </div>
+      <div class="actions">
+        <button class="blue" onclick="openCash()">Entrer cash initial</button>
+        <button class="gray" onclick="openReport()">Fin de soirée</button>
       </div>
-    </div>
-  </div>
-
-  <div id="rhum-options" class="option-box">
-    <div class="option-card">
-      <h2 id="rhum-title">Choisir l'option</h2>
-      <button class="rhum" onclick="confirmRhum(false)">Simple — 4,50 $</button>
-      <button class="special" onclick="confirmRhum(true)">Double — 6,00 $</button>
-      <button class="gray" onclick="closeRhumOptions()">Annuler</button>
-    </div>
-  </div>
-
-  <div id="cash-modal" class="option-box">
-    <div class="option-card">
-      <h2>Entrée de caisse initiale</h2>
-      <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
-      <div id="denoms-list"></div>
-      <div class="cash-box" style="margin-top:10px"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
-      <button class="primary" onclick="saveInitialCash()">Enregistrer cash initial</button>
-      <button class="gray" onclick="closeCashModal()">Fermer</button>
-    </div>
-  </div>
-
-  <div id="report-modal" class="option-box">
-    <div class="option-card">
-      <h2>Rapport fin de soirée</h2>
-      <pre id="report-text" style="text-align:left;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:12px"></pre>
-      <button class="gray" onclick="copyReport()">Copier rapport</button>
-      <button class="gray" onclick="closeReport()">Fermer</button>
-    </div>
-  </div>
-
-  <a id="download-link" style="display:none"></a>
-
-  <script>
-    let cart = [];
-    let pendingRhum = null;
-    let paymentMode = 'cash';
-    let history = JSON.parse(localStorage.getItem('history') || '[]');
-    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || { initial:0, current:0, cashSales:0, interacSales:0 };
-    const denominations = [100,50,20,10,5,2,1,0.25];
-
-    const products = [
-      { name:'Corona', price:4.00, category:'beer', stock:0, sold:0 },
-      { name:'Bud', price:3.50, category:'beer', stock:0, sold:0 },
-      { name:'Bud Light', price:3.50, category:'beer', stock:0, sold:0 },
-      { name:'Ultra', price:4.00, category:'beer', stock:0, sold:0 },
-      { name:'6 Corona', price:20.00, category:'beer', special:true, stock:0, sold:0, consumes:{'Corona':6} },
-      { name:'Pepsi', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'7-Up', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'Eau', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'Gatorade', price:3.00, category:'drink', stock:0, sold:0 },
-      { name:'Rhum', price:0.00, category:'hidden', stock:0, sold:0 },
-      { name:'Rhum & Pepsi', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'Pepsi' },
-      { name:'Rhum & 7-Up', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'7-Up' },
-      { name:'Chips', price:2.00, category:'food', stock:0, sold:0 },
-      { name:'Chocolat', price:2.00, category:'food', stock:0, sold:0 }
-    ];
-
-    function money(n){ return Number(n||0).toFixed(2)+' $'; }
-    function idName(name){ return name.replace(/[^a-zA-Z0-9]/g,'_'); }
-    function saveProducts(){ localStorage.setItem('products', JSON.stringify(products)); }
-    function saveCash(){ localStorage.setItem('cashData', JSON.stringify(cashData)); }
-
-    function loadProducts(){
-      const saved = JSON.parse(localStorage.getItem('products') || 'null');
-      if(!saved) return;
-      saved.forEach(s=>{
-        const item = products.find(p=>p.name===s.name);
-        if(item){ item.stock = s.stock ?? item.stock; item.sold = s.sold ?? item.sold; }
-      });
-    }
-
-    function renderProducts(){
-      const zones = {
-        beer: document.getElementById('beer-products'),
-        drink: document.getElementById('drink-products'),
-        rhum: document.getElementById('rhum-products'),
-        food: document.getElementById('food-products')
-      };
-      Object.values(zones).forEach(z => z.innerHTML = '');
-
-      products.filter(p=>p.category !== 'hidden').forEach(item=>{
-        const index=products.indexOf(item);
-        const btn=document.createElement('button');
-        btn.className=`product ${item.special ? 'special' : item.category}`;
-        btn.onclick=()=>addProduct(index);
-        btn.innerHTML=`<span>${item.name}</span><span class="price">${money(item.price)}</span><span class="stock">Vendu: ${item.sold} | Stock: ${item.stock}</span>`;
-        zones[item.category].appendChild(btn);
-      });
-    }
-
-    function renderInventory(){
-      const tbody=document.getElementById('inventory-body');
-      tbody.innerHTML='';
-      products.forEach((item,index)=>{
-        const row=document.createElement('tr');
-        row.innerHTML=`
-          <td>${item.name}</td><td>${item.sold}</td><td>${item.stock}</td>
-          <td><div class="inv-actions"><input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
-          <button class="primary" onclick="addInventory(${index})">+</button>
-          <button class="danger" onclick="removeInventory(${index})">-</button></div></td>`;
-        tbody.appendChild(row);
-      });
-    }
-
-    function addInventory(index){
-      const item=products[index];
-      const input=document.getElementById(`inv-${idName(item.name)}`);
-      const qty=parseFloat(input.value)||1;
-      item.stock += qty;
-      input.value='';
-      saveProducts(); renderProducts(); renderInventory();
-    }
-
-    function removeInventory(index){
-      const item=products[index];
-      const input=document.getElementById(`inv-${idName(item.name)}`);
-      const qty=parseFloat(input.value)||1;
-      item.stock -= qty;
-      input.value='';
-      saveProducts(); renderProducts(); renderInventory();
-    }
-
-    function addProduct(index){
-      const item=products[index];
-      if(item.isRhum){
-        pendingRhum=index;
-        document.getElementById('rhum-title').innerText=item.name;
-        document.getElementById('rhum-options').style.display='flex';
-        return;
-      }
-      addToCart(item.name,item.price);
-      applyInventory(item,1);
-    }
-
-    function confirmRhum(double){
-      if(pendingRhum===null) return;
-      const item=products[pendingRhum];
-      const rhumOz=double?2:1;
-      const price=double?6.00:4.50;
-      const name=double?`${item.name} Double`:item.name;
-      addToCart(name,price);
-      item.sold += 1;
-      const rhumInventory=products.find(p=>p.name==='Rhum');
-      if(rhumInventory) rhumInventory.stock -= rhumOz;
-      const mix=products.find(p=>p.name===item.mix);
-      if(mix) mix.stock -= 0.5;
-      saveProducts(); renderProducts(); renderInventory(); closeRhumOptions();
-    }
-
-    function closeRhumOptions(){ pendingRhum=null; document.getElementById('rhum-options').style.display='none'; }
-
-    function addToCart(name,price){
-      const existing=cart.find(p=>p.name===name && p.price===price);
-      if(existing) existing.qty += 1;
-      else cart.push({name,price,qty:1});
-      renderCart();
-    }
-
-    function applyInventory(item,qty){
-      item.sold += qty;
-      if(item.consumes){
-        Object.keys(item.consumes).forEach(productName=>{
-          const consumed=products.find(p=>p.name===productName);
-          if(consumed) consumed.stock -= item.consumes[productName];
-        });
-      } else item.stock -= qty;
-      saveProducts(); renderProducts(); renderInventory();
-    }
-
-    function renderCart(){
-      const tbody=document.getElementById('cart-body'); tbody.innerHTML='';
-      let total=0;
-      document.getElementById('empty-cart').style.display = cart.length === 0 ? 'block' : 'none';
-      cart.forEach((item,i)=>{
-        const lineTotal=item.qty*item.price; total+=lineTotal;
-        const row=document.createElement('tr');
-        row.innerHTML=`<td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td><td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
-        tbody.appendChild(row);
-      });
-      document.getElementById('total').innerText=money(total);
-      calculateChange();
-    }
-
-    function removeLine(i){ cart.splice(i,1); renderCart(); }
-
-    function setPaymentMode(mode){
-      paymentMode=mode;
-      document.getElementById('btn-cash').className=mode==='cash'?'blue active':'gray';
-      document.getElementById('btn-interac').className=mode==='interac'?'blue active':'gray';
-      document.getElementById('received').style.display=mode==='cash'?'block':'none';
-      document.getElementById('received-label').style.display=mode==='cash'?'block':'none';
-      calculateChange();
-    }
-
-    function calculateChange(){
-      const received=parseFloat(document.getElementById('received').value)||0;
-      const total=cart.reduce((s,p)=>s+p.qty*p.price,0);
-      const display=document.getElementById('change-display');
-      if(paymentMode==='interac'){ display.innerText='Paiement Interac'; return; }
-      if(received>0) display.innerText=`Change : ${money(received-total)}`; else display.innerText='';
-    }
-
-    function finaliserFacture(){
-      if(cart.length===0) return;
-      const totalNumber=cart.reduce((s,p)=>s+p.qty*p.price,0);
-      const received=parseFloat(document.getElementById('received').value)||totalNumber;
-      const change=paymentMode==='cash'?received-totalNumber:0;
-      if(paymentMode==='cash' && change<0){ alert('Montant reçu insuffisant.'); return; }
-      if(paymentMode==='cash'){ cashData.current += totalNumber; cashData.cashSales += totalNumber; }
-      else cashData.interacSales += totalNumber;
-      saveCash();
-      const now=new Date().toLocaleString('fr-CA');
-      const ligne=`${now} – ${paymentMode.toUpperCase()} – `+cart.map(p=>`${p.name} x${p.qty} = ${money(p.qty*p.price)}`).join(', ')+` | Total: ${money(totalNumber)}`;
-      history.push(ligne);
-      localStorage.setItem('history',JSON.stringify(history));
-      cart=[];
-      document.getElementById('received').value='';
-      document.getElementById('change-display').innerText='';
-      updateHistory(); renderCart(); renderCash();
-    }
-
-    function resetCart(){ cart=[]; renderCart(); document.getElementById('received').value=''; document.getElementById('change-display').innerText=''; }
-
-    function updateHistory(){
-      const ul=document.getElementById('sale-log'); ul.innerHTML='';
-      history.slice().reverse().forEach(entry=>{ const li=document.createElement('li'); li.innerText=entry; ul.appendChild(li); });
-    }
-
-    function resetData(){
-      if(!confirm('Effacer l’historique et le cash de soirée?')) return;
-      localStorage.removeItem('history'); history=[];
-      cashData={initial:cashData.initial,current:cashData.initial,cashSales:0,interacSales:0};
-      saveCash(); updateHistory(); renderCash();
-    }
-
-    function renderCash(){
-      document.getElementById('cash-initial').innerText=money(cashData.initial);
-      document.getElementById('cash-current').innerText=money(cashData.current);
-      document.getElementById('cash-sales').innerText=money(cashData.cashSales);
-      document.getElementById('interac-sales').innerText=money(cashData.interacSales);
-    }
-
-    function openCashModal(){
-      const list=document.getElementById('denoms-list'); list.innerHTML='';
-      denominations.forEach(d=>{
-        const row=document.createElement('div');
-        row.className='cash-denom';
-        row.innerHTML=`<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
-        list.appendChild(row);
-      });
-      document.getElementById('cash-modal').style.display='flex';
-      calcCashCount();
-    }
-
-    function closeCashModal(){ document.getElementById('cash-modal').style.display='none'; }
-
-    function calcCashCount(){
-      let total=0;
-      document.querySelectorAll('#denoms-list input').forEach(inp=>{ total+=(parseFloat(inp.value)||0)*parseFloat(inp.dataset.value); });
-      document.getElementById('cash-count-total').innerText=money(total);
-      return total;
-    }
-
-    function saveInitialCash(){
-      const total=calcCashCount();
-      cashData.initial=total; cashData.current=total; cashData.cashSales=0; cashData.interacSales=0;
-      saveCash(); renderCash(); closeCashModal();
-    }
-
-    function openReport(){
-      const totalSales=cashData.cashSales+cashData.interacSales;
-      let text=`RAPPORT FIN DE SOIRÉE
-------------------------
-`;
-      text+=`Cash initial : ${money(cashData.initial)}
-`;
-      text+=`Cash final : ${money(cashData.current)}
-`;
-      text+=`Ventes cash : ${money(cashData.cashSales)}
-`;
-      text+=`Ventes Interac : ${money(cashData.interacSales)}
-`;
-      text+=`Total ventes : ${money(totalSales)}
-
-INVENTAIRE RESTANT
-`;
-      products.forEach(p=>text+=`${p.name} : ${p.stock} restant | vendu ${p.sold}
-`);
-      document.getElementById('report-text').innerText=text;
-      document.getElementById('report-modal').style.display='flex';
-    }
-
-    function closeReport(){ document.getElementById('report-modal').style.display='none'; }
-    function copyReport(){ navigator.clipboard.writeText(document.getElementById('report-text').innerText); alert('Rapport copié.'); }
-
-    function exportCSV(){
-      let csv='Date,Vente
-';
-      history.forEach(line=>csv+=`"${line.replace(/"/g,'""')}"
-`);
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const link=document.getElementById('download-link');
-      link.href=URL.createObjectURL(blob); link.download='ventes_bar.csv'; link.click();
-    }
-
-    window.onload=()=>{ loadProducts(); updateHistory(); renderProducts(); renderInventory(); renderCart(); renderCash(); setPaymentMode('cash'); };
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Caisse Bar Dek Hockey</title>
-  <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-
-    body {
-      margin: 0;
-      background: #0b1120;
-      color: white;
-    }
-
-    header {
-      background: linear-gradient(90deg, #020617, #111827);
-      padding: 18px;
-      text-align: center;
-      border-bottom: 4px solid #facc15;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 34px;
-      color: #facc15;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .container {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 430px;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .section {
-      background: #1e293b;
-      border-radius: 18px;
-      padding: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-      border: 1px solid #334155;
-    }
-
-    .section h2 {
-      margin: 0 0 14px;
-      color: #facc15;
-      border-bottom: 1px solid #475569;
-      padding-bottom: 10px;
-      font-size: 23px;
-    }
-
-    .category-title {
-      margin: 18px 0 10px;
-      font-size: 18px;
-      color: #e5e7eb;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-      gap: 12px;
-    }
-
-    .product {
-      border: none;
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 118px;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-align: left;
-      transition: transform 0.08s, opacity 0.08s;
-      box-shadow: inset 0 -5px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.25);
-    }
-
-    .product:active {
-      transform: scale(0.96);
-      opacity: 0.85;
-    }
-
-    .beer { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
-    .drink { background: linear-gradient(135deg, #16a34a, #15803d); }
-    .rhum { background: linear-gradient(135deg, #9a3412, #7c2d12); }
-    .food { background: linear-gradient(135deg, #dc2626, #b91c1c); }
-    .special { background: linear-gradient(135deg, #ef4444, #991b1b); }
-
-    .price {
-      font-size: 27px;
-      color: #fff7ed;
-      margin-top: 8px;
-    }
-
-    .stock {
-      font-size: 12px;
-      color: #e5e7eb;
-      font-weight: normal;
-      margin-top: 8px;
-    }
-
-    .right-side {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      padding: 8px 6px;
-      border-bottom: 1px solid #334155;
-      text-align: left;
-    }
-
-    th {
-      color: #facc15;
-      font-size: 13px;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-weight: bold;
-      font-size: 14px;
-      color: white;
-    }
-
-    .delete-btn { background: #ef4444; }
-    .primary { background: #22c55e; }
-    .warning { background: #f97316; }
-    .danger { background: #dc2626; }
-    .gray { background: #64748b; }
-    .blue { background: #2563eb; }
-
-    .action-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .total-box {
-      font-size: 40px;
-      font-weight: bold;
-      color: #facc15;
-      text-align: right;
-      margin-top: 12px;
-      background: #0f172a;
-      border-radius: 14px;
-      padding: 12px;
-    }
-
-    input {
-      width: 100%;
-      padding: 13px;
-      font-size: 18px;
-      border-radius: 12px;
-      border: none;
-      margin-top: 6px;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      color: #e5e7eb;
-    }
-
-    .change {
-      font-size: 24px;
-      color: #22c55e;
-      font-weight: bold;
-      margin-top: 10px;
-      text-align: right;
-      min-height: 30px;
-    }
-
-    .radio-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .active {
-      outline: 3px solid #facc15;
-      box-shadow: 0 0 12px rgba(250,204,21,0.45);
-    }
-
-    .cash-summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .cash-box {
-      background: #0f172a;
-      border-radius: 14px;
-      padding: 12px;
-      border: 1px solid #334155;
-    }
-
-    .cash-box small {
-      color: #cbd5e1;
-      display: block;
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
-
-    .cash-box strong {
-      color: #facc15;
-      font-size: 22px;
-    }
-
-    .inventory-scroll {
-      max-height: 320px;
-      overflow-y: auto;
-    }
-
-    .inv-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .inv-actions input {
-      width: 64px;
-      padding: 7px;
-      font-size: 13px;
-      margin: 0;
-    }
-
-    .inv-actions button {
-      padding: 7px 9px;
-    }
-
-    ul {
-      max-height: 180px;
-      overflow-y: auto;
-      padding-left: 20px;
-      font-size: 12px;
-    }
-
-    .option-box {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      z-index: 50;
-      justify-content: center;
-      align-items: center;
-      padding: 14px;
-    }
-
-    .option-card {
-      background: #1e293b;
-      border: 2px solid #facc15;
-      border-radius: 20px;
-      padding: 24px;
-      width: min(540px, 94vw);
-      text-align: center;
-      max-height: 92vh;
-      overflow: auto;
-    }
-
-    .option-card h2 {
-      color: #facc15;
-      margin-top: 0;
-    }
-
-    .option-card button {
-      width: 100%;
-      margin-top: 10px;
-      font-size: 19px;
-      padding: 16px;
-    }
-
-    .cash-denom {
-      display: grid;
-      grid-template-columns: 1fr 90px;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 8px;
-      text-align: left;
-    }
-
-    .cash-denom input { margin: 0; }
-
-    .empty-note {
-      color: #94a3b8;
-      text-align: center;
-      padding: 16px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 1050px) {
-      .container { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <header><h1>Caisse Bar Dek Hockey</h1></header>
-
-  <div class="container">
-    <div class="section">
-      <h2>Produits</h2>
-      <div class="category-title">🍺 Bières</div>
-      <div id="beer-products" class="products-grid"></div>
-      <div class="category-title">🥤 Boissons</div>
-      <div id="drink-products" class="products-grid"></div>
-      <div class="category-title">🥃 Rhum</div>
-      <div id="rhum-products" class="products-grid"></div>
-      <div class="category-title">🍫 Collations</div>
-      <div id="food-products" class="products-grid"></div>
-    </div>
-
-    <div class="right-side">
-      <div class="section">
-        <h2>Facture</h2>
-        <table>
-          <thead><tr><th>Article</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr></thead>
-          <tbody id="cart-body"></tbody>
-        </table>
-        <div id="empty-cart" class="empty-note">Aucun produit dans la facture</div>
-        <div class="total-box" id="total">0.00 $</div>
-
-        <div class="radio-row">
-          <button id="btn-cash" class="blue active" onclick="setPaymentMode('cash')">Cash</button>
-          <button id="btn-interac" class="gray" onclick="setPaymentMode('interac')">Interac</button>
-        </div>
-
-        <label id="received-label">Argent reçu</label>
-        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()">
-        <div class="change" id="change-display"></div>
-
-        <div class="action-row">
-          <button class="primary" onclick="finaliserFacture()">Finaliser</button>
-          <button class="warning" onclick="resetCart()">Vider facture</button>
-        </div>
+    </section>
+
+    <section class="section">
+      <h2>Inventaire</h2>
+      <div class="scroll">
+        <table><thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead><tbody id="inventoryBody"></tbody></table>
       </div>
+    </section>
 
-      <div class="section">
-        <h2>Caisse Cash</h2>
-        <div class="cash-summary">
-          <div class="cash-box"><small>Cash initial</small><strong id="cash-initial">0.00 $</strong></div>
-          <div class="cash-box"><small>Cash actuel/final</small><strong id="cash-current">0.00 $</strong></div>
-          <div class="cash-box"><small>Ventes cash</small><strong id="cash-sales">0.00 $</strong></div>
-          <div class="cash-box"><small>Interac</small><strong id="interac-sales">0.00 $</strong></div>
-        </div>
-        <div class="action-row">
-          <button class="blue" onclick="openCashModal()">Entrer cash initial</button>
-          <button class="gray" onclick="openReport()">Fin de soirée</button>
-        </div>
+    <section class="section">
+      <h2>Historique</h2>
+      <ul id="historyList"></ul>
+      <div class="actions">
+        <button class="gray" onclick="exportCSV()">Exporter CSV</button>
+        <button class="red" onclick="resetData()">Effacer historique</button>
       </div>
+    </section>
+  </aside>
+</div>
 
-      <div class="section">
-        <h2>Inventaire</h2>
-        <div class="inventory-scroll">
-          <table>
-            <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
-            <tbody id="inventory-body"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>Historique</h2>
-        <ul id="sale-log"></ul>
-        <div class="action-row">
-          <button class="gray" onclick="exportCSV()">Exporter CSV</button>
-          <button class="danger" onclick="resetData()">Effacer historique</button>
-        </div>
-      </div>
-    </div>
+<div class="modalbg" id="rhumModal">
+  <div class="modal">
+    <h2 id="rhumTitle">Choisir l'option</h2>
+    <button class="rhum" onclick="confirmRhum(false)">Simple — 4.50 $</button>
+    <button class="special" onclick="confirmRhum(true)">Double — 6.00 $</button>
+    <button class="gray" onclick="closeRhum()">Annuler</button>
   </div>
+</div>
 
-  <div id="rhum-options" class="option-box">
-    <div class="option-card">
-      <h2 id="rhum-title">Choisir l'option</h2>
-      <button class="rhum" onclick="confirmRhum(false)">Simple — 4,50 $</button>
-      <button class="special" onclick="confirmRhum(true)">Double — 6,00 $</button>
-      <button class="gray" onclick="closeRhumOptions()">Annuler</button>
-    </div>
+<div class="modalbg" id="cashModal">
+  <div class="modal">
+    <h2>Entrée de caisse initiale</h2>
+    <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
+    <div id="denoms"></div>
+    <div class="cashbox"><small>Total calculé</small><strong id="cashCount">0.00 $</strong></div>
+    <button class="green" onclick="saveCashInitial()">Enregistrer cash initial</button>
+    <button class="gray" onclick="closeCash()">Fermer</button>
   </div>
+</div>
 
-  <div id="cash-modal" class="option-box">
-    <div class="option-card">
-      <h2>Entrée de caisse initiale</h2>
-      <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
-      <div id="denoms-list"></div>
-      <div class="cash-box" style="margin-top:10px"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
-      <button class="primary" onclick="saveInitialCash()">Enregistrer cash initial</button>
-      <button class="gray" onclick="closeCashModal()">Fermer</button>
-    </div>
+<div class="modalbg" id="reportModal">
+  <div class="modal">
+    <h2>Rapport fin de soirée</h2>
+    <pre id="reportText" style="text-align:left;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:12px"></pre>
+    <button class="gray" onclick="copyReport()">Copier rapport</button>
+    <button class="gray" onclick="closeReport()">Fermer</button>
   </div>
+</div>
 
-  <div id="report-modal" class="option-box">
-    <div class="option-card">
-      <h2>Rapport fin de soirée</h2>
-      <pre id="report-text" style="text-align:left;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:12px"></pre>
-      <button class="gray" onclick="copyReport()">Copier rapport</button>
-      <button class="gray" onclick="closeReport()">Fermer</button>
-    </div>
-  </div>
+<a id="download" style="display:none"></a>
 
-  <a id="download-link" style="display:none"></a>
+<script>
+const VERSION = "v_final_unique_2026_05_06";
+const PRODUCTS_KEY = "caisse_products_" + VERSION;
+const HISTORY_KEY = "caisse_history_" + VERSION;
+const CASH_KEY = "caisse_cash_" + VERSION;
 
-  <script>
-    let cart = [];
-    let pendingRhum = null;
-    let paymentMode = 'cash';
-    let history = JSON.parse(localStorage.getItem('history') || '[]');
-    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || { initial:0, current:0, cashSales:0, interacSales:0 };
-    const denominations = [100,50,20,10,5,2,1,0.25];
+let cart = [];
+let pendingRhum = null;
+let payMode = "cash";
+let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {initial:0,current:0,cashSales:0,interacSales:0};
+const denoms = [100,50,20,10,5,2,1,0.25];
 
-    const products = [
-      { name:'Corona', price:4.00, category:'beer', stock:0, sold:0 },
-      { name:'Bud', price:3.50, category:'beer', stock:0, sold:0 },
-      { name:'Bud Light', price:3.50, category:'beer', stock:0, sold:0 },
-      { name:'Ultra', price:4.00, category:'beer', stock:0, sold:0 },
-      { name:'6 Corona', price:20.00, category:'beer', special:true, stock:0, sold:0, consumes:{'Corona':6} },
-      { name:'Pepsi', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'7-Up', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'Eau', price:2.00, category:'drink', stock:0, sold:0 },
-      { name:'Gatorade', price:3.00, category:'drink', stock:0, sold:0 },
-      { name:'Rhum', price:0.00, category:'hidden', stock:0, sold:0 },
-      { name:'Rhum & Pepsi', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'Pepsi' },
-      { name:'Rhum & 7-Up', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'7-Up' },
-      { name:'Chips', price:2.00, category:'food', stock:0, sold:0 },
-      { name:'Chocolat', price:2.00, category:'food', stock:0, sold:0 }
-    ];
+let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
+  {name:"Corona",price:4.00,category:"beer",stock:0,sold:0},
+  {name:"Bud",price:3.50,category:"beer",stock:0,sold:0},
+  {name:"Bud Light",price:3.50,category:"beer",stock:0,sold:0},
+  {name:"Ultra",price:4.00,category:"beer",stock:0,sold:0},
+  {name:"6 Corona",price:20.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6}},
+  {name:"Pepsi",price:2.00,category:"drink",stock:0,sold:0},
+  {name:"7-Up",price:2.00,category:"drink",stock:0,sold:0},
+  {name:"Eau",price:2.00,category:"drink",stock:0,sold:0},
+  {name:"Gatorade",price:3.00,category:"drink",stock:0,sold:0},
+  {name:"Rhum",price:0,category:"hidden",stock:0,sold:0},
+  {name:"Rhum & Pepsi",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"Pepsi"},
+  {name:"Rhum & 7-Up",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"7-Up"},
+  {name:"Chips",price:2.00,category:"food",stock:0,sold:0},
+  {name:"Chocolat",price:2.00,category:"food",stock:0,sold:0},
+  {name:"Fromage",price:2.50,category:"food",stock:0,sold:0}
+];
 
-    function money(n){ return Number(n||0).toFixed(2)+' $'; }
-    function idName(name){ return name.replace(/[^a-zA-Z0-9]/g,'_'); }
-    function saveProducts(){ localStorage.setItem('products', JSON.stringify(products)); }
-    function saveCash(){ localStorage.setItem('cashData', JSON.stringify(cashData)); }
+function money(n){return Number(n||0).toFixed(2)+" $"}
+function save(){localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(CASH_KEY,JSON.stringify(cash))}
+function findP(name){return products.find(p=>p.name===name)}
+function sid(name){return name.replace(/[^a-zA-Z0-9]/g,"_")}
 
-    function loadProducts(){
-      const saved = JSON.parse(localStorage.getItem('products') || 'null');
-      if(!saved) return;
-      saved.forEach(s=>{
-        const item = products.find(p=>p.name===s.name);
-        if(item){ item.stock = s.stock ?? item.stock; item.sold = s.sold ?? item.sold; }
-      });
-    }
+function renderProducts(){
+  ["beer","drink","rhum","food"].forEach(id=>document.getElementById(id).innerHTML="");
+  products.forEach((p,i)=>{
+    if(p.category==="hidden") return;
+    const b=document.createElement("button");
+    b.className="product "+(p.special?"special":p.category);
+    b.onclick=()=>addProduct(i);
+    b.innerHTML=`<span>${p.name}</span><span class="price">${money(p.price)}</span><span class="stock">Vendu: ${p.sold} | Stock: ${p.stock}</span>`;
+    document.getElementById(p.category).appendChild(b);
+  });
+}
 
-    function renderProducts(){
-      const zones = {
-        beer: document.getElementById('beer-products'),
-        drink: document.getElementById('drink-products'),
-        rhum: document.getElementById('rhum-products'),
-        food: document.getElementById('food-products')
-      };
-      Object.values(zones).forEach(z => z.innerHTML = '');
+function renderInventory(){
+  const body=document.getElementById("inventoryBody"); body.innerHTML="";
+  products.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${p.name}</td><td>${p.sold}</td><td>${p.stock}</td>
+    <td><div class="invact"><input id="inv_${sid(p.name)}" type="number" placeholder="Qté"><button class="green" onclick="adjustInv(${i},1)">+</button><button class="red" onclick="adjustInv(${i},-1)">−</button></div></td>`;
+    body.appendChild(tr);
+  });
+}
 
-      products.filter(p=>p.category !== 'hidden').forEach(item=>{
-        const index=products.indexOf(item);
-        const btn=document.createElement('button');
-        btn.className=`product ${item.special ? 'special' : item.category}`;
-        btn.onclick=()=>addProduct(index);
-        btn.innerHTML=`<span>${item.name}</span><span class="price">${money(item.price)}</span><span class="stock">Vendu: ${item.sold} | Stock: ${item.stock}</span>`;
-        zones[item.category].appendChild(btn);
-      });
-    }
+function adjustInv(i,dir){
+  const p=products[i], inp=document.getElementById("inv_"+sid(p.name));
+  const q=parseFloat(inp.value)||1;
+  p.stock += q*dir;
+  if(p.stock<0) p.stock=0;
+  inp.value="";
+  save(); renderAll();
+}
 
-    function renderInventory(){
-      const tbody=document.getElementById('inventory-body');
-      tbody.innerHTML='';
-      products.forEach((item,index)=>{
-        const row=document.createElement('tr');
-        row.innerHTML=`
-          <td>${item.name}</td><td>${item.sold}</td><td>${item.stock}</td>
-          <td><div class="inv-actions"><input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
-          <button class="primary" onclick="addInventory(${index})">+</button>
-          <button class="danger" onclick="removeInventory(${index})">-</button></div></td>`;
-        tbody.appendChild(row);
-      });
-    }
+function addProduct(i){
+  const p=products[i];
+  if(p.isRhum){pendingRhum=i;document.getElementById("rhumTitle").innerText=p.name;document.getElementById("rhumModal").style.display="flex";return}
+  addToCart(p.name,p.price);
+  p.sold++;
+  if(p.consumes){Object.keys(p.consumes).forEach(n=>{const x=findP(n); if(x) x.stock-=p.consumes[n]})}
+  else p.stock--;
+  save(); renderAll();
+}
 
-    function addInventory(index){
-      const item=products[index];
-      const input=document.getElementById(`inv-${idName(item.name)}`);
-      const qty=parseFloat(input.value)||1;
-      item.stock += qty;
-      input.value='';
-      saveProducts(); renderProducts(); renderInventory();
-    }
+function confirmRhum(dbl){
+  if(pendingRhum===null) return;
+  const p=products[pendingRhum], oz=dbl?2:1, price=dbl?6:4.5, name=dbl?p.name+" Double":p.name;
+  addToCart(name,price);
+  p.sold++;
+  const rh=findP("Rhum"); if(rh) rh.stock-=oz;
+  const mix=findP(p.mix); if(mix) mix.stock-=0.5;
+  save(); closeRhum(); renderAll();
+}
+function closeRhum(){pendingRhum=null;document.getElementById("rhumModal").style.display="none"}
 
-    function removeInventory(index){
-      const item=products[index];
-      const input=document.getElementById(`inv-${idName(item.name)}`);
-      const qty=parseFloat(input.value)||1;
-      item.stock -= qty;
-      input.value='';
-      saveProducts(); renderProducts(); renderInventory();
-    }
+function addToCart(name,price){
+  const e=cart.find(x=>x.name===name&&x.price===price);
+  if(e) e.qty++; else cart.push({name,price,qty:1});
+}
 
-    function addProduct(index){
-      const item=products[index];
-      if(item.isRhum){
-        pendingRhum=index;
-        document.getElementById('rhum-title').innerText=item.name;
-        document.getElementById('rhum-options').style.display='flex';
-        return;
-      }
-      addToCart(item.name,item.price);
-      applyInventory(item,1);
-    }
+function renderCart(){
+  const body=document.getElementById("cartBody"); body.innerHTML="";
+  let total=0;
+  document.getElementById("emptyCart").style.display=cart.length?"none":"block";
+  cart.forEach((x,i)=>{
+    const lt=x.qty*x.price; total+=lt;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${x.name}</td><td>${x.qty}</td><td>${money(x.price)}</td><td>${money(lt)}</td><td><button class="red" onclick="removeLine(${i})">X</button></td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById("total").innerText=money(total);
+  calcChange();
+}
+function totalCart(){return cart.reduce((s,x)=>s+x.qty*x.price,0)}
+function removeLine(i){cart.splice(i,1);renderCart()}
+function clearCart(){cart=[];document.getElementById("received").value="";renderCart()}
 
-    function confirmRhum(double){
-      if(pendingRhum===null) return;
-      const item=products[pendingRhum];
-      const rhumOz=double?2:1;
-      const price=double?6.00:4.50;
-      const name=double?`${item.name} Double`:item.name;
-      addToCart(name,price);
-      item.sold += 1;
-      const rhumInventory=products.find(p=>p.name==='Rhum');
-      if(rhumInventory) rhumInventory.stock -= rhumOz;
-      const mix=products.find(p=>p.name===item.mix);
-      if(mix) mix.stock -= 0.5;
-      saveProducts(); renderProducts(); renderInventory(); closeRhumOptions();
-    }
+function setPay(m){
+  payMode=m;
+  document.getElementById("cashBtn").className=m==="cash"?"blue active":"gray";
+  document.getElementById("interacBtn").className=m==="interac"?"blue active":"gray";
+  document.getElementById("received").style.display=m==="cash"?"block":"none";
+  document.getElementById("receivedLabel").style.display=m==="cash"?"block":"none";
+  calcChange();
+}
+function calcChange(){
+  const d=document.getElementById("change");
+  if(payMode==="interac"){d.innerText="Paiement Interac";return}
+  const r=parseFloat(document.getElementById("received").value)||0;
+  if(!r){d.innerText="";return}
+  const c=r-totalCart();
+  d.innerText=c>=0?"Change : "+money(c):"Manque : "+money(Math.abs(c));
+}
 
-    function closeRhumOptions(){ pendingRhum=null; document.getElementById('rhum-options').style.display='none'; }
+function finalizeSale(){
+  if(!cart.length) return;
+  const total=totalCart();
+  const received=parseFloat(document.getElementById("received").value)||total;
+  if(payMode==="cash" && received<total){alert("Montant reçu insuffisant.");return}
+  if(payMode==="cash"){cash.current+=total;cash.cashSales+=total}else cash.interacSales+=total;
+  history.push({date:new Date().toLocaleString("fr-CA"),pay:payMode,total,items:cart.map(x=>({...x}))});
+  cart=[]; document.getElementById("received").value="";
+  save(); renderAll();
+}
 
-    function addToCart(name,price){
-      const existing=cart.find(p=>p.name===name && p.price===price);
-      if(existing) existing.qty += 1;
-      else cart.push({name,price,qty:1});
-      renderCart();
-    }
+function renderCash(){
+  document.getElementById("cashInitial").innerText=money(cash.initial);
+  document.getElementById("cashCurrent").innerText=money(cash.current);
+  document.getElementById("cashSales").innerText=money(cash.cashSales);
+  document.getElementById("interacSales").innerText=money(cash.interacSales);
+}
+function openCash(){
+  const box=document.getElementById("denoms"); box.innerHTML="";
+  denoms.forEach(d=>{
+    const div=document.createElement("div"); div.className="denom";
+    div.innerHTML=`<label>${money(d)}</label><input type="number" value="0" data-v="${d}" oninput="countCash()">`;
+    box.appendChild(div);
+  });
+  document.getElementById("cashModal").style.display="flex"; countCash();
+}
+function closeCash(){document.getElementById("cashModal").style.display="none"}
+function countCash(){
+  let t=0; document.querySelectorAll("#denoms input").forEach(i=>t+=(parseFloat(i.value)||0)*parseFloat(i.dataset.v));
+  document.getElementById("cashCount").innerText=money(t); return t;
+}
+function saveCashInitial(){const t=countCash();cash={initial:t,current:t,cashSales:0,interacSales:0};save();renderAll();closeCash()}
 
-    function applyInventory(item,qty){
-      item.sold += qty;
-      if(item.consumes){
-        Object.keys(item.consumes).forEach(productName=>{
-          const consumed=products.find(p=>p.name===productName);
-          if(consumed) consumed.stock -= item.consumes[productName];
-        });
-      } else item.stock -= qty;
-      saveProducts(); renderProducts(); renderInventory();
-    }
-
-    function renderCart(){
-      const tbody=document.getElementById('cart-body'); tbody.innerHTML='';
-      let total=0;
-      document.getElementById('empty-cart').style.display = cart.length === 0 ? 'block' : 'none';
-      cart.forEach((item,i)=>{
-        const lineTotal=item.qty*item.price; total+=lineTotal;
-        const row=document.createElement('tr');
-        row.innerHTML=`<td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td><td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
-        tbody.appendChild(row);
-      });
-      document.getElementById('total').innerText=money(total);
-      calculateChange();
-    }
-
-    function removeLine(i){ cart.splice(i,1); renderCart(); }
-
-    function setPaymentMode(mode){
-      paymentMode=mode;
-      document.getElementById('btn-cash').className=mode==='cash'?'blue active':'gray';
-      document.getElementById('btn-interac').className=mode==='interac'?'blue active':'gray';
-      document.getElementById('received').style.display=mode==='cash'?'block':'none';
-      document.getElementById('received-label').style.display=mode==='cash'?'block':'none';
-      calculateChange();
-    }
-
-    function calculateChange(){
-      const received=parseFloat(document.getElementById('received').value)||0;
-      const total=cart.reduce((s,p)=>s+p.qty*p.price,0);
-      const display=document.getElementById('change-display');
-      if(paymentMode==='interac'){ display.innerText='Paiement Interac'; return; }
-      if(received>0) display.innerText=`Change : ${money(received-total)}`; else display.innerText='';
-    }
-
-    function finaliserFacture(){
-      if(cart.length===0) return;
-      const totalNumber=cart.reduce((s,p)=>s+p.qty*p.price,0);
-      const received=parseFloat(document.getElementById('received').value)||totalNumber;
-      const change=paymentMode==='cash'?received-totalNumber:0;
-      if(paymentMode==='cash' && change<0){ alert('Montant reçu insuffisant.'); return; }
-      if(paymentMode==='cash'){ cashData.current += totalNumber; cashData.cashSales += totalNumber; }
-      else cashData.interacSales += totalNumber;
-      saveCash();
-      const now=new Date().toLocaleString('fr-CA');
-      const ligne=`${now} – ${paymentMode.toUpperCase()} – `+cart.map(p=>`${p.name} x${p.qty} = ${money(p.qty*p.price)}`).join(', ')+` | Total: ${money(totalNumber)}`;
-      history.push(ligne);
-      localStorage.setItem('history',JSON.stringify(history));
-      cart=[];
-      document.getElementById('received').value='';
-      document.getElementById('change-display').innerText='';
-      updateHistory(); renderCart(); renderCash();
-    }
-
-    function resetCart(){ cart=[]; renderCart(); document.getElementById('received').value=''; document.getElementById('change-display').innerText=''; }
-
-    function updateHistory(){
-      const ul=document.getElementById('sale-log'); ul.innerHTML='';
-      history.slice().reverse().forEach(entry=>{ const li=document.createElement('li'); li.innerText=entry; ul.appendChild(li); });
-    }
-
-    function resetData(){
-      if(!confirm('Effacer l’historique et le cash de soirée?')) return;
-      localStorage.removeItem('history'); history=[];
-      cashData={initial:cashData.initial,current:cashData.initial,cashSales:0,interacSales:0};
-      saveCash(); updateHistory(); renderCash();
-    }
-
-    function renderCash(){
-      document.getElementById('cash-initial').innerText=money(cashData.initial);
-      document.getElementById('cash-current').innerText=money(cashData.current);
-      document.getElementById('cash-sales').innerText=money(cashData.cashSales);
-      document.getElementById('interac-sales').innerText=money(cashData.interacSales);
-    }
-
-    function openCashModal(){
-      const list=document.getElementById('denoms-list'); list.innerHTML='';
-      denominations.forEach(d=>{
-        const row=document.createElement('div');
-        row.className='cash-denom';
-        row.innerHTML=`<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
-        list.appendChild(row);
-      });
-      document.getElementById('cash-modal').style.display='flex';
-      calcCashCount();
-    }
-
-    function closeCashModal(){ document.getElementById('cash-modal').style.display='none'; }
-
-    function calcCashCount(){
-      let total=0;
-      document.querySelectorAll('#denoms-list input').forEach(inp=>{ total+=(parseFloat(inp.value)||0)*parseFloat(inp.dataset.value); });
-      document.getElementById('cash-count-total').innerText=money(total);
-      return total;
-    }
-
-    function saveInitialCash(){
-      const total=calcCashCount();
-      cashData.initial=total; cashData.current=total; cashData.cashSales=0; cashData.interacSales=0;
-      saveCash(); renderCash(); closeCashModal();
-    }
-
-    function openReport(){
-      const totalSales=cashData.cashSales+cashData.interacSales;
-      let text=`RAPPORT FIN DE SOIRÉE
-------------------------
-`;
-      text+=`Cash initial : ${money(cashData.initial)}
-`;
-      text+=`Cash final : ${money(cashData.current)}
-`;
-      text+=`Ventes cash : ${money(cashData.cashSales)}
-`;
-      text+=`Ventes Interac : ${money(cashData.interacSales)}
-`;
-      text+=`Total ventes : ${money(totalSales)}
-
-INVENTAIRE RESTANT
-`;
-      products.forEach(p=>text+=`${p.name} : ${p.stock} restant | vendu ${p.sold}
-`);
-      document.getElementById('report-text').innerText=text;
-      document.getElementById('report-modal').style.display='flex';
-    }
-
-    function closeReport(){ document.getElementById('report-modal').style.display='none'; }
-    function copyReport(){ navigator.clipboard.writeText(document.getElementById('report-text').innerText); alert('Rapport copié.'); }
-
-    function exportCSV(){
-      let csv='Date,Vente
-';
-      history.forEach(line=>csv+=`"${line.replace(/"/g,'""')}"
-`);
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const link=document.getElementById('download-link');
-      link.href=URL.createObjectURL(blob); link.download='ventes_bar.csv'; link.click();
-    }
-
-    window.onload=()=>{ loadProducts(); updateHistory(); renderProducts(); renderInventory(); renderCart(); renderCash(); setPaymentMode('cash'); };
-  </script>
+function renderHistory(){
+  const ul=document.getElementById("historyList"); ul.innerHTML="";
+  history.slice().reverse().forEach(s=>{
+    const li=document.createElement("li");
+    li.innerText=`${s.date} — ${s.pay.toUpperCase()} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
+    ul.appendChild(li);
+  });
+}
+function resetData(){if(!confirm("Effacer historique et cash de soirée?"))return;history=[];cash={initial:cash.initial,current:cash.initial,cashSales:0,interacSales:0};save();renderAll()}
+function exportCSV(){
+  let csv="Date,Paiement,Produit,Quantite,Prix,Total\\n";
+  history.forEach(s=>s.items.forEach(i=>csv+=`"${s.date}","${s.pay}","${i.name}",${i.qty},${i.price.toFixed(2)},${s.total.toFixed(2)}\\n`));
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), a=document.getElementById("download");
+  a.href=url; a.download="ventes_bar.csv"; a.click(); URL.revokeObjectURL(url);
+}
+function openReport(){
+  let txt="RAPPORT FIN DE SOIRÉE\\n------------------------\\n";
+  txt+="Cash initial : "+money(cash.initial)+"\\nCash final : "+money(cash.current)+"\\nVentes cash : "+money(cash.cashSales)+"\\nVentes Interac : "+money(cash.interacSales)+"\\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\\n\\nINVENTAIRE RESTANT\\n";
+  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\\n`);
+  document.getElementById("reportText").innerText=txt;
+  document.getElementById("reportModal").style.display="flex";
+}
+function closeReport(){document.getElementById("reportModal").style.display="none"}
+function copyReport(){navigator.clipboard.writeText(document.getElementById("reportText").innerText);alert("Rapport copié.")}
+function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderHistory()}
+window.onload=()=>{renderAll();setPay("cash")}
+</script>
 </body>
 </html>
