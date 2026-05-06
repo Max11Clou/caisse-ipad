@@ -306,6 +306,27 @@ th,td{
   }
 }
 
+
+.error-log-item{
+  background:#0f172a;
+  border-left:4px solid #f97316;
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:6px;
+  font-size:12px;
+}
+select{
+  width:100%;
+  padding:13px;
+  font-size:18px;
+  border-radius:12px;
+  border:0;
+  margin-top:6px;
+}
+.report-section-title{
+  color:#facc15;
+  font-weight:bold;
+}
 </style>
 </head>
 <body>
@@ -427,6 +448,21 @@ th,td{
       </div>
     </section>
 
+    <section class="section collapsible" id="errorSection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('errorSection')">Gestion erreurs <span>▼</span></h2>
+      <div class="collapsible-body">
+        <div class="actions">
+          <button class="orange" onclick="openErrorModal('vente_annulee')">Vente annulée</button>
+          <button class="gray" onclick="openErrorModal('erreur_caisse')">Erreur caisse</button>
+        </div>
+        <div class="actions">
+          <button class="blue" onclick="openCompModal()">Consommation offerte</button>
+          <button class="gray" onclick="showErrorLogs()">Voir erreurs</button>
+        </div>
+        <div id="errorLogList"></div>
+      </div>
+    </section>
+
     <section class="section collapsible" id="historySection">
       <h2 class="collapsible-header" onclick="toggleCollapse('historySection')">Historique <span>▼</span></h2>
       <div class="collapsible-body">
@@ -530,6 +566,42 @@ th,td{
 
     <button class="green" onclick="confirmTipsExchange()">Confirmer échange pourboire</button>
     <button class="gray" onclick="closeTipsModal()">Fermer</button>
+  </div>
+</div>
+
+
+<div class="modalbg" id="errorModal">
+  <div class="modal">
+    <h2 id="errorTitle">Gestion erreur</h2>
+    <p id="errorHelp" style="color:#cbd5e1"></p>
+
+    <label>Montant concerné, si applicable</label>
+    <input id="errorAmount" type="number" step="0.01" placeholder="Ex: 5.00">
+
+    <label>Motif obligatoire</label>
+    <input id="errorReason" type="text" placeholder="Explique l'erreur">
+
+    <button class="orange" onclick="confirmErrorLog()">Enregistrer erreur</button>
+    <button class="gray" onclick="closeErrorModal()">Fermer</button>
+  </div>
+</div>
+
+<div class="modalbg" id="compModal">
+  <div class="modal">
+    <h2>Consommation offerte</h2>
+    <p style="color:#cbd5e1">Sélectionne un produit offert. Le stock sera diminué, mais aucune vente ne sera ajoutée.</p>
+
+    <label>Produit</label>
+    <select id="compProduct"></select>
+
+    <label>Quantité</label>
+    <input id="compQty" type="number" step="1" value="1">
+
+    <label>Motif obligatoire</label>
+    <input id="compReason" type="text" placeholder="Ex: cadeau commanditaire, erreur service, promo">
+
+    <button class="blue" onclick="confirmComp()">Confirmer consommation offerte</button>
+    <button class="gray" onclick="closeCompModal()">Fermer</button>
   </div>
 </div>
 
@@ -803,6 +875,9 @@ let receivedTotal = 0;
 let changeTotal = 0;
 
 let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+const ERROR_KEY = "caisse_errors_" + VERSION;
+let errorLogs = JSON.parse(localStorage.getItem(ERROR_KEY) || "[]");
+let currentErrorType = "";
 const denoms = [100,50,20,10,5,2,1,0.25];
 
 let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {
@@ -837,7 +912,12 @@ let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
 ];
 
 function money(n){return Number(n||0).toFixed(2)+" $"}
-function save(){localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(CASH_KEY,JSON.stringify(cash))}
+function save(){
+  localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
+  localStorage.setItem(CASH_KEY,JSON.stringify(cash));
+  localStorage.setItem(ERROR_KEY,JSON.stringify(errorLogs));
+}
 function findP(name){return products.find(p=>p.name===name)}
 function sid(name){return name.replace(/[^a-zA-Z0-9]/g,"_")}
 function drawerTotal(drawer=cash.drawer){return denoms.reduce((s,d)=>s+d*Number(drawer[String(d)]||0),0)}
@@ -1227,6 +1307,7 @@ function resetSalesOnly(){
   if(!confirm("Initialiser les ventes? Cela efface l'historique, remet ventes cash/interac à 0 et remet les compteurs vendus à 0. L'inventaire et la caisse restent comme ils sont.")) return;
 
   history = [];
+  errorLogs = [];
   cash.cashSales = 0;
   cash.interacSales = 0;
   products.forEach(p => p.sold = 0);
@@ -1384,6 +1465,153 @@ function confirmTipsExchange(){
   alert("Échange pourboire effectué. La caisse est mise à jour.");
 }
 
+
+function openErrorModal(type){
+  if(!requireLogin()) return;
+
+  currentErrorType = type;
+  document.getElementById("errorAmount").value = "";
+  document.getElementById("errorReason").value = "";
+
+  if(type === "vente_annulee"){
+    document.getElementById("errorTitle").innerText = "Vente annulée";
+    document.getElementById("errorHelp").innerText = "Inscris le motif de la vente annulée. Utilise aussi Annuler dernière transaction si tu veux réellement remettre le stock/cash.";
+  }else{
+    document.getElementById("errorTitle").innerText = "Erreur de caisse";
+    document.getElementById("errorHelp").innerText = "Inscris une erreur de caisse ou un écart observé.";
+  }
+
+  document.getElementById("errorModal").style.display = "flex";
+}
+
+function closeErrorModal(){
+  document.getElementById("errorModal").style.display = "none";
+}
+
+function confirmErrorLog(){
+  if(!requireLogin()) return;
+
+  const reason = document.getElementById("errorReason").value.trim();
+  const amount = parseFloat(document.getElementById("errorAmount").value) || 0;
+
+  if(!reason){
+    alert("Motif obligatoire.");
+    return;
+  }
+
+  errorLogs.push({
+    date:new Date().toLocaleString("fr-CA"),
+    employee: currentUser ? currentUser.name : "",
+    type: currentErrorType,
+    amount,
+    reason
+  });
+
+  save();
+  renderAll();
+  closeErrorModal();
+  alert("Erreur enregistrée.");
+}
+
+function openCompModal(){
+  if(!requireLogin()) return;
+
+  const select = document.getElementById("compProduct");
+  select.innerHTML = "";
+
+  products.filter(p => p.category !== "hidden" && !p.isRhum && !p.consumes).forEach(p=>{
+    const opt = document.createElement("option");
+    opt.value = p.name;
+    opt.textContent = `${p.name} — stock ${p.stock}`;
+    select.appendChild(opt);
+  });
+
+  document.getElementById("compQty").value = 1;
+  document.getElementById("compReason").value = "";
+  document.getElementById("compModal").style.display = "flex";
+}
+
+function closeCompModal(){
+  document.getElementById("compModal").style.display = "none";
+}
+
+function confirmComp(){
+  if(!requireLogin()) return;
+
+  const productName = document.getElementById("compProduct").value;
+  const qty = parseFloat(document.getElementById("compQty").value) || 1;
+  const reason = document.getElementById("compReason").value.trim();
+  const p = findP(productName);
+
+  if(!reason){
+    alert("Motif obligatoire.");
+    return;
+  }
+
+  if(!p){
+    alert("Produit introuvable.");
+    return;
+  }
+
+  if(qty <= 0){
+    alert("Quantité invalide.");
+    return;
+  }
+
+  if(p.stock < qty){
+    alert("Stock insuffisant pour offrir ce produit.");
+    return;
+  }
+
+  p.stock -= qty;
+  p.sold += qty;
+
+  errorLogs.push({
+    date:new Date().toLocaleString("fr-CA"),
+    employee: currentUser ? currentUser.name : "",
+    type:"consommation_offerte",
+    amount: qty * p.price,
+    reason,
+    product: productName,
+    qty
+  });
+
+  save();
+  renderAll();
+  closeCompModal();
+  alert("Consommation offerte enregistrée.");
+}
+
+function showErrorLogs(){
+  if(!requireLogin()) return;
+  const wrap = document.getElementById("errorLogList");
+  if(!wrap) return;
+
+  if(!errorLogs.length){
+    wrap.innerHTML = "<div class='empty'>Aucune erreur enregistrée</div>";
+    return;
+  }
+
+  wrap.innerHTML = "";
+  errorLogs.slice().reverse().forEach(e=>{
+    const div = document.createElement("div");
+    div.className = "error-log-item";
+    let label = e.type;
+    if(e.type === "vente_annulee") label = "Vente annulée";
+    if(e.type === "erreur_caisse") label = "Erreur caisse";
+    if(e.type === "consommation_offerte") label = "Consommation offerte";
+
+    div.innerText = `${e.date} — ${e.employee || ""} — ${label} — ${money(e.amount || 0)} — ${e.reason || ""}${e.product ? " — " + e.product + " x" + e.qty : ""}`;
+    wrap.appendChild(div);
+  });
+}
+
+function renderErrorLogs(){
+  const wrap = document.getElementById("errorLogList");
+  if(!wrap) return;
+  if(wrap.innerHTML.trim()) showErrorLogs();
+}
+
 function renderHistory(){
   const ul=document.getElementById("historyList");ul.innerHTML="";
   history.slice().reverse().forEach(s=>{
@@ -1459,17 +1687,99 @@ function openReport(){
   if(!requireAdmin()) return;
 
   cash.current=drawerTotal();
-  let txt="RAPPORT FIN DE SOIRÉE\\n------------------------\\n";
-  txt+="Cash initial : "+money(cash.initial)+"\\nCash final : "+money(cash.current)+"\\nVentes cash : "+money(cash.cashSales)+"\\nVentes Interac : "+money(cash.interacSales)+"\\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\\n\\nBILLETS / PIÈCES DANS LA CAISSE\\n";
-  denoms.forEach(d=>txt+=money(d)+" x "+Number(cash.drawer[String(d)]||0)+"\\n");
-  txt+="\\nINVENTAIRE RESTANT\\n";
-  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\\n`);
+
+  const totalCash = history.filter(s=>s.pay==="cash").reduce((a,s)=>a+Number(s.total||0),0);
+  const totalInterac = history.filter(s=>s.pay==="interac").reduce((a,s)=>a+Number(s.total||0),0);
+  const totalSales = totalCash + totalInterac;
+
+  const productAgg = {};
+  history.forEach(s=>{
+    if(s.pay === "pourboire") return;
+    (s.items||[]).forEach(i=>{
+      if(!productAgg[i.name]) productAgg[i.name] = {qty:0,total:0};
+      productAgg[i.name].qty += Number(i.qty||0);
+      productAgg[i.name].total += Number(i.qty||0)*Number(i.price||0);
+    });
+  });
+
+  const employeeAgg = {};
+  history.forEach(s=>{
+    if(s.pay === "pourboire") return;
+    const emp = s.employee || "Non identifié";
+    if(!employeeAgg[emp]) employeeAgg[emp] = {cash:0,interac:0,total:0,count:0};
+    employeeAgg[emp].total += Number(s.total||0);
+    employeeAgg[emp].count += 1;
+    if(s.pay === "cash") employeeAgg[emp].cash += Number(s.total||0);
+    if(s.pay === "interac") employeeAgg[emp].interac += Number(s.total||0);
+  });
+
+  let txt="RAPPORT FIN DE SOIRÉE PRO\n";
+  txt+="================================\n";
+  txt+="Date rapport : "+new Date().toLocaleString("fr-CA")+"\n";
+  txt+="Nombre de transactions : "+history.filter(s=>s.pay!=="pourboire").length+"\n\n";
+
+  txt+="VENTES\n";
+  txt+="------------------------\n";
+  txt+="Ventes cash : "+money(totalCash)+"\n";
+  txt+="Ventes Interac : "+money(totalInterac)+"\n";
+  txt+="Total ventes : "+money(totalSales)+"\n\n";
+
+  txt+="CAISSE\n";
+  txt+="------------------------\n";
+  txt+="Cash initial : "+money(cash.initial)+"\n";
+  txt+="Cash final actuel : "+money(cash.current)+"\n";
+  txt+="Différence cash théorique : "+money(cash.current-cash.initial)+"\n\n";
+
+  txt+="BILLETS / PIÈCES DANS LA CAISSE\n";
+  txt+="------------------------\n";
+  denoms.forEach(d=>txt+=money(d)+" x "+Number(cash.drawer[String(d)]||0)+"\n");
+  txt+="\n";
+
+  txt+="VENTES PAR EMPLOYÉ\n";
+  txt+="------------------------\n";
+  Object.keys(employeeAgg).forEach(emp=>{
+    const e = employeeAgg[emp];
+    txt+=`${emp} : ${e.count} transaction(s) | Cash ${money(e.cash)} | Interac ${money(e.interac)} | Total ${money(e.total)}\n`;
+  });
+  txt+="\n";
+
+  txt+="PRODUITS VENDUS\n";
+  txt+="------------------------\n";
+  Object.keys(productAgg).sort((a,b)=>productAgg[b].qty-productAgg[a].qty).forEach(name=>{
+    txt+=`${name} : ${productAgg[name].qty} vendu(s) | ${money(productAgg[name].total)}\n`;
+  });
+  txt+="\n";
+
+  txt+="INVENTAIRE RESTANT\n";
+  txt+="------------------------\n";
+  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\n`);
+  txt+="\n";
+
+  txt+="ÉCHANGES POURBOIRE SERVEUSE\n";
+  txt+="------------------------\n";
+  const tips = history.filter(s=>s.pay==="pourboire");
+  if(!tips.length) txt+="Aucun échange pourboire.\n";
+  tips.forEach(s=>txt+=`${s.date} | ${s.employee || ""} | remis caisse: ${money(s.received)} | pris serveuse: ${money(s.change)}\n`);
+  txt+="\n";
+
+  txt+="ERREURS / OFFERTS\n";
+  txt+="------------------------\n";
+  if(!errorLogs.length) txt+="Aucune erreur enregistrée.\n";
+  errorLogs.forEach(e=>{
+    let label = e.type;
+    if(e.type==="vente_annulee") label="Vente annulée";
+    if(e.type==="erreur_caisse") label="Erreur caisse";
+    if(e.type==="consommation_offerte") label="Consommation offerte";
+    txt+=`${e.date} | ${e.employee || ""} | ${label} | ${money(e.amount || 0)} | ${e.reason || ""}${e.product ? " | "+e.product+" x"+e.qty : ""}\n`;
+  });
+
   document.getElementById("reportText").innerText=txt;
   document.getElementById("reportModal").style.display="flex";
 }
+
 function closeReport(){document.getElementById("reportModal").style.display="none"}
 function copyReport(){navigator.clipboard.writeText(document.getElementById("reportText").innerText);alert("Rapport copié.")}
-function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory();renderProductAdmin()}
+function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory();renderProductAdmin();renderErrorLogs()}
 
 function toggleCollapse(id){
   const el = document.getElementById(id);
