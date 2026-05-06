@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caisse Bar Dek Hockey</title>
+<title>Caisse Bar Dek Hockey - V2 POS</title>
 <style>
 *{box-sizing:border-box;font-family:Arial,sans-serif}
 body{margin:0;background:#0b1120;color:white}
@@ -119,7 +119,7 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 
 .product-admin-grid{
   display:grid;
-  grid-template-columns:1.1fr .7fr .7fr .8fr;
+  grid-template-columns:1.1fr .7fr .7fr .7fr .8fr;
   gap:8px;
   align-items:center;
   margin-bottom:8px;
@@ -343,6 +343,347 @@ select{
   border:1px solid #334155;
   color:white;
 }
+
+/* =========================================================
+   V2 VISUELLE POS - BAR DEK HOCKEY
+   ========================================================= */
+
+:root{
+  --bg0:#050816;
+  --bg1:#0b1120;
+  --panel:#111827;
+  --panel2:#172033;
+  --panel3:#0f172a;
+  --stroke:#26364f;
+  --stroke2:#334155;
+  --yellow:#facc15;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --orange:#f97316;
+  --red:#ef4444;
+  --purple:#7c3aed;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+}
+
+html,body{
+  min-height:100%;
+}
+
+body{
+  background:
+    radial-gradient(circle at 20% 10%, rgba(37,99,235,.18), transparent 32%),
+    radial-gradient(circle at 80% 20%, rgba(250,204,21,.10), transparent 28%),
+    linear-gradient(135deg, var(--bg0), var(--bg1)) !important;
+  color:var(--text) !important;
+  overflow-x:hidden;
+}
+
+header{
+  background:rgba(2,6,23,.92) !important;
+  backdrop-filter:blur(14px);
+  border-bottom:3px solid var(--yellow) !important;
+  padding:12px 18px !important;
+  position:sticky;
+  top:0;
+  z-index:30;
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+}
+
+header h1{
+  font-size:30px !important;
+  letter-spacing:.8px;
+  text-shadow:0 0 18px rgba(250,204,21,.28);
+}
+
+.topbar{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  margin-top:8px !important;
+}
+
+.employee-badge{
+  background:rgba(15,23,42,.95) !important;
+  border:1px solid rgba(250,204,21,.5) !important;
+  color:var(--yellow) !important;
+  box-shadow:0 0 14px rgba(250,204,21,.15);
+}
+
+.container{
+  grid-template-columns:minmax(0,1fr) 430px !important;
+  gap:14px !important;
+  padding:14px !important;
+  min-height:calc(100vh - 92px);
+}
+
+.section{
+  background:linear-gradient(180deg, rgba(30,41,59,.94), rgba(15,23,42,.94)) !important;
+  border:1px solid rgba(148,163,184,.18) !important;
+  border-radius:20px !important;
+  padding:16px !important;
+  box-shadow:
+    0 12px 34px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+main.section{
+  min-height:calc(100vh - 118px);
+}
+
+.section h2{
+  font-size:22px !important;
+  color:var(--yellow) !important;
+  border-bottom:1px solid rgba(148,163,184,.25) !important;
+  padding-bottom:10px !important;
+  margin-bottom:12px !important;
+}
+
+.cat{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#e2e8f0 !important;
+  font-size:18px !important;
+  margin:18px 0 10px !important;
+  padding-left:2px;
+}
+
+.grid{
+  grid-template-columns:repeat(auto-fill,minmax(165px,1fr)) !important;
+  gap:12px !important;
+}
+
+.product{
+  min-height:128px !important;
+  border-radius:18px !important;
+  padding:15px !important;
+  font-size:19px !important;
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 10px 20px rgba(0,0,0,.32),
+    inset 0 -5px rgba(0,0,0,.20),
+    inset 0 1px rgba(255,255,255,.08) !important;
+}
+
+.product::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.11), transparent 38%);
+  pointer-events:none;
+}
+
+.product:hover{
+  filter:brightness(1.08);
+  transform:translateY(-1px);
+}
+
+.product:active{
+  transform:scale(.97) !important;
+}
+
+.product.disabled{
+  opacity:.32 !important;
+  filter:grayscale(.9) !important;
+}
+
+.beer{background:linear-gradient(135deg,#2563eb,#123b91) !important}
+.drink{background:linear-gradient(135deg,#16a34a,#0f6b32) !important}
+.rhum{background:linear-gradient(135deg,#9a3412,#5f1d0b) !important}
+.food{background:linear-gradient(135deg,#dc2626,#821414) !important}
+.special{background:linear-gradient(135deg,#ef4444,#7f1d1d) !important}
+
+.price{
+  font-size:30px !important;
+  font-weight:900;
+  color:#fff7ed !important;
+}
+
+.stock{
+  font-size:12px !important;
+  color:#dbeafe !important;
+}
+
+.right{
+  gap:12px !important;
+  max-height:calc(100vh - 118px);
+  overflow-y:auto;
+  padding-right:2px;
+}
+
+.right::-webkit-scrollbar,
+.scroll::-webkit-scrollbar,
+ul::-webkit-scrollbar{
+  width:8px;
+}
+
+.right::-webkit-scrollbar-thumb,
+.scroll::-webkit-scrollbar-thumb,
+ul::-webkit-scrollbar-thumb{
+  background:#475569;
+  border-radius:999px;
+}
+
+.total{
+  background:linear-gradient(180deg,#020617,#0f172a) !important;
+  border:1px solid rgba(250,204,21,.24);
+  color:var(--yellow) !important;
+  border-radius:18px !important;
+  padding:14px !important;
+  font-size:44px !important;
+  text-shadow:0 0 18px rgba(250,204,21,.22);
+}
+
+table{
+  font-size:13px !important;
+}
+
+th{
+  color:var(--yellow) !important;
+  text-transform:uppercase;
+  font-size:12px !important;
+}
+
+th,td{
+  border-bottom:1px solid rgba(148,163,184,.18) !important;
+}
+
+button{
+  border-radius:13px !important;
+  font-weight:900 !important;
+  letter-spacing:.1px;
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
+  transition:.08s transform,.08s filter;
+}
+
+button:hover{
+  filter:brightness(1.08);
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+.green,.primary{background:linear-gradient(135deg,#22c55e,#15803d) !important}
+.blue{background:linear-gradient(135deg,#2563eb,#1d4ed8) !important}
+.gray{background:linear-gradient(135deg,#64748b,#475569) !important}
+.orange,.warning{background:linear-gradient(135deg,#f97316,#c2410c) !important}
+.red,.danger{background:linear-gradient(135deg,#ef4444,#b91c1c) !important}
+
+.active{
+  outline:3px solid var(--yellow) !important;
+  box-shadow:0 0 0 2px rgba(250,204,21,.18),0 0 20px rgba(250,204,21,.25) !important;
+}
+
+.change{
+  color:var(--green) !important;
+  text-align:right;
+  font-size:26px !important;
+}
+
+.cashgrid{
+  grid-template-columns:1fr 1fr !important;
+}
+
+.cashbox{
+  background:linear-gradient(180deg,#0f172a,#08111f) !important;
+  border:1px solid rgba(148,163,184,.20) !important;
+  border-radius:16px !important;
+  box-shadow:inset 0 1px rgba(255,255,255,.04);
+}
+
+.cashbox strong{
+  color:var(--yellow) !important;
+  font-size:23px !important;
+}
+
+.drawerGrid{
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:7px !important;
+}
+
+.drawerItem{
+  background:linear-gradient(180deg,#0f172a,#08111f) !important;
+  border:1px solid rgba(148,163,184,.18) !important;
+  border-radius:14px !important;
+}
+
+.drawerItem strong{
+  color:var(--yellow) !important;
+}
+
+.collapsible-header{
+  background:rgba(15,23,42,.35);
+  border-radius:12px;
+  padding:8px;
+}
+
+.collapsible-body{
+  margin-top:10px;
+}
+
+input,select{
+  background:#f8fafc !important;
+  color:#0f172a !important;
+  border-radius:12px !important;
+}
+
+.modal{
+  background:linear-gradient(180deg,#1e293b,#0f172a) !important;
+  border:2px solid var(--yellow) !important;
+  box-shadow:0 20px 60px rgba(0,0,0,.65);
+}
+
+.modal h2{
+  color:var(--yellow) !important;
+}
+
+.payPanel{
+  background:rgba(2,6,23,.48) !important;
+  border-radius:18px !important;
+}
+
+.payPanel.client{border-color:rgba(34,197,94,.7) !important}
+.payPanel.change{border-color:rgba(249,115,22,.7) !important}
+
+.breakdown,.validation-result,pre{
+  background:#020617 !important;
+  border:1px solid rgba(148,163,184,.18);
+  border-radius:14px !important;
+}
+
+.empty{
+  color:#94a3b8 !important;
+}
+
+/* Mode laptop compact */
+@media(max-width:1366px){
+  header h1{font-size:26px !important}
+  .container{grid-template-columns:minmax(0,1fr) 390px !important;padding:10px !important;gap:10px !important}
+  .section{padding:12px !important}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr)) !important;gap:10px !important}
+  .product{min-height:108px !important;font-size:17px !important;padding:12px !important}
+  .price{font-size:25px !important}
+  .cat{font-size:16px !important;margin:12px 0 8px !important}
+  .total{font-size:36px !important}
+  .cashbox strong{font-size:18px !important}
+  button{padding:9px 10px !important;font-size:13px !important}
+  .right{max-height:calc(100vh - 98px)}
+  main.section{min-height:calc(100vh - 98px)}
+}
+
+/* Grand écran */
+@media(min-width:1600px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(175px,1fr)) !important}
+  .product{min-height:138px !important}
+}
+
 </style>
 </head>
 <body>
@@ -360,7 +701,7 @@ select{
 </div>
 
 <header>
-  <h1>Caisse Bar Dek Hockey</h1>
+  <h1>Caisse Bar Dek Hockey — V2 POS</h1>
   <div class="topbar">
     <span id="employeeBadge" class="employee-badge">Non connecté</span>
     <button class="gray" style="margin-left:8px;padding:6px 10px;" onclick="logoutEmployee()">Déconnexion</button>
@@ -370,6 +711,12 @@ select{
 <div class="container">
   <main class="section">
     <h2>Produits</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+      <div class="cashbox"><small>Mode</small><strong>Vente rapide</strong></div>
+      <div class="cashbox"><small>Inventaire</small><strong>Anti-erreur</strong></div>
+      <div class="cashbox"><small>Employé</small><strong id="miniEmployee">-</strong></div>
+      <div class="cashbox"><small>État</small><strong style="color:#22c55e;">Ouvert</strong></div>
+    </div>
     <div class="cat">🍺 Bières</div><div id="beer" class="grid"></div>
     <div class="cat">🥤 Boissons</div><div id="drink" class="grid"></div>
     <div class="cat">🥃 Rhum</div><div id="rhum" class="grid"></div>
@@ -416,6 +763,9 @@ select{
         <button class="gray admin-only" onclick="openEditCash()">Modifier caisse</button>
       </div>
       <div class="actions">
+        <button class="red admin-only" onclick="resetCashOnly()">Reset caisse</button>
+      </div>
+      <div class="actions">
         <button class="green" onclick="openTipsModal()">Échanger pourboire</button>
         <button class="gray admin-only" onclick="openReport()">Fin de soirée</button>
       </div>
@@ -439,6 +789,7 @@ select{
       <div class="product-admin-grid">
         <input id="newProductName" placeholder="Nom du produit">
         <input id="newProductPrice" type="number" step="0.01" placeholder="Prix">
+        <input id="newProductProfit" type="number" step="0.01" placeholder="Profit/unité">
         <input id="newProductStock" type="number" step="1" placeholder="Stock">
         <select id="newProductCategory">
           <option value="beer">Bière</option>
@@ -526,6 +877,7 @@ select{
     <p id="cashModalHelp" style="color:#cbd5e1">Entre le nombre de billets/pièces.</p>
     <div id="denoms"></div>
     <div class="cashbox"><small>Total calculé</small><strong id="cashCount">0.00 $</strong></div>
+<div style="color:#facc15;font-size:14px;margin-top:10px;margin-bottom:10px;text-align:center;">⚠️ Cette action initialise la caisse et remet les ventes cash/interac à 0.</div>
     <button class="green" id="cashSaveBtn" onclick="saveCashInitial()">Enregistrer</button>
     <button class="gray" onclick="closeCash()">Fermer</button>
   </div>
@@ -720,9 +1072,13 @@ function applyUserSession(){
   if(!currentUser){
     screen.style.display = "flex";
     badge.innerText = "Non connecté";
+    const mini = document.getElementById("miniEmployee");
+    if(mini) mini.innerText = "-";
   }else{
     screen.style.display = "none";
     badge.innerText = "Connecté : " + currentUser.name + (currentUser.admin ? " (admin)" : "");
+    const mini = document.getElementById("miniEmployee");
+    if(mini) mini.innerText = currentUser.name;
   }
 
   document.querySelectorAll(".admin-only").forEach(el=>{
@@ -817,6 +1173,7 @@ function renderProductAdmin(){
       <strong>${p.name}</strong>
       <div class="product-admin-grid" style="margin-top:8px;">
         <input type="number" step="0.01" value="${p.price}" id="price_${index}" placeholder="Prix">
+        <input type="number" step="0.01" value="${p.profit || 0}" id="profit_${index}" placeholder="Profit">
         <input type="number" step="1" value="${p.stock}" id="stock_${index}" placeholder="Stock">
         <select id="cat_${index}">
           <option value="beer" ${p.category==="beer" ? "selected" : ""}>Bière</option>
@@ -837,6 +1194,7 @@ function saveProductEdit(index){
 
   const p = products[index];
   const price = parseFloat(document.getElementById("price_" + index).value);
+  const profit = parseFloat(document.getElementById("profit_" + index).value) || 0;
   const stock = parseFloat(document.getElementById("stock_" + index).value);
   const category = document.getElementById("cat_" + index).value;
 
@@ -851,6 +1209,7 @@ function saveProductEdit(index){
   }
 
   p.price = price;
+  p.profit = profit;
   p.stock = stock;
   p.category = category;
 
@@ -864,6 +1223,7 @@ function addNewProduct(){
 
   const name = document.getElementById("newProductName").value.trim();
   const price = parseFloat(document.getElementById("newProductPrice").value);
+  const profit = parseFloat(document.getElementById("newProductProfit").value) || 0;
   const stock = parseFloat(document.getElementById("newProductStock").value) || 0;
   const category = document.getElementById("newProductCategory").value;
 
@@ -885,6 +1245,7 @@ function addNewProduct(){
   products.push({
     name,
     price,
+    profit,
     category,
     stock,
     sold:0
@@ -892,6 +1253,7 @@ function addNewProduct(){
 
   document.getElementById("newProductName").value = "";
   document.getElementById("newProductPrice").value = "";
+  document.getElementById("newProductProfit").value = "";
   document.getElementById("newProductStock").value = "";
 
   save();
@@ -948,22 +1310,53 @@ if(!cash.tips){
 }
 
 let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
-  {name:"Corona",price:4.00,category:"beer",stock:0,sold:0},
-  {name:"Bud",price:3.50,category:"beer",stock:0,sold:0},
-  {name:"Bud Light",price:3.50,category:"beer",stock:0,sold:0},
-  {name:"Ultra",price:3.50,category:"beer",stock:0,sold:0},
-  {name:"6 Corona",price:22.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6}},
-  {name:"Pepsi",price:2.00,category:"drink",stock:0,sold:0},
-  {name:"7-Up",price:2.00,category:"drink",stock:0,sold:0},
-  {name:"Eau",price:2.00,category:"drink",stock:0,sold:0},
-  {name:"Gatorade",price:3.00,category:"drink",stock:0,sold:0},
-  {name:"Rhum",price:0,category:"hidden",stock:0,sold:0},
-  {name:"Rhum & Pepsi",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"Pepsi"},
-  {name:"Rhum & 7-Up",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"7-Up"},
-  {name:"Chips",price:2.00,category:"food",stock:0,sold:0},
-  {name:"Chocolat",price:2.00,category:"food",stock:0,sold:0},
-  {name:"Fromage",price:2.50,category:"food",stock:0,sold:0}
+  {name:"Corona",price:4.00,category:"beer",stock:0,sold:0,profit:1.74},
+  {name:"Bud",price:3.50,category:"beer",stock:0,sold:0,profit:1.65},
+  {name:"Bud Light",price:3.50,category:"beer",stock:0,sold:0,profit:1.65},
+  {name:"Ultra",price:3.50,category:"beer",stock:0,sold:0,profit:1.66},
+  {name:"6 Corona",price:22.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6,profit:8.44}},
+  {name:"Pepsi",price:2.00,category:"drink",stock:0,sold:0,profit:1.25},
+  {name:"7-Up",price:2.00,category:"drink",stock:0,sold:0,profit:0},
+  {name:"Eau",price:2.00,category:"drink",stock:0,sold:0,profit:1.23},
+  {name:"Gatorade",price:3.00,category:"drink",stock:0,sold:0,profit:1.39},
+  {name:"Rhum",price:0,category:"hidden",stock:0,sold:0,profit:0},
+  {name:"Rhum & Pepsi",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"Pepsi",profit:2.62},
+  {name:"Rhum & 7-Up",price:4.50,category:"rhum",stock:0,sold:0,isRhum:true,mix:"7-Up",profit:2.62},
+  {name:"Chips",price:2.00,category:"food",stock:0,sold:0,profit:1.08},
+  {name:"Chocolat",price:2.00,category:"food",stock:0,sold:0,profit:0.36},
+  {name:"Fromage",price:2.50,category:"food",stock:0,sold:0,profit:0.58}
 ];
+
+// Profits nets par produit
+const PROFIT_DEFAULTS = {
+  "Corona": 1.74,
+  "Bud": 1.65,
+  "Ultra": 1.66,
+  "Bud Light": 1.65,
+  "Corona Sans Alcool": 0.89,
+  "Rhum & Pepsi": 2.62,
+  "Rhum & 7-Up": 2.62,
+  "6 Corona": 8.44,
+  "Pepsi": 1.25,
+  "Gatorade": 1.39,
+  "Chips": 1.08,
+  "Chocolat": 0.36,
+  "Eau": 1.23,
+  "Fromage": 0.58
+};
+
+products.forEach(p=>{
+  if(PROFIT_DEFAULTS[p.name] !== undefined){
+    p.profit = PROFIT_DEFAULTS[p.name];
+  }else if(p.profit === undefined){
+    p.profit = 0;
+  }
+});
+
+
+
+products.forEach(p=>{ if(p.profit === undefined) p.profit = 0; });
+
 
 function money(n){return Number(n||0).toFixed(2)+" $"}
 function save(){
@@ -1080,7 +1473,11 @@ function confirmRhum(dbl){
 function closeRhum(){pendingRhum=null;document.getElementById("rhumModal").style.display="none"}
 function addToCart(name,price,recipe){
   const e=cart.find(x=>x.name===name&&x.price===price);
-  if(e)e.qty++;else cart.push({name,price,qty:1,recipe:recipe||[]});
+  if(e)e.qty++;else{
+    const baseName = name.replace(" Double","");
+    const prod = findP(baseName);
+    cart.push({name,price,qty:1,recipe:recipe||[],profit:prod ? Number(prod.profit||0) : 0});
+  }
 }
 function renderCart(){
   const body=document.getElementById("cartBody");body.innerHTML="";
@@ -1354,6 +1751,33 @@ function saveCashInitial(){
   save();
   renderAll();
   closeCash();
+}
+
+
+function resetCashOnly(){
+  if(!requireAdmin()) return;
+
+  if(!confirm("Reset seulement la caisse?\\n\\nCela remet à zéro le cash initial, les billets/pièces, les ventes cash et les ventes interac.\\nLes produits, l'inventaire, les employés et l'historique restent conservés.")){
+    return;
+  }
+
+  cash.initial = 0;
+  cash.current = 0;
+  cash.cashSales = 0;
+  cash.interacSales = 0;
+
+  if(!cash.drawer){
+    cash.drawer = {};
+  }
+
+  denoms.forEach(d=>{
+    cash.drawer[String(d)] = 0;
+  });
+
+  save();
+  renderAll();
+
+  alert("Caisse remise à zéro.");
 }
 
 function resetSalesOnly(){
@@ -1849,7 +2273,7 @@ function exportCSV() {
   if(!requireLogin()) return;
 
 
-  let csv = "Date;Employe;Paiement;Recu;Change;Produit;Quantite;Prix;Total\n";
+  let csv = "Date;Employe;Paiement;Recu;Change;Produit;Quantite;Prix;ProfitUnitaire;ProfitTotal;Total\n";
 
   history.forEach(sale => {
 
@@ -1864,6 +2288,8 @@ function exportCSV() {
         item.name,
         item.qty,
         item.price.toFixed(2),
+        Number(item.profit || 0).toFixed(2),
+        (Number(item.profit || 0) * Number(item.qty || 0)).toFixed(2),
         sale.total.toFixed(2)
       ].join(";") + "\n";
 
@@ -1896,14 +2322,19 @@ function openReport(){
   const totalCash = history.filter(s=>s.pay==="cash").reduce((a,s)=>a+Number(s.total||0),0);
   const totalInterac = history.filter(s=>s.pay==="interac").reduce((a,s)=>a+Number(s.total||0),0);
   const totalSales = totalCash + totalInterac;
+  const totalProfit = history
+    .filter(s=>s.pay==="cash" || s.pay==="interac")
+    .reduce((sum,s)=>sum+(s.items||[]).reduce((a,i)=>a+Number(i.qty||0)*Number(i.profit||0),0),0);
 
   const productAgg = {};
   history.forEach(s=>{
     if(s.pay === "pourboire") return;
     (s.items||[]).forEach(i=>{
-      if(!productAgg[i.name]) productAgg[i.name] = {qty:0,total:0};
+      if(!productAgg[i.name]) productAgg[i.name] = {qty:0,total:0,profit:0};
       productAgg[i.name].qty += Number(i.qty||0);
       productAgg[i.name].total += Number(i.qty||0)*Number(i.price||0);
+      productAgg[i.name].profit += Number(i.qty||0)*Number(i.profit||0);
+      productAgg[i.name].profit += Number(i.qty||0)*Number(i.profit||0);
     });
   });
 
@@ -1911,11 +2342,12 @@ function openReport(){
   history.forEach(s=>{
     if(s.pay === "pourboire") return;
     const emp = s.employee || "Non identifié";
-    if(!employeeAgg[emp]) employeeAgg[emp] = {cash:0,interac:0,total:0,count:0};
+    if(!employeeAgg[emp]) employeeAgg[emp] = {cash:0,interac:0,total:0,profit:0,count:0};
     employeeAgg[emp].total += Number(s.total||0);
     employeeAgg[emp].count += 1;
     if(s.pay === "cash") employeeAgg[emp].cash += Number(s.total||0);
     if(s.pay === "interac") employeeAgg[emp].interac += Number(s.total||0);
+    employeeAgg[emp].profit += (s.items||[]).reduce((a,i)=>a+Number(i.qty||0)*Number(i.profit||0),0);
   });
 
   let txt="RAPPORT FIN DE SOIRÉE PRO\n";
@@ -1927,7 +2359,8 @@ function openReport(){
   txt+="------------------------\n";
   txt+="Ventes cash : "+money(totalCash)+"\n";
   txt+="Ventes Interac : "+money(totalInterac)+"\n";
-  txt+="Total ventes : "+money(totalSales)+"\n\n";
+  txt+="Total ventes : "+money(totalSales)+"\n";
+  txt+="Profit net estimé : "+money(totalProfit)+"\n\n";
 
   txt+="CAISSE\n";
   txt+="------------------------\n";
@@ -1944,14 +2377,14 @@ function openReport(){
   txt+="------------------------\n";
   Object.keys(employeeAgg).forEach(emp=>{
     const e = employeeAgg[emp];
-    txt+=`${emp} : ${e.count} transaction(s) | Cash ${money(e.cash)} | Interac ${money(e.interac)} | Total ${money(e.total)}\n`;
+    txt+=`${emp} : ${e.count} transaction(s) | Cash ${money(e.cash)} | Interac ${money(e.interac)} | Total ${money(e.total)} | Profit ${money(e.profit)}\n`;
   });
   txt+="\n";
 
   txt+="PRODUITS VENDUS\n";
   txt+="------------------------\n";
   Object.keys(productAgg).sort((a,b)=>productAgg[b].qty-productAgg[a].qty).forEach(name=>{
-    txt+=`${name} : ${productAgg[name].qty} vendu(s) | ${money(productAgg[name].total)}\n`;
+    txt+=`${name} : ${productAgg[name].qty} vendu(s) | Ventes ${money(productAgg[name].total)} | Profit ${money(productAgg[name].profit)}\n`;
   });
   txt+="\n";
 
