@@ -140,6 +140,172 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 .product-admin-row strong{
   color:#facc15;
 }
+
+/* ===== MODE POS PORTABLE ERGONOMIQUE ===== */
+body{
+  overflow-x:hidden;
+}
+
+header{
+  padding:10px 14px !important;
+}
+
+header h1{
+  font-size:28px !important;
+}
+
+.container{
+  grid-template-columns:minmax(0,1fr) 390px !important;
+  gap:10px !important;
+  padding:10px !important;
+  min-height:calc(100vh - 82px);
+}
+
+.section{
+  padding:12px !important;
+  border-radius:14px !important;
+}
+
+main.section{
+  min-height:calc(100vh - 102px);
+}
+
+.right{
+  gap:10px !important;
+  max-height:calc(100vh - 102px);
+  overflow-y:auto;
+}
+
+.section h2{
+  font-size:20px !important;
+  margin-bottom:8px !important;
+  padding-bottom:6px !important;
+}
+
+.cat{
+  margin:12px 0 8px !important;
+  font-size:17px !important;
+}
+
+.grid{
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr)) !important;
+  gap:10px !important;
+}
+
+.product{
+  min-height:125px !important;
+  font-size:20px !important;
+  border-radius:16px !important;
+  padding:14px !important;
+}
+
+.price{
+  font-size:30px !important;
+}
+
+.stock{
+  font-size:12px !important;
+}
+
+.total{
+  font-size:42px !important;
+  padding:10px !important;
+  margin-top:8px !important;
+}
+
+.cashgrid{
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+}
+
+.cashbox{
+  padding:9px !important;
+}
+
+.cashbox strong{
+  font-size:20px !important;
+}
+
+.drawerGrid{
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:6px !important;
+}
+
+.drawerItem{
+  padding:6px !important;
+}
+
+.drawerItem small{
+  font-size:11px !important;
+}
+
+.drawerItem strong{
+  font-size:14px !important;
+}
+
+button{
+  padding:9px 10px !important;
+}
+
+.actions{
+  gap:8px !important;
+  margin-top:8px !important;
+}
+
+table{
+  font-size:13px !important;
+}
+
+th,td{
+  padding:6px 4px !important;
+}
+
+.collapsible-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+}
+
+.collapsible-body{
+  display:none;
+}
+
+.collapsible.open .collapsible-body{
+  display:block;
+}
+
+.compact-hidden-default .collapsible-body{
+  display:none;
+}
+
+#inventoryBody,
+#historyList,
+#productAdminList{
+  max-height:220px;
+  overflow-y:auto;
+}
+
+@media(max-width:1300px){
+  .container{
+    grid-template-columns:minmax(0,1fr) 370px !important;
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr)) !important;
+  }
+
+  .product{
+    min-height:112px !important;
+    font-size:18px !important;
+  }
+
+  .price{
+    font-size:26px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -222,15 +388,16 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
       </div>
     </section>
 
-    <section class="section">
-      <h2>Inventaire</h2>
-      <div class="scroll">
+    <section class="section collapsible" id="inventorySection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('inventorySection')">Inventaire <span>▼</span></h2>
+      <div class="collapsible-body scroll">
         <table><thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead><tbody id="inventoryBody"></tbody></table>
       </div>
     </section>
 
-    <section class="section admin-only">
-      <h2>Gestion produits</h2>
+    <section class="section admin-only collapsible" id="productAdminSection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('productAdminSection')">Gestion produits <span>▼</span></h2>
+      <div class="collapsible-body">
 
       <div class="product-admin-grid">
         <input id="newProductName" placeholder="Nom du produit">
@@ -246,26 +413,31 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
       <button class="green" style="width:100%;margin-bottom:12px;" onclick="addNewProduct()">Ajouter nouveau produit</button>
 
       <div class="scroll" id="productAdminList"></div>
+      </div>
     </section>
 
-    <section class="section admin-only">
-      <h2>Employés</h2>
+    <section class="section admin-only collapsible" id="employeeSection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('employeeSection')">Employés <span>▼</span></h2>
+      <div class="collapsible-body">
       <div class="actions">
         <button class="blue" onclick="createEmployee()">Créer employé</button>
         <button class="gray" onclick="showEmployees()">Voir employés</button>
       </div>
       <ul id="employeeList"></ul>
+      </div>
     </section>
 
-    <section class="section">
-      <h2>Historique</h2>
-      <ul id="historyList"></ul>
-      <div class="actions">
-        <button class="gray" onclick="exportCSV()">Exporter CSV</button>
-        <button class="orange" onclick="undoLastSale()">Annuler dernière transaction</button>
-      </div>
-      <div class="actions">
-        <button class="red admin-only" onclick="resetData()">Effacer historique</button>
+    <section class="section collapsible" id="historySection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('historySection')">Historique <span>▼</span></h2>
+      <div class="collapsible-body">
+        <ul id="historyList"></ul>
+        <div class="actions">
+          <button class="gray" onclick="exportCSV()">Exporter CSV</button>
+          <button class="orange" onclick="undoLastSale()">Annuler dernière transaction</button>
+        </div>
+        <div class="actions">
+          <button class="red admin-only" onclick="resetData()">Effacer historique</button>
+        </div>
       </div>
     </section>
   </aside>
@@ -1298,6 +1470,13 @@ function openReport(){
 function closeReport(){document.getElementById("reportModal").style.display="none"}
 function copyReport(){navigator.clipboard.writeText(document.getElementById("reportText").innerText);alert("Rapport copié.")}
 function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory();renderProductAdmin()}
+
+function toggleCollapse(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle("open");
+}
+
 window.onload=()=>{renderAll();setPay("cash");applyUserSession()}
 </script>
 </body>
