@@ -9,13 +9,14 @@
 body{margin:0;background:#0b1120;color:white}
 header{background:#020617;padding:16px;text-align:center;border-bottom:4px solid #facc15}
 header h1{margin:0;color:#facc15;font-size:32px;text-transform:uppercase}
-.container{display:grid;grid-template-columns:1fr 430px;gap:16px;padding:16px}
+.container{display:grid;grid-template-columns:1fr 440px;gap:16px;padding:16px}
 .section{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
 h2{margin:0 0 12px;color:#facc15;border-bottom:1px solid #475569;padding-bottom:8px;font-size:22px}
 .cat{margin:18px 0 10px;font-weight:bold;color:#e5e7eb;font-size:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
 .product{border:0;border-radius:18px;padding:14px;min-height:118px;color:white;font-weight:bold;font-size:18px;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;text-align:left;box-shadow:inset 0 -5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.25)}
 .product:active{transform:scale(.96);opacity:.85}
+.product.disabled{opacity:.38;filter:grayscale(.7);cursor:not-allowed}
 .beer{background:linear-gradient(135deg,#2563eb,#1d4ed8)}
 .drink{background:linear-gradient(135deg,#16a34a,#15803d)}
 .rhum{background:linear-gradient(135deg,#9a3412,#7c2d12)}
@@ -39,17 +40,24 @@ label{display:block;margin-top:10px;font-weight:bold;color:#e5e7eb}
 .cashbox small{display:block;color:#cbd5e1;font-size:12px;margin-bottom:4px}
 .cashbox strong{color:#facc15;font-size:22px}
 .scroll{max-height:320px;overflow:auto}
-.invact{display:flex;gap:6px;align-items:center}
+.invact{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .invact input{width:64px;padding:7px;font-size:13px;margin:0}
 .invact button{padding:7px 9px}
 ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 .modalbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;justify-content:center;align-items:center;padding:14px}
-.modal{background:#1e293b;border:2px solid #facc15;border-radius:20px;padding:24px;width:min(540px,94vw);text-align:center;max-height:92vh;overflow:auto}
+.modal{background:#1e293b;border:2px solid #facc15;border-radius:20px;padding:24px;width:min(760px,94vw);text-align:center;max-height:92vh;overflow:auto}
 .modal h2{border:0;margin-top:0}
-.modal button{width:100%;margin-top:10px;font-size:19px;padding:16px}
+.modal button{width:100%;margin-top:10px;font-size:17px;padding:14px}
 .denom{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;text-align:left;margin-bottom:8px}
 .denom input{margin:0}
 .empty{color:#94a3b8;text-align:center;padding:14px}
+.denomsBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.denomsBtns button{background:#334155;min-height:54px}
+.bigStatus{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.statusBox{background:#0f172a;border:1px solid #334155;border-radius:14px;padding:12px}
+.statusBox small{display:block;color:#cbd5e1}
+.statusBox strong{font-size:24px;color:#facc15}
+#paymentBreakdown{white-space:pre-wrap;text-align:left;background:#020617;padding:10px;border-radius:12px;margin-top:10px;color:#e5e7eb}
 @media(max-width:1050px){.container{grid-template-columns:1fr}}
 </style>
 </head>
@@ -77,12 +85,10 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
         <button id="interacBtn" class="gray" onclick="setPay('interac')">Interac</button>
       </div>
 
-      <label id="receivedLabel">Argent reçu</label>
-      <input id="received" type="number" placeholder="Ex: 20" oninput="calcChange()">
-      <div class="change" id="change"></div>
+      <div class="change" id="change">Mode Cash</div>
 
       <div class="actions">
-        <button class="green" onclick="finalizeSale()">Finaliser</button>
+        <button class="green" onclick="openPayment()">Payer / Finaliser</button>
         <button class="orange" onclick="clearCart()">Vider facture</button>
       </div>
     </section>
@@ -113,6 +119,9 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
       <ul id="historyList"></ul>
       <div class="actions">
         <button class="gray" onclick="exportCSV()">Exporter CSV</button>
+        <button class="orange" onclick="undoLastSale()">Annuler dernière transaction</button>
+      </div>
+      <div class="actions">
         <button class="red" onclick="resetData()">Effacer historique</button>
       </div>
     </section>
@@ -139,6 +148,25 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
   </div>
 </div>
 
+<div class="modalbg" id="paymentModal">
+  <div class="modal">
+    <h2>Paiement Cash</h2>
+    <div class="bigStatus">
+      <div class="statusBox"><small>Total à payer</small><strong id="payDue">0.00 $</strong></div>
+      <div class="statusBox"><small>Argent reçu</small><strong id="payReceived">0.00 $</strong></div>
+      <div class="statusBox"><small>Change à redonner</small><strong id="payChange">0.00 $</strong></div>
+    </div>
+    <div class="denomsBtns" id="receivedButtons"></div>
+    <div id="paymentBreakdown"></div>
+    <div class="actions">
+      <button class="gray" onclick="resetReceived()">Reset reçu</button>
+      <button class="orange" onclick="undoLastBill()">Annuler dernier billet</button>
+    </div>
+    <button class="green" onclick="confirmCashPayment()">Confirmer paiement cash</button>
+    <button class="gray" onclick="closePayment()">Fermer</button>
+  </div>
+</div>
+
 <div class="modalbg" id="reportModal">
   <div class="modal">
     <h2>Rapport fin de soirée</h2>
@@ -151,7 +179,7 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 <a id="download" style="display:none"></a>
 
 <script>
-const VERSION = "v_final_unique_2026_05_06";
+const VERSION = "v_cash_denoms_antierreur_2026_05_06";
 const PRODUCTS_KEY = "caisse_products_" + VERSION;
 const HISTORY_KEY = "caisse_history_" + VERSION;
 const CASH_KEY = "caisse_cash_" + VERSION;
@@ -159,6 +187,9 @@ const CASH_KEY = "caisse_cash_" + VERSION;
 let cart = [];
 let pendingRhum = null;
 let payMode = "cash";
+let receivedClicks = [];
+let receivedTotal = 0;
+
 let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
 let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {initial:0,current:0,cashSales:0,interacSales:0};
 const denoms = [100,50,20,10,5,2,1,0.25];
@@ -167,8 +198,8 @@ let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
   {name:"Corona",price:4.00,category:"beer",stock:0,sold:0},
   {name:"Bud",price:3.50,category:"beer",stock:0,sold:0},
   {name:"Bud Light",price:3.50,category:"beer",stock:0,sold:0},
-  {name:"Ultra",price:4.00,category:"beer",stock:0,sold:0},
-  {name:"6 Corona",price:20.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6}},
+  {name:"Ultra",price:3.50,category:"beer",stock:0,sold:0},
+  {name:"6 Corona",price:22.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6}},
   {name:"Pepsi",price:2.00,category:"drink",stock:0,sold:0},
   {name:"7-Up",price:2.00,category:"drink",stock:0,sold:0},
   {name:"Eau",price:2.00,category:"drink",stock:0,sold:0},
@@ -186,14 +217,41 @@ function save(){localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));loca
 function findP(name){return products.find(p=>p.name===name)}
 function sid(name){return name.replace(/[^a-zA-Z0-9]/g,"_")}
 
+function recipeFor(p){
+  if(p.consumes){
+    return Object.keys(p.consumes).map(name=>({name, qty:p.consumes[name]}));
+  }
+  if(p.isRhum) return [];
+  return [{name:p.name, qty:1}];
+}
+
+function stockOk(recipe){
+  for(const r of recipe){
+    const p = findP(r.name);
+    if(!p) return {ok:false,msg:"Produit manquant : "+r.name};
+    if(p.stock < r.qty) return {ok:false,msg:"Stock insuffisant pour "+r.name+" (besoin "+r.qty+", restant "+p.stock+")"};
+  }
+  return {ok:true,msg:""};
+}
+
+function canSell(p){
+  if(p.isRhum){
+    const rh = findP("Rhum");
+    const mix = findP(p.mix);
+    return rh && rh.stock >= 1 && mix && mix.stock >= 0.5;
+  }
+  return stockOk(recipeFor(p)).ok;
+}
+
 function renderProducts(){
   ["beer","drink","rhum","food"].forEach(id=>document.getElementById(id).innerHTML="");
   products.forEach((p,i)=>{
     if(p.category==="hidden") return;
     const b=document.createElement("button");
-    b.className="product "+(p.special?"special":p.category);
+    b.className="product "+(p.special?"special":p.category)+(canSell(p)?"":" disabled");
     b.onclick=()=>addProduct(i);
-    b.innerHTML=`<span>${p.name}</span><span class="price">${money(p.price)}</span><span class="stock">Vendu: ${p.sold} | Stock: ${p.stock}</span>`;
+    let stockText = p.isRhum ? `Rhum: ${findP("Rhum")?.stock ?? 0} | ${p.mix}: ${findP(p.mix)?.stock ?? 0}` : `Vendu: ${p.sold} | Stock: ${p.stock}`;
+    b.innerHTML=`<span>${p.name}</span><span class="price">${money(p.price)}</span><span class="stock">${stockText}</span>`;
     document.getElementById(p.category).appendChild(b);
   });
 }
@@ -203,7 +261,7 @@ function renderInventory(){
   products.forEach((p,i)=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${p.name}</td><td>${p.sold}</td><td>${p.stock}</td>
-    <td><div class="invact"><input id="inv_${sid(p.name)}" type="number" placeholder="Qté"><button class="green" onclick="adjustInv(${i},1)">+</button><button class="red" onclick="adjustInv(${i},-1)">−</button></div></td>`;
+    <td><div class="invact"><input id="inv_${sid(p.name)}" type="number" placeholder="Qté"><button class="green" onclick="adjustInv(${i},1)">+</button><button class="red" onclick="adjustInv(${i},-1)">−</button>${p.name==="Rhum" ? '<button class="blue" onclick="addRhumBottle()">+1 bouteille</button>' : ''}</div></td>`;
     body.appendChild(tr);
   });
 }
@@ -217,30 +275,66 @@ function adjustInv(i,dir){
   save(); renderAll();
 }
 
+function addRhumBottle(){
+  const rhum = findP("Rhum");
+  if(!rhum) return;
+  rhum.stock += 59;
+  save();
+  renderAll();
+  alert("1 bouteille de rhum ajoutée = 59 portions.");
+}
+
+function consume(recipe){
+  recipe.forEach(r=>{const p=findP(r.name); p.stock-=r.qty; p.sold+=r.qty});
+}
+
 function addProduct(i){
   const p=products[i];
-  if(p.isRhum){pendingRhum=i;document.getElementById("rhumTitle").innerText=p.name;document.getElementById("rhumModal").style.display="flex";return}
-  addToCart(p.name,p.price);
-  p.sold++;
-  if(p.consumes){Object.keys(p.consumes).forEach(n=>{const x=findP(n); if(x) x.stock-=p.consumes[n]})}
-  else p.stock--;
+  if(p.isRhum){
+    if(!canSell(p)){alert("Stock insuffisant pour "+p.name);return}
+    pendingRhum=i;document.getElementById("rhumTitle").innerText=p.name;document.getElementById("rhumModal").style.display="flex";return
+  }
+  const recipe = recipeFor(p);
+  const check = stockOk(recipe);
+  if(!check.ok){ alert(check.msg); return; }
+
+  addToCart(p.name,p.price,recipe);
+  if(p.consumes) p.sold++;
+  consume(recipe);
   save(); renderAll();
 }
 
 function confirmRhum(dbl){
   if(pendingRhum===null) return;
   const p=products[pendingRhum], oz=dbl?2:1, price=dbl?6:4.5, name=dbl?p.name+" Double":p.name;
-  addToCart(name,price);
+  const recipe = [{name:"Rhum", qty:oz},{name:p.mix, qty:0.5}];
+
+  const rhum = findP("Rhum");
+  if(!rhum || rhum.stock < oz){
+    alert("Stock insuffisant : il n'y a pas assez de rhum. Ajoute une bouteille de rhum dans l'inventaire.");
+    return;
+  }
+
+  const mix = findP(p.mix);
+  if(!mix || mix.stock < 0.5){
+    alert("Stock insuffisant : il n'y a pas assez de " + p.mix + ".");
+    return;
+  }
+
+  addToCart(name,price,recipe);
   p.sold++;
-  const rh=findP("Rhum"); if(rh) rh.stock-=oz;
-  const mix=findP(p.mix); if(mix) mix.stock-=0.5;
+  consume(recipe);
   save(); closeRhum(); renderAll();
 }
 function closeRhum(){pendingRhum=null;document.getElementById("rhumModal").style.display="none"}
 
-function addToCart(name,price){
+function addToCart(name,price,recipe){
   const e=cart.find(x=>x.name===name&&x.price===price);
-  if(e) e.qty++; else cart.push({name,price,qty:1});
+  if(e){
+    e.qty++;
+  } else {
+    cart.push({name,price,qty:1,recipe:recipe || []});
+  }
 }
 
 function renderCart(){
@@ -257,35 +351,163 @@ function renderCart(){
   calcChange();
 }
 function totalCart(){return cart.reduce((s,x)=>s+x.qty*x.price,0)}
-function removeLine(i){cart.splice(i,1);renderCart()}
-function clearCart(){cart=[];document.getElementById("received").value="";renderCart()}
+function restoreRecipe(recipe, qty){
+  if(!recipe) return;
+  recipe.forEach(r=>{
+    const p = findP(r.name);
+    if(p){
+      p.stock += r.qty * qty;
+      p.sold = Math.max(0, p.sold - r.qty * qty);
+    }
+  });
+}
+
+function removeLine(i){
+  const line = cart[i];
+  if(line){
+    restoreRecipe(line.recipe, line.qty);
+    if(line.name === "6 Corona"){
+      const combo = findP("6 Corona");
+      if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
+    }
+    if(line.name.includes("Rhum & Pepsi")){
+      const rhumPepsi = findP("Rhum & Pepsi");
+      if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
+    }
+    if(line.name.includes("Rhum & 7-Up")){
+      const rhum7 = findP("Rhum & 7-Up");
+      if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
+    }
+  }
+  cart.splice(i,1);
+  save();
+  renderAll();
+}
+
+function clearCart(){
+  cart.forEach(line=>{
+    restoreRecipe(line.recipe, line.qty);
+    if(line.name === "6 Corona"){
+      const combo = findP("6 Corona");
+      if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
+    }
+    if(line.name.includes("Rhum & Pepsi")){
+      const rhumPepsi = findP("Rhum & Pepsi");
+      if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
+    }
+    if(line.name.includes("Rhum & 7-Up")){
+      const rhum7 = findP("Rhum & 7-Up");
+      if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
+    }
+  });
+  cart=[];
+  save();
+  renderAll();
+}
 
 function setPay(m){
   payMode=m;
   document.getElementById("cashBtn").className=m==="cash"?"blue active":"gray";
   document.getElementById("interacBtn").className=m==="interac"?"blue active":"gray";
-  document.getElementById("received").style.display=m==="cash"?"block":"none";
-  document.getElementById("receivedLabel").style.display=m==="cash"?"block":"none";
   calcChange();
 }
 function calcChange(){
   const d=document.getElementById("change");
-  if(payMode==="interac"){d.innerText="Paiement Interac";return}
-  const r=parseFloat(document.getElementById("received").value)||0;
-  if(!r){d.innerText="";return}
-  const c=r-totalCart();
-  d.innerText=c>=0?"Change : "+money(c):"Manque : "+money(Math.abs(c));
+  d.innerText = payMode==="cash" ? "Mode Cash" : "Paiement Interac";
 }
 
-function finalizeSale(){
+function openPayment(){
   if(!cart.length) return;
-  const total=totalCart();
-  const received=parseFloat(document.getElementById("received").value)||total;
-  if(payMode==="cash" && received<total){alert("Montant reçu insuffisant.");return}
-  if(payMode==="cash"){cash.current+=total;cash.cashSales+=total}else cash.interacSales+=total;
-  history.push({date:new Date().toLocaleString("fr-CA"),pay:payMode,total,items:cart.map(x=>({...x}))});
-  cart=[]; document.getElementById("received").value="";
-  save(); renderAll();
+  if(payMode === "interac"){
+    finalizeInteracSale();
+    return;
+  }
+  receivedClicks = [];
+  receivedTotal = 0;
+  buildReceivedButtons();
+  refreshPaymentModal();
+  document.getElementById("paymentModal").style.display="flex";
+}
+function closePayment(){document.getElementById("paymentModal").style.display="none"}
+
+function buildReceivedButtons(){
+  const wrap = document.getElementById("receivedButtons");
+  wrap.innerHTML = "";
+  denoms.forEach(d=>{
+    const btn = document.createElement("button");
+    btn.innerText = money(d);
+    btn.onclick = ()=>addReceived(d);
+    wrap.appendChild(btn);
+  });
+}
+function addReceived(v){
+  receivedClicks.push(v);
+  receivedTotal += v;
+  refreshPaymentModal();
+}
+function undoLastBill(){
+  const v = receivedClicks.pop();
+  if(v === undefined) return;
+  receivedTotal -= v;
+  refreshPaymentModal();
+}
+function resetReceived(){
+  receivedClicks = [];
+  receivedTotal = 0;
+  refreshPaymentModal();
+}
+function refreshPaymentModal(){
+  const due = totalCart();
+  const change = receivedTotal - due;
+  document.getElementById("payDue").innerText = money(due);
+  document.getElementById("payReceived").innerText = money(receivedTotal);
+  document.getElementById("payChange").innerText = change >= 0 ? money(change) : "Manque " + money(Math.abs(change));
+
+  const counts = {};
+  receivedClicks.forEach(v=>counts[v]=(counts[v]||0)+1);
+  let txt = "Argent reçu :\n";
+  if(!receivedClicks.length) txt += "- Aucun\n";
+  Object.keys(counts).sort((a,b)=>Number(b)-Number(a)).forEach(k=>txt += "- "+money(k)+" x "+counts[k]+"\n");
+  if(change >= 0) txt += "\nÀ redonner : " + money(change);
+  else txt += "\nIl manque : " + money(Math.abs(change));
+  document.getElementById("paymentBreakdown").innerText = txt;
+}
+function confirmCashPayment(){
+  const total = totalCart();
+  if(receivedTotal < total){alert("Montant reçu insuffisant.");return}
+  const change = receivedTotal - total;
+
+  const beforeProducts = JSON.parse(JSON.stringify(products));
+  const beforeCash = JSON.parse(JSON.stringify(cash));
+
+  // La caisse finale augmente seulement du montant de la vente, car le change est redonné.
+  cash.current += total;
+  cash.cashSales += total;
+
+  recordSale("cash", total, receivedTotal, change, beforeProducts, beforeCash);
+  closePayment();
+}
+function finalizeInteracSale(){
+  const total = totalCart();
+  const beforeProducts = JSON.parse(JSON.stringify(products));
+  const beforeCash = JSON.parse(JSON.stringify(cash));
+  cash.interacSales += total;
+  recordSale("interac", total, 0, 0, beforeProducts, beforeCash);
+}
+function recordSale(mode,total,received,change,beforeProducts,beforeCash){
+  history.push({
+    date:new Date().toLocaleString("fr-CA"),
+    pay:mode,
+    total,
+    received,
+    change,
+    items:cart.map(x=>({...x})),
+    productsBefore: beforeProducts,
+    cashBefore: beforeCash
+  });
+  cart=[];
+  save();
+  renderAll();
 }
 
 function renderCash(){
@@ -314,21 +536,73 @@ function renderHistory(){
   const ul=document.getElementById("historyList"); ul.innerHTML="";
   history.slice().reverse().forEach(s=>{
     const li=document.createElement("li");
-    li.innerText=`${s.date} — ${s.pay.toUpperCase()} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
+    let payTxt = s.pay.toUpperCase();
+    if(s.pay==="cash") payTxt += ` reçu ${money(s.received)} change ${money(s.change)}`;
+    li.innerText=`${s.date} — ${payTxt} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
     ul.appendChild(li);
   });
 }
-function resetData(){if(!confirm("Effacer historique et cash de soirée?"))return;history=[];cash={initial:cash.initial,current:cash.initial,cashSales:0,interacSales:0};save();renderAll()}
+function undoLastSale(){
+  if(history.length === 0){
+    alert("Aucune transaction à annuler.");
+    return;
+  }
+
+  if(!confirm("Annuler la dernière transaction? Le stock, les vendus et la caisse vont revenir comme avant cette vente.")){
+    return;
+  }
+
+  const last = history.pop();
+
+  // Remet le stock et les compteurs vendus selon les recettes de la transaction.
+  if(last.items){
+    last.items.forEach(line=>{
+      restoreRecipe(line.recipe, line.qty);
+
+      if(line.name === "6 Corona"){
+        const combo = findP("6 Corona");
+        if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
+      }
+
+      if(line.name.includes("Rhum & Pepsi")){
+        const rhumPepsi = findP("Rhum & Pepsi");
+        if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
+      }
+
+      if(line.name.includes("Rhum & 7-Up")){
+        const rhum7 = findP("Rhum & 7-Up");
+        if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
+      }
+    });
+  }
+
+  if(last.pay === "cash"){
+    cash.current = Math.max(cash.initial, cash.current - last.total);
+    cash.cashSales = Math.max(0, cash.cashSales - last.total);
+  } else {
+    cash.interacSales = Math.max(0, cash.interacSales - last.total);
+  }
+
+  cart = [];
+  save();
+  renderAll();
+  alert("Dernière transaction annulée. Le stock vendu est revenu comme avant.");
+}
+
+function resetData(){
+  if(!confirm("Effacer historique et cash de soirée?"))return;
+  history=[];cash={initial:cash.initial,current:cash.initial,cashSales:0,interacSales:0};save();renderAll()
+}
 function exportCSV(){
-  let csv="Date,Paiement,Produit,Quantite,Prix,Total\\n";
-  history.forEach(s=>s.items.forEach(i=>csv+=`"${s.date}","${s.pay}","${i.name}",${i.qty},${i.price.toFixed(2)},${s.total.toFixed(2)}\\n`));
+  let csv="Date,Paiement,Recu,Change,Produit,Quantite,Prix,Total\n";
+  history.forEach(s=>s.items.forEach(i=>csv+=`"${s.date}","${s.pay}",${Number(s.received||0).toFixed(2)},${Number(s.change||0).toFixed(2)},"${i.name}",${i.qty},${i.price.toFixed(2)},${s.total.toFixed(2)}\n`));
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), a=document.getElementById("download");
   a.href=url; a.download="ventes_bar.csv"; a.click(); URL.revokeObjectURL(url);
 }
 function openReport(){
-  let txt="RAPPORT FIN DE SOIRÉE\\n------------------------\\n";
-  txt+="Cash initial : "+money(cash.initial)+"\\nCash final : "+money(cash.current)+"\\nVentes cash : "+money(cash.cashSales)+"\\nVentes Interac : "+money(cash.interacSales)+"\\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\\n\\nINVENTAIRE RESTANT\\n";
-  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\\n`);
+  let txt="RAPPORT FIN DE SOIRÉE\n------------------------\n";
+  txt+="Cash initial : "+money(cash.initial)+"\nCash final : "+money(cash.current)+"\nVentes cash : "+money(cash.cashSales)+"\nVentes Interac : "+money(cash.interacSales)+"\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\n\nINVENTAIRE RESTANT\n";
+  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\n`);
   document.getElementById("reportText").innerText=txt;
   document.getElementById("reportModal").style.display="flex";
 }
