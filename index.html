@@ -70,10 +70,99 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 .denomsBtns button.disabled{opacity:.35;cursor:not-allowed;filter:grayscale(1)}
 .denomsBtns button small{display:block;color:#cbd5e1;font-size:11px;margin-top:3px}
 @media(max-width:1050px){.container{grid-template-columns:1fr}.twoCols{grid-template-columns:1fr}.denomsBtns{grid-template-columns:repeat(2,1fr)}}
+
+.login-screen{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#020617,#111827);
+  z-index:999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+.login-card{
+  width:min(420px,94vw);
+  background:#1e293b;
+  border:2px solid #facc15;
+  border-radius:22px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+}
+.login-card h2{
+  border:0;
+  margin:0 0 12px;
+  text-align:center;
+}
+.login-card p{
+  color:#cbd5e1;
+  text-align:center;
+}
+.topbar{
+  margin-top:8px;
+  color:#e5e7eb;
+  font-size:14px;
+}
+.employee-badge{
+  display:inline-block;
+  background:#0f172a;
+  border:1px solid #334155;
+  color:#facc15;
+  border-radius:999px;
+  padding:6px 12px;
+  margin-top:8px;
+}
+.admin-only.hidden-admin{
+  display:none !important;
+}
+
+
+.product-admin-grid{
+  display:grid;
+  grid-template-columns:1.1fr .7fr .7fr .8fr;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.product-admin-grid input,
+.product-admin-grid select{
+  margin-top:0;
+  padding:9px;
+  font-size:14px;
+}
+.product-admin-row{
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:12px;
+  padding:8px;
+  margin-bottom:8px;
+}
+.product-admin-row strong{
+  color:#facc15;
+}
 </style>
 </head>
 <body>
-<header><h1>Caisse Bar Dek Hockey</h1></header>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h2>Connexion employé</h2>
+    <p>Entre ton nom et ton PIN pour ouvrir la caisse.</p>
+    <label>Nom employé</label>
+    <input id="loginName" type="text" placeholder="Ex: Maxime">
+    <label>PIN</label>
+    <input id="loginPin" type="password" placeholder="PIN">
+    <button class="green" style="width:100%;margin-top:14px;" onclick="loginEmployee()">Connexion</button>
+    <p style="font-size:12px;margin-top:12px;">Admin par défaut : Maxime / 1234</p>
+  </div>
+</div>
+
+<header>
+  <h1>Caisse Bar Dek Hockey</h1>
+  <div class="topbar">
+    <span id="employeeBadge" class="employee-badge">Non connecté</span>
+    <button class="gray" style="margin-left:8px;padding:6px 10px;" onclick="logoutEmployee()">Déconnexion</button>
+  </div>
+</header>
 
 <div class="container">
   <main class="section">
@@ -120,16 +209,16 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
       </div>
 
       <div class="actions">
-        <button class="blue" onclick="openInitCash()">Initialiser caisse</button>
-        <button class="gray" onclick="openEditCash()">Modifier caisse</button>
+        <button class="blue admin-only" onclick="openInitCash()">Initialiser caisse</button>
+        <button class="gray admin-only" onclick="openEditCash()">Modifier caisse</button>
       </div>
       <div class="actions">
         <button class="green" onclick="openTipsModal()">Échanger pourboire</button>
-        <button class="gray" onclick="openReport()">Fin de soirée</button>
+        <button class="gray admin-only" onclick="openReport()">Fin de soirée</button>
       </div>
       <div class="actions">
-        <button class="orange" onclick="resetSalesOnly()">Initialiser ventes</button>
-        <button class="gray" onclick="openReport()">Fin de soirée</button>
+        <button class="orange admin-only" onclick="resetSalesOnly()">Initialiser ventes</button>
+        <button class="gray admin-only" onclick="openReport()">Fin de soirée</button>
       </div>
     </section>
 
@@ -140,6 +229,34 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
       </div>
     </section>
 
+    <section class="section admin-only">
+      <h2>Gestion produits</h2>
+
+      <div class="product-admin-grid">
+        <input id="newProductName" placeholder="Nom du produit">
+        <input id="newProductPrice" type="number" step="0.01" placeholder="Prix">
+        <input id="newProductStock" type="number" step="1" placeholder="Stock">
+        <select id="newProductCategory">
+          <option value="beer">Bière</option>
+          <option value="drink">Boisson</option>
+          <option value="food">Collation</option>
+        </select>
+      </div>
+
+      <button class="green" style="width:100%;margin-bottom:12px;" onclick="addNewProduct()">Ajouter nouveau produit</button>
+
+      <div class="scroll" id="productAdminList"></div>
+    </section>
+
+    <section class="section admin-only">
+      <h2>Employés</h2>
+      <div class="actions">
+        <button class="blue" onclick="createEmployee()">Créer employé</button>
+        <button class="gray" onclick="showEmployees()">Voir employés</button>
+      </div>
+      <ul id="employeeList"></ul>
+    </section>
+
     <section class="section">
       <h2>Historique</h2>
       <ul id="historyList"></ul>
@@ -148,7 +265,7 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
         <button class="orange" onclick="undoLastSale()">Annuler dernière transaction</button>
       </div>
       <div class="actions">
-        <button class="red" onclick="resetData()">Effacer historique</button>
+        <button class="red admin-only" onclick="resetData()">Effacer historique</button>
       </div>
     </section>
   </aside>
@@ -261,6 +378,250 @@ const PRODUCTS_KEY = "caisse_products_" + VERSION;
 const HISTORY_KEY = "caisse_history_" + VERSION;
 const CASH_KEY = "caisse_cash_" + VERSION;
 
+const USERS_KEY = "caisse_users_" + VERSION;
+const SESSION_KEY = "caisse_session_" + VERSION;
+
+let users = JSON.parse(localStorage.getItem(USERS_KEY) || "null") || [
+  {name:"Maxime", pin:"1234", admin:true}
+];
+
+let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+
+function saveUsers(){
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function saveSession(){
+  localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+}
+
+function loginEmployee(){
+  const name = document.getElementById("loginName").value.trim();
+  const pin = document.getElementById("loginPin").value.trim();
+
+  const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.pin === pin);
+
+  if(!user){
+    alert("Nom ou PIN invalide.");
+    return;
+  }
+
+  currentUser = {name:user.name, admin:!!user.admin};
+  saveSession();
+  applyUserSession();
+}
+
+function logoutEmployee(){
+  currentUser = null;
+  localStorage.removeItem(SESSION_KEY);
+  applyUserSession();
+}
+
+function applyUserSession(){
+  const screen = document.getElementById("loginScreen");
+  const badge = document.getElementById("employeeBadge");
+
+  if(!currentUser){
+    screen.style.display = "flex";
+    badge.innerText = "Non connecté";
+  }else{
+    screen.style.display = "none";
+    badge.innerText = "Connecté : " + currentUser.name + (currentUser.admin ? " (admin)" : "");
+  }
+
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    if(currentUser && currentUser.admin){
+      el.classList.remove("hidden-admin");
+    }else{
+      el.classList.add("hidden-admin");
+    }
+  });
+
+  renderEmployees();
+  renderProductAdmin();
+}
+
+function requireLogin(){
+  if(!currentUser){
+    alert("Connexion requise.");
+    return false;
+  }
+  return true;
+}
+
+function requireAdmin(){
+  if(!requireLogin()) return false;
+  if(!currentUser.admin){
+    alert("Accès admin requis.");
+    return false;
+  }
+  return true;
+}
+
+function createEmployee(){
+  if(!requireAdmin()) return;
+
+  const name = prompt("Nom de l'employé :");
+  if(!name) return;
+
+  const pin = prompt("PIN de l'employé :");
+  if(!pin) return;
+
+  if(users.some(u => u.name.toLowerCase() === name.trim().toLowerCase())){
+    alert("Cet employé existe déjà.");
+    return;
+  }
+
+  const isAdmin = confirm("Est-ce que cet employé est admin?");
+  users.push({name:name.trim(), pin:pin.trim(), admin:isAdmin});
+  saveUsers();
+  renderEmployees();
+  alert("Employé créé.");
+}
+
+function showEmployees(){
+  if(!requireAdmin()) return;
+  renderEmployees(true);
+}
+
+function deleteEmployee(index){
+  if(!requireAdmin()) return;
+
+  if(users[index].name === "Maxime"){
+    alert("Impossible de supprimer Maxime.");
+    return;
+  }
+
+  if(!confirm("Supprimer cet employé?")) return;
+
+  users.splice(index,1);
+  saveUsers();
+  renderEmployees(true);
+}
+
+
+function renderProductAdmin(){
+  const wrap = document.getElementById("productAdminList");
+  if(!wrap) return;
+
+  if(!currentUser || !currentUser.admin){
+    wrap.innerHTML = "";
+    return;
+  }
+
+  wrap.innerHTML = "";
+
+  products.forEach((p, index)=>{
+    if(p.category === "hidden") return;
+
+    const div = document.createElement("div");
+    div.className = "product-admin-row";
+
+    div.innerHTML = `
+      <strong>${p.name}</strong>
+      <div class="product-admin-grid" style="margin-top:8px;">
+        <input type="number" step="0.01" value="${p.price}" id="price_${index}" placeholder="Prix">
+        <input type="number" step="1" value="${p.stock}" id="stock_${index}" placeholder="Stock">
+        <select id="cat_${index}">
+          <option value="beer" ${p.category==="beer" ? "selected" : ""}>Bière</option>
+          <option value="drink" ${p.category==="drink" ? "selected" : ""}>Boisson</option>
+          <option value="rhum" ${p.category==="rhum" ? "selected" : ""}>Rhum</option>
+          <option value="food" ${p.category==="food" ? "selected" : ""}>Collation</option>
+        </select>
+        <button class="blue" onclick="saveProductEdit(${index})">Sauver</button>
+      </div>
+    `;
+
+    wrap.appendChild(div);
+  });
+}
+
+function saveProductEdit(index){
+  if(!requireAdmin()) return;
+
+  const p = products[index];
+  const price = parseFloat(document.getElementById("price_" + index).value);
+  const stock = parseFloat(document.getElementById("stock_" + index).value);
+  const category = document.getElementById("cat_" + index).value;
+
+  if(isNaN(price) || price < 0){
+    alert("Prix invalide.");
+    return;
+  }
+
+  if(isNaN(stock) || stock < 0){
+    alert("Stock invalide.");
+    return;
+  }
+
+  p.price = price;
+  p.stock = stock;
+  p.category = category;
+
+  save();
+  renderAll();
+  alert("Produit modifié.");
+}
+
+function addNewProduct(){
+  if(!requireAdmin()) return;
+
+  const name = document.getElementById("newProductName").value.trim();
+  const price = parseFloat(document.getElementById("newProductPrice").value);
+  const stock = parseFloat(document.getElementById("newProductStock").value) || 0;
+  const category = document.getElementById("newProductCategory").value;
+
+  if(!name){
+    alert("Entre un nom de produit.");
+    return;
+  }
+
+  if(products.some(p => p.name.toLowerCase() === name.toLowerCase())){
+    alert("Ce produit existe déjà.");
+    return;
+  }
+
+  if(isNaN(price) || price < 0){
+    alert("Entre un prix valide.");
+    return;
+  }
+
+  products.push({
+    name,
+    price,
+    category,
+    stock,
+    sold:0
+  });
+
+  document.getElementById("newProductName").value = "";
+  document.getElementById("newProductPrice").value = "";
+  document.getElementById("newProductStock").value = "";
+
+  save();
+  renderAll();
+  alert("Nouveau produit ajouté.");
+}
+
+function renderEmployees(forceShow=false){
+  const ul = document.getElementById("employeeList");
+  if(!ul) return;
+
+  if(!currentUser || !currentUser.admin){
+    ul.innerHTML = "";
+    return;
+  }
+
+  ul.innerHTML = "";
+  users.forEach((u,i)=>{
+    const li = document.createElement("li");
+    li.innerHTML = `${u.name} ${u.admin ? "(admin)" : ""} — PIN: ${u.pin} ${u.name !== "Maxime" ? `<button class="red" style="padding:4px 8px;margin-left:8px;" onclick="deleteEmployee(${i})">X</button>` : ""}`;
+    ul.appendChild(li);
+  });
+}
+
+
+
 let cart = [];
 let pendingRhum = null;
 let payMode = "cash";
@@ -351,6 +712,8 @@ function renderInventory(){
   });
 }
 function adjustInv(i,dir){
+  if(!requireAdmin()) return;
+
   const p=products[i], inp=document.getElementById("inv_"+sid(p.name));
   const q=parseFloat(inp.value)||1;
   p.stock+=q*dir;
@@ -359,6 +722,8 @@ function adjustInv(i,dir){
   save();renderAll();
 }
 function addRhumBottle(){
+  if(!requireAdmin()) return;
+
   const rh=findP("Rhum");
   if(rh) rh.stock+=59;
   save();renderAll();
@@ -378,6 +743,8 @@ function adjustComboSold(line,qty){
   if(line.name.includes("Rhum & 7-Up")){const p=findP("Rhum & 7-Up");if(p)p.sold=Math.max(0,p.sold-qty)}
 }
 function addProduct(i){
+  if(!requireLogin()) return;
+
   const p=products[i];
   if(p.isRhum){
     if(!canSell(p)){alert("Stock insuffisant pour "+p.name);return}
@@ -391,6 +758,8 @@ function addProduct(i){
   save();renderAll();
 }
 function confirmRhum(dbl){
+  if(!requireLogin()) return;
+
   if(pendingRhum===null)return;
   const p=products[pendingRhum],oz=dbl?2:1,price=dbl?6:4.5,name=dbl?p.name+" Double":p.name;
   const recipe=[{name:"Rhum",qty:oz},{name:p.mix,qty:0.5}];
@@ -438,6 +807,8 @@ function setPay(m){
 function calcChange(){document.getElementById("change").innerText=payMode==="cash"?"Mode Cash":"Paiement Interac"}
 
 function openPayment(){
+  if(!requireLogin()) return;
+
   if(!cart.length)return;
   if(payMode==="interac"){finalizeInteracSale();return}
   receivedClicks=[];changeClicks=[];receivedTotal=0;changeTotal=0;
@@ -595,7 +966,7 @@ function finalizeInteracSale(){
   recordSale("interac",total,0,0,beforeProducts,beforeCash,{}, {});
 }
 function recordSale(mode,total,received,change,beforeProducts,beforeCash,receivedCounts,changeCounts){
-  history.push({date:new Date().toLocaleString("fr-CA"),pay:mode,total,received,change,items:cart.map(x=>({...x})),productsBefore:beforeProducts,cashBefore:beforeCash,receivedCounts,changeCounts});
+  history.push({date:new Date().toLocaleString("fr-CA"),employee:currentUser ? currentUser.name : "",pay:mode,total,received,change,items:cart.map(x=>({...x})),productsBefore:beforeProducts,cashBefore:beforeCash,receivedCounts,changeCounts});
   cart=[];save();renderAll();
 }
 function renderCash(){
@@ -617,6 +988,8 @@ function renderDrawerSmall(){
 let cashEditMode = "init";
 
 function openInitCash(){
+  if(!requireAdmin()) return;
+
   cashEditMode = "init";
   document.getElementById("cashModalTitle").innerText = "Initialiser la caisse";
   document.getElementById("cashModalHelp").innerText = "Entre le nombre de billets/pièces au début de la soirée. Cela remet les ventes cash/interac à 0.";
@@ -625,6 +998,8 @@ function openInitCash(){
 }
 
 function openEditCash(){
+  if(!requireAdmin()) return;
+
   cashEditMode = "edit";
   document.getElementById("cashModalTitle").innerText = "Modifier la caisse";
   document.getElementById("cashModalHelp").innerText = "Corrige le nombre de billets/pièces actuellement dans le tiroir. Les ventes ne seront pas remises à zéro.";
@@ -675,6 +1050,8 @@ function saveCashInitial(){
 }
 
 function resetSalesOnly(){
+  if(!requireAdmin()) return;
+
   if(!confirm("Initialiser les ventes? Cela efface l'historique, remet ventes cash/interac à 0 et remet les compteurs vendus à 0. L'inventaire et la caisse restent comme ils sont.")) return;
 
   history = [];
@@ -697,6 +1074,8 @@ function renderTips(){
 }
 
 function openTipsModal(){
+  if(!requireLogin()) return;
+
   const inBox = document.getElementById("tipsInDenoms");
   const outBox = document.getElementById("tipsOutDenoms");
   inBox.innerHTML = "";
@@ -756,6 +1135,8 @@ function countTipsExchange(){
 }
 
 function confirmTipsExchange(){
+  if(!requireLogin()) return;
+
   const inCounts = {};
   const outCounts = {};
 
@@ -813,6 +1194,7 @@ function confirmTipsExchange(){
 
   history.push({
     date: new Date().toLocaleString("fr-CA"),
+    employee: currentUser ? currentUser.name : "",
     pay: "pourboire",
     total: 0,
     received: inTotal,
@@ -837,11 +1219,13 @@ function renderHistory(){
     let payTxt=s.pay.toUpperCase();
     if(s.pay==="cash")payTxt+=` reçu ${money(s.received)} change ${money(s.change)}`;
     if(s.pay==="pourboire")payTxt=`POURBOIRE remis ${money(s.received)} / serveuse prend ${money(s.change)}`;
-    li.innerText=`${s.date} — ${payTxt} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
+    li.innerText=`${s.date} — ${s.employee || ""} — ${payTxt} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
     ul.appendChild(li);
   });
 }
 function undoLastSale(){
+  if(!requireLogin()) return;
+
   if(!history.length){alert("Aucune transaction à annuler.");return}
   if(!confirm("Annuler la dernière transaction? Le stock, les vendus, les billets/pièces et la caisse vont revenir comme avant cette vente."))return;
   const last=history.pop();
@@ -851,12 +1235,16 @@ function undoLastSale(){
   alert("Dernière transaction annulée.");
 }
 function resetData(){
+  if(!requireAdmin()) return;
+
   if(!confirm("Effacer historique et cash de soirée?"))return;
   history=[];cash.cashSales=0;cash.interacSales=0;save();renderAll();
 }
 function exportCSV() {
+  if(!requireLogin()) return;
 
-  let csv = "Date;Paiement;Recu;Change;Produit;Quantite;Prix;Total\n";
+
+  let csv = "Date;Employe;Paiement;Recu;Change;Produit;Quantite;Prix;Total\n";
 
   history.forEach(sale => {
 
@@ -864,6 +1252,7 @@ function exportCSV() {
 
       csv += [
         sale.date,
+        sale.employee || "",
         sale.pay,
         sale.received || 0,
         sale.change || 0,
@@ -895,6 +1284,8 @@ function exportCSV() {
 }
 
 function openReport(){
+  if(!requireAdmin()) return;
+
   cash.current=drawerTotal();
   let txt="RAPPORT FIN DE SOIRÉE\\n------------------------\\n";
   txt+="Cash initial : "+money(cash.initial)+"\\nCash final : "+money(cash.current)+"\\nVentes cash : "+money(cash.cashSales)+"\\nVentes Interac : "+money(cash.interacSales)+"\\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\\n\\nBILLETS / PIÈCES DANS LA CAISSE\\n";
@@ -906,8 +1297,8 @@ function openReport(){
 }
 function closeReport(){document.getElementById("reportModal").style.display="none"}
 function copyReport(){navigator.clipboard.writeText(document.getElementById("reportText").innerText);alert("Rapport copié.")}
-function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory()}
-window.onload=()=>{renderAll();setPay("cash")}
+function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory();renderProductAdmin()}
+window.onload=()=>{renderAll();setPay("cash");applyUserSession()}
 </script>
 </body>
 </html>
