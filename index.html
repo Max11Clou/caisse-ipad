@@ -9,7 +9,7 @@
 body{margin:0;background:#0b1120;color:white}
 header{background:#020617;padding:16px;text-align:center;border-bottom:4px solid #facc15}
 header h1{margin:0;color:#facc15;font-size:32px;text-transform:uppercase}
-.container{display:grid;grid-template-columns:1fr 440px;gap:16px;padding:16px}
+.container{display:grid;grid-template-columns:1fr 455px;gap:16px;padding:16px}
 .section{background:#1e293b;border:1px solid #334155;border-radius:18px;padding:16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
 h2{margin:0 0 12px;color:#facc15;border-bottom:1px solid #475569;padding-bottom:8px;font-size:22px}
 .cat{margin:18px 0 10px;font-weight:bold;color:#e5e7eb;font-size:18px}
@@ -34,18 +34,17 @@ button{cursor:pointer;border:0;border-radius:12px;padding:11px 12px;font-weight:
 .actions,.payrow,.cashgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .total{font-size:40px;font-weight:900;color:#facc15;text-align:right;background:#0f172a;border-radius:14px;padding:12px;margin-top:10px}
 input{width:100%;padding:13px;font-size:18px;border-radius:12px;border:0;margin-top:6px}
-label{display:block;margin-top:10px;font-weight:bold;color:#e5e7eb}
 .change{text-align:right;color:#22c55e;font-size:24px;font-weight:bold;min-height:30px;margin-top:10px}
 .cashbox{background:#0f172a;border:1px solid #334155;border-radius:14px;padding:12px}
 .cashbox small{display:block;color:#cbd5e1;font-size:12px;margin-bottom:4px}
 .cashbox strong{color:#facc15;font-size:22px}
-.scroll{max-height:320px;overflow:auto}
+.scroll{max-height:330px;overflow:auto}
 .invact{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .invact input{width:64px;padding:7px;font-size:13px;margin:0}
 .invact button{padding:7px 9px}
 ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 .modalbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;justify-content:center;align-items:center;padding:14px}
-.modal{background:#1e293b;border:2px solid #facc15;border-radius:20px;padding:24px;width:min(760px,94vw);text-align:center;max-height:92vh;overflow:auto}
+.modal{background:#1e293b;border:2px solid #facc15;border-radius:20px;padding:24px;width:min(900px,95vw);text-align:center;max-height:92vh;overflow:auto}
 .modal h2{border:0;margin-top:0}
 .modal button{width:100%;margin-top:10px;font-size:17px;padding:14px}
 .denom{display:grid;grid-template-columns:1fr 90px;gap:8px;align-items:center;text-align:left;margin-bottom:8px}
@@ -57,8 +56,20 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 .statusBox{background:#0f172a;border:1px solid #334155;border-radius:14px;padding:12px}
 .statusBox small{display:block;color:#cbd5e1}
 .statusBox strong{font-size:24px;color:#facc15}
-#paymentBreakdown{white-space:pre-wrap;text-align:left;background:#020617;padding:10px;border-radius:12px;margin-top:10px;color:#e5e7eb}
-@media(max-width:1050px){.container{grid-template-columns:1fr}}
+.breakdown{white-space:pre-wrap;text-align:left;background:#020617;padding:10px;border-radius:12px;margin-top:10px;color:#e5e7eb}
+.drawerGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.drawerItem{background:#0f172a;border:1px solid #334155;border-radius:10px;padding:8px;text-align:center}
+.drawerItem small{display:block;color:#cbd5e1}.drawerItem strong{color:#facc15}
+.twoCols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.payPanel{background:#111827;border:2px solid #334155;border-radius:18px;padding:14px}
+.payPanel.client{border-color:#22c55e}
+.payPanel.change{border-color:#f97316}
+.payPanel h2{border:0;margin:0 0 10px;font-size:20px}
+.payPanel.client h2{color:#22c55e}
+.payPanel.change h2{color:#f97316}
+.denomsBtns button.disabled{opacity:.35;cursor:not-allowed;filter:grayscale(1)}
+.denomsBtns button small{display:block;color:#cbd5e1;font-size:11px;margin-top:3px}
+@media(max-width:1050px){.container{grid-template-columns:1fr}.twoCols{grid-template-columns:1fr}.denomsBtns{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -101,8 +112,23 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
         <div class="cashbox"><small>Ventes cash</small><strong id="cashSales">0.00 $</strong></div>
         <div class="cashbox"><small>Interac</small><strong id="interacSales">0.00 $</strong></div>
       </div>
+      <div id="drawerSmall" class="drawerGrid"></div>
+
+      <div class="cashbox" style="margin-top:10px;">
+        <small>Échange pourboire serveuse</small>
+        <strong id="tipsTotal">0.00 $</strong>
+      </div>
+
       <div class="actions">
-        <button class="blue" onclick="openCash()">Entrer cash initial</button>
+        <button class="blue" onclick="openInitCash()">Initialiser caisse</button>
+        <button class="gray" onclick="openEditCash()">Modifier caisse</button>
+      </div>
+      <div class="actions">
+        <button class="green" onclick="openTipsModal()">Échanger pourboire</button>
+        <button class="gray" onclick="openReport()">Fin de soirée</button>
+      </div>
+      <div class="actions">
+        <button class="orange" onclick="resetSalesOnly()">Initialiser ventes</button>
         <button class="gray" onclick="openReport()">Fin de soirée</button>
       </div>
     </section>
@@ -139,11 +165,11 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 
 <div class="modalbg" id="cashModal">
   <div class="modal">
-    <h2>Entrée de caisse initiale</h2>
-    <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
+    <h2 id="cashModalTitle">Caisse</h2>
+    <p id="cashModalHelp" style="color:#cbd5e1">Entre le nombre de billets/pièces.</p>
     <div id="denoms"></div>
     <div class="cashbox"><small>Total calculé</small><strong id="cashCount">0.00 $</strong></div>
-    <button class="green" onclick="saveCashInitial()">Enregistrer cash initial</button>
+    <button class="green" id="cashSaveBtn" onclick="saveCashInitial()">Enregistrer</button>
     <button class="gray" onclick="closeCash()">Fermer</button>
   </div>
 </div>
@@ -154,16 +180,67 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
     <div class="bigStatus">
       <div class="statusBox"><small>Total à payer</small><strong id="payDue">0.00 $</strong></div>
       <div class="statusBox"><small>Argent reçu</small><strong id="payReceived">0.00 $</strong></div>
-      <div class="statusBox"><small>Change à redonner</small><strong id="payChange">0.00 $</strong></div>
+      <div class="statusBox"><small>Change requis</small><strong id="payChange">0.00 $</strong></div>
     </div>
-    <div class="denomsBtns" id="receivedButtons"></div>
-    <div id="paymentBreakdown"></div>
-    <div class="actions">
-      <button class="gray" onclick="resetReceived()">Reset reçu</button>
-      <button class="orange" onclick="undoLastBill()">Annuler dernier billet</button>
+
+    <div class="twoCols">
+      <div class="payPanel client">
+        <h2>1. Argent reçu du client</h2>
+        <p style="color:#cbd5e1;margin-top:0">Clique seulement les billets/pièces que le client te donne.</p>
+        <div class="denomsBtns" id="receivedButtons"></div>
+        <div class="breakdown" id="receivedBreakdown"></div>
+        <div class="actions">
+          <button class="gray" onclick="resetReceived()">Reset reçu</button>
+          <button class="orange" onclick="undoLastReceived()">Annuler dernier reçu</button>
+        </div>
+      </div>
+
+      <div class="payPanel change">
+        <h2>2. Change redonné au client</h2>
+        <p style="color:#cbd5e1;margin-top:0">Clique seulement ce que tu sors de la caisse pour redonner au client.</p>
+        <div class="denomsBtns" id="changeButtons"></div>
+        <div class="breakdown" id="changeBreakdown"></div>
+        <div class="actions">
+          <button class="gray" onclick="resetGivenChange()">Reset change</button>
+          <button class="orange" onclick="undoLastChange()">Annuler dernier change</button>
+        </div>
+      </div>
     </div>
+
     <button class="green" onclick="confirmCashPayment()">Confirmer paiement cash</button>
     <button class="gray" onclick="closePayment()">Fermer</button>
+  </div>
+</div>
+
+
+
+<div class="modalbg" id="tipsModal">
+  <div class="modal">
+    <h2>Échange pourboire serveuse</h2>
+    <p style="color:#cbd5e1">
+      1) Entre l'argent qui est dans le verre à pourboire.<br>
+      2) Choisis quels billets/pièces la serveuse prend dans la caisse.<br>
+      La caisse ajoute le pourboire reçu et retire ce que la serveuse prend.
+    </p>
+
+    <div class="twoCols">
+      <div class="payPanel client">
+        <h2>1. Argent du verre remis dans la caisse</h2>
+        <div id="tipsInDenoms"></div>
+        <div class="cashbox"><small>Total remis dans la caisse</small><strong id="tipsInTotal">0.00 $</strong></div>
+      </div>
+
+      <div class="payPanel change">
+        <h2>2. Argent pris par la serveuse</h2>
+        <div id="tipsOutDenoms"></div>
+        <div class="cashbox"><small>Total pris par la serveuse</small><strong id="tipsOutTotal">0.00 $</strong></div>
+      </div>
+    </div>
+
+    <div class="breakdown" id="tipsExchangeSummary"></div>
+
+    <button class="green" onclick="confirmTipsExchange()">Confirmer échange pourboire</button>
+    <button class="gray" onclick="closeTipsModal()">Fermer</button>
   </div>
 </div>
 
@@ -179,7 +256,7 @@ ul{max-height:180px;overflow:auto;padding-left:20px;font-size:12px}
 <a id="download" style="display:none"></a>
 
 <script>
-const VERSION = "v_cash_denoms_antierreur_2026_05_06";
+const VERSION = "v_tiroir_billets_pieces_2026_05_06";
 const PRODUCTS_KEY = "caisse_products_" + VERSION;
 const HISTORY_KEY = "caisse_history_" + VERSION;
 const CASH_KEY = "caisse_cash_" + VERSION;
@@ -188,11 +265,25 @@ let cart = [];
 let pendingRhum = null;
 let payMode = "cash";
 let receivedClicks = [];
+let changeClicks = [];
 let receivedTotal = 0;
+let changeTotal = 0;
 
 let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {initial:0,current:0,cashSales:0,interacSales:0};
 const denoms = [100,50,20,10,5,2,1,0.25];
+
+let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {
+  initial:0,
+  current:0,
+  cashSales:0,
+  interacSales:0,
+  drawer: {"100":0,"50":0,"20":0,"10":0,"5":0,"2":0,"1":0,"0.25":0},
+  tips: {"100":0,"50":0,"20":0,"10":0,"5":0,"2":0,"1":0,"0.25":0}
+};
+
+if(!cash.tips){
+  cash.tips = {"100":0,"50":0,"20":0,"10":0,"5":0,"2":0,"1":0,"0.25":0};
+}
 
 let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
   {name:"Corona",price:4.00,category:"beer",stock:0,sold:0},
@@ -216,33 +307,28 @@ function money(n){return Number(n||0).toFixed(2)+" $"}
 function save(){localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));localStorage.setItem(HISTORY_KEY,JSON.stringify(history));localStorage.setItem(CASH_KEY,JSON.stringify(cash))}
 function findP(name){return products.find(p=>p.name===name)}
 function sid(name){return name.replace(/[^a-zA-Z0-9]/g,"_")}
+function drawerTotal(drawer=cash.drawer){return denoms.reduce((s,d)=>s+d*Number(drawer[String(d)]||0),0)}
 
 function recipeFor(p){
-  if(p.consumes){
-    return Object.keys(p.consumes).map(name=>({name, qty:p.consumes[name]}));
-  }
+  if(p.consumes) return Object.keys(p.consumes).map(name=>({name, qty:p.consumes[name]}));
   if(p.isRhum) return [];
   return [{name:p.name, qty:1}];
 }
-
 function stockOk(recipe){
   for(const r of recipe){
-    const p = findP(r.name);
+    const p=findP(r.name);
     if(!p) return {ok:false,msg:"Produit manquant : "+r.name};
-    if(p.stock < r.qty) return {ok:false,msg:"Stock insuffisant pour "+r.name+" (besoin "+r.qty+", restant "+p.stock+")"};
+    if(p.stock<r.qty) return {ok:false,msg:"Stock insuffisant pour "+r.name+" (besoin "+r.qty+", restant "+p.stock+")"};
   }
   return {ok:true,msg:""};
 }
-
 function canSell(p){
   if(p.isRhum){
-    const rh = findP("Rhum");
-    const mix = findP(p.mix);
-    return rh && rh.stock >= 1 && mix && mix.stock >= 0.5;
+    const rh=findP("Rhum"), mix=findP(p.mix);
+    return rh && rh.stock>=1 && mix && mix.stock>=0.5;
   }
   return stockOk(recipeFor(p)).ok;
 }
-
 function renderProducts(){
   ["beer","drink","rhum","food"].forEach(id=>document.getElementById(id).innerHTML="");
   products.forEach((p,i)=>{
@@ -250,12 +336,11 @@ function renderProducts(){
     const b=document.createElement("button");
     b.className="product "+(p.special?"special":p.category)+(canSell(p)?"":" disabled");
     b.onclick=()=>addProduct(i);
-    let stockText = p.isRhum ? `Rhum: ${findP("Rhum")?.stock ?? 0} | ${p.mix}: ${findP(p.mix)?.stock ?? 0}` : `Vendu: ${p.sold} | Stock: ${p.stock}`;
+    let stockText=p.isRhum?`Rhum: ${findP("Rhum")?.stock??0} | ${p.mix}: ${findP(p.mix)?.stock??0}`:`Vendu: ${p.sold} | Stock: ${p.stock}`;
     b.innerHTML=`<span>${p.name}</span><span class="price">${money(p.price)}</span><span class="stock">${stockText}</span>`;
     document.getElementById(p.category).appendChild(b);
   });
 }
-
 function renderInventory(){
   const body=document.getElementById("inventoryBody"); body.innerHTML="";
   products.forEach((p,i)=>{
@@ -265,84 +350,68 @@ function renderInventory(){
     body.appendChild(tr);
   });
 }
-
 function adjustInv(i,dir){
   const p=products[i], inp=document.getElementById("inv_"+sid(p.name));
   const q=parseFloat(inp.value)||1;
-  p.stock += q*dir;
-  if(p.stock<0) p.stock=0;
+  p.stock+=q*dir;
+  if(p.stock<0)p.stock=0;
   inp.value="";
-  save(); renderAll();
+  save();renderAll();
 }
-
 function addRhumBottle(){
-  const rhum = findP("Rhum");
-  if(!rhum) return;
-  rhum.stock += 59;
-  save();
-  renderAll();
+  const rh=findP("Rhum");
+  if(rh) rh.stock+=59;
+  save();renderAll();
   alert("1 bouteille de rhum ajoutée = 59 portions.");
 }
-
-function consume(recipe){
-  recipe.forEach(r=>{const p=findP(r.name); p.stock-=r.qty; p.sold+=r.qty});
+function consume(recipe){recipe.forEach(r=>{const p=findP(r.name);p.stock-=r.qty;p.sold+=r.qty})}
+function restoreRecipe(recipe,qty){
+  if(!recipe)return;
+  recipe.forEach(r=>{
+    const p=findP(r.name);
+    if(p){p.stock+=r.qty*qty;p.sold=Math.max(0,p.sold-r.qty*qty)}
+  });
 }
-
+function adjustComboSold(line,qty){
+  if(line.name==="6 Corona"){const p=findP("6 Corona");if(p)p.sold=Math.max(0,p.sold-qty)}
+  if(line.name.includes("Rhum & Pepsi")){const p=findP("Rhum & Pepsi");if(p)p.sold=Math.max(0,p.sold-qty)}
+  if(line.name.includes("Rhum & 7-Up")){const p=findP("Rhum & 7-Up");if(p)p.sold=Math.max(0,p.sold-qty)}
+}
 function addProduct(i){
   const p=products[i];
   if(p.isRhum){
     if(!canSell(p)){alert("Stock insuffisant pour "+p.name);return}
-    pendingRhum=i;document.getElementById("rhumTitle").innerText=p.name;document.getElementById("rhumModal").style.display="flex";return
+    pendingRhum=i;document.getElementById("rhumTitle").innerText=p.name;document.getElementById("rhumModal").style.display="flex";return;
   }
-  const recipe = recipeFor(p);
-  const check = stockOk(recipe);
-  if(!check.ok){ alert(check.msg); return; }
-
+  const recipe=recipeFor(p), check=stockOk(recipe);
+  if(!check.ok){alert(check.msg);return}
   addToCart(p.name,p.price,recipe);
-  if(p.consumes) p.sold++;
+  if(p.consumes)p.sold++;
   consume(recipe);
-  save(); renderAll();
+  save();renderAll();
 }
-
 function confirmRhum(dbl){
-  if(pendingRhum===null) return;
-  const p=products[pendingRhum], oz=dbl?2:1, price=dbl?6:4.5, name=dbl?p.name+" Double":p.name;
-  const recipe = [{name:"Rhum", qty:oz},{name:p.mix, qty:0.5}];
-
-  const rhum = findP("Rhum");
-  if(!rhum || rhum.stock < oz){
-    alert("Stock insuffisant : il n'y a pas assez de rhum. Ajoute une bouteille de rhum dans l'inventaire.");
-    return;
-  }
-
-  const mix = findP(p.mix);
-  if(!mix || mix.stock < 0.5){
-    alert("Stock insuffisant : il n'y a pas assez de " + p.mix + ".");
-    return;
-  }
-
+  if(pendingRhum===null)return;
+  const p=products[pendingRhum],oz=dbl?2:1,price=dbl?6:4.5,name=dbl?p.name+" Double":p.name;
+  const recipe=[{name:"Rhum",qty:oz},{name:p.mix,qty:0.5}];
+  const check=stockOk(recipe);
+  if(!check.ok){alert(check.msg);return}
   addToCart(name,price,recipe);
   p.sold++;
   consume(recipe);
-  save(); closeRhum(); renderAll();
+  save();closeRhum();renderAll();
 }
 function closeRhum(){pendingRhum=null;document.getElementById("rhumModal").style.display="none"}
-
 function addToCart(name,price,recipe){
   const e=cart.find(x=>x.name===name&&x.price===price);
-  if(e){
-    e.qty++;
-  } else {
-    cart.push({name,price,qty:1,recipe:recipe || []});
-  }
+  if(e)e.qty++;else cart.push({name,price,qty:1,recipe:recipe||[]});
 }
-
 function renderCart(){
-  const body=document.getElementById("cartBody"); body.innerHTML="";
+  const body=document.getElementById("cartBody");body.innerHTML="";
   let total=0;
   document.getElementById("emptyCart").style.display=cart.length?"none":"block";
   cart.forEach((x,i)=>{
-    const lt=x.qty*x.price; total+=lt;
+    const lt=x.qty*x.price;total+=lt;
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${x.name}</td><td>${x.qty}</td><td>${money(x.price)}</td><td>${money(lt)}</td><td><button class="red" onclick="removeLine(${i})">X</button></td>`;
     body.appendChild(tr);
@@ -351,264 +420,493 @@ function renderCart(){
   calcChange();
 }
 function totalCart(){return cart.reduce((s,x)=>s+x.qty*x.price,0)}
-function restoreRecipe(recipe, qty){
-  if(!recipe) return;
-  recipe.forEach(r=>{
-    const p = findP(r.name);
-    if(p){
-      p.stock += r.qty * qty;
-      p.sold = Math.max(0, p.sold - r.qty * qty);
-    }
-  });
-}
-
 function removeLine(i){
-  const line = cart[i];
-  if(line){
-    restoreRecipe(line.recipe, line.qty);
-    if(line.name === "6 Corona"){
-      const combo = findP("6 Corona");
-      if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
-    }
-    if(line.name.includes("Rhum & Pepsi")){
-      const rhumPepsi = findP("Rhum & Pepsi");
-      if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
-    }
-    if(line.name.includes("Rhum & 7-Up")){
-      const rhum7 = findP("Rhum & 7-Up");
-      if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
-    }
-  }
-  cart.splice(i,1);
-  save();
-  renderAll();
+  const line=cart[i];
+  if(line){restoreRecipe(line.recipe,line.qty);adjustComboSold(line,line.qty)}
+  cart.splice(i,1);save();renderAll();
 }
-
 function clearCart(){
-  cart.forEach(line=>{
-    restoreRecipe(line.recipe, line.qty);
-    if(line.name === "6 Corona"){
-      const combo = findP("6 Corona");
-      if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
-    }
-    if(line.name.includes("Rhum & Pepsi")){
-      const rhumPepsi = findP("Rhum & Pepsi");
-      if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
-    }
-    if(line.name.includes("Rhum & 7-Up")){
-      const rhum7 = findP("Rhum & 7-Up");
-      if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
-    }
-  });
-  cart=[];
-  save();
-  renderAll();
+  cart.forEach(line=>{restoreRecipe(line.recipe,line.qty);adjustComboSold(line,line.qty)});
+  cart=[];save();renderAll();
 }
-
 function setPay(m){
   payMode=m;
   document.getElementById("cashBtn").className=m==="cash"?"blue active":"gray";
   document.getElementById("interacBtn").className=m==="interac"?"blue active":"gray";
   calcChange();
 }
-function calcChange(){
-  const d=document.getElementById("change");
-  d.innerText = payMode==="cash" ? "Mode Cash" : "Paiement Interac";
-}
+function calcChange(){document.getElementById("change").innerText=payMode==="cash"?"Mode Cash":"Paiement Interac"}
 
 function openPayment(){
-  if(!cart.length) return;
-  if(payMode === "interac"){
-    finalizeInteracSale();
-    return;
-  }
-  receivedClicks = [];
-  receivedTotal = 0;
-  buildReceivedButtons();
+  if(!cart.length)return;
+  if(payMode==="interac"){finalizeInteracSale();return}
+  receivedClicks=[];changeClicks=[];receivedTotal=0;changeTotal=0;
   refreshPaymentModal();
   document.getElementById("paymentModal").style.display="flex";
 }
 function closePayment(){document.getElementById("paymentModal").style.display="none"}
 
-function buildReceivedButtons(){
-  const wrap = document.getElementById("receivedButtons");
-  wrap.innerHTML = "";
+function renderReceivedButtons(){
+  const wrap=document.getElementById("receivedButtons");
+  wrap.innerHTML="";
   denoms.forEach(d=>{
-    const btn = document.createElement("button");
-    btn.innerText = money(d);
-    btn.onclick = ()=>addReceived(d);
+    const btn=document.createElement("button");
+    btn.innerHTML=money(d);
+    btn.onclick=()=>addReceived(d);
     wrap.appendChild(btn);
   });
 }
+
+function drawerAfterReceivedAndChange(){
+  const simulated=JSON.parse(JSON.stringify(cash.drawer));
+  const rec=counts(receivedClicks);
+  const ch=counts(changeClicks);
+  for(const k in rec) simulated[k]=Number(simulated[k]||0)+Number(rec[k]||0);
+  for(const k in ch) simulated[k]=Number(simulated[k]||0)-Number(ch[k]||0);
+  return simulated;
+}
+
+function renderChangeButtons(){
+  const wrap=document.getElementById("changeButtons");
+  wrap.innerHTML="";
+  const available=drawerAfterReceivedAndChange();
+
+  denoms.forEach(d=>{
+    const k=String(d);
+    const qty=Number(available[k]||0);
+    const btn=document.createElement("button");
+    btn.innerHTML=money(d)+"<small>Dispo: "+qty+"</small>";
+
+    if(qty<=0){
+      btn.className="disabled";
+      btn.onclick=()=>alert("Impossible : tu n'as plus de "+money(d)+" dans la caisse.");
+    }else{
+      btn.onclick=()=>addGivenChange(d);
+    }
+
+    wrap.appendChild(btn);
+  });
+}
+
 function addReceived(v){
   receivedClicks.push(v);
-  receivedTotal += v;
+  receivedTotal+=v;
   refreshPaymentModal();
 }
-function undoLastBill(){
-  const v = receivedClicks.pop();
-  if(v === undefined) return;
-  receivedTotal -= v;
-  refreshPaymentModal();
+function undoLastReceived(){
+  const v=receivedClicks.pop();
+  if(v!==undefined){receivedTotal-=v;refreshPaymentModal()}
 }
 function resetReceived(){
-  receivedClicks = [];
-  receivedTotal = 0;
+  receivedClicks=[];receivedTotal=0;refreshPaymentModal()
+}
+function addGivenChange(v){
+  const available=drawerAfterReceivedAndChange();
+  if(Number(available[String(v)]||0)<=0){
+    alert("Impossible : tu n'as plus de "+money(v)+" dans la caisse.");
+    return;
+  }
+  changeClicks.push(v);
+  changeTotal+=v;
   refreshPaymentModal();
 }
+function undoLastChange(){
+  const v=changeClicks.pop();
+  if(v!==undefined){changeTotal-=v;refreshPaymentModal()}
+}
+function resetGivenChange(){changeClicks=[];changeTotal=0;refreshPaymentModal()}
+function counts(arr){const c={};arr.forEach(v=>c[String(v)]=(c[String(v)]||0)+1);return c}
+function formatCounts(c){
+  const keys=Object.keys(c).sort((a,b)=>Number(b)-Number(a));
+  if(!keys.length)return "- Aucun";
+  return keys.map(k=>"- "+money(k)+" x "+c[k]).join("\n");
+}
 function refreshPaymentModal(){
-  const due = totalCart();
-  const change = receivedTotal - due;
-  document.getElementById("payDue").innerText = money(due);
-  document.getElementById("payReceived").innerText = money(receivedTotal);
-  document.getElementById("payChange").innerText = change >= 0 ? money(change) : "Manque " + money(Math.abs(change));
+  const due=totalCart();
+  const required=Number(Math.max(0,receivedTotal-due).toFixed(2));
+  const manque=Number(Math.max(0,due-receivedTotal).toFixed(2));
 
-  const counts = {};
-  receivedClicks.forEach(v=>counts[v]=(counts[v]||0)+1);
-  let txt = "Argent reçu :\n";
-  if(!receivedClicks.length) txt += "- Aucun\n";
-  Object.keys(counts).sort((a,b)=>Number(b)-Number(a)).forEach(k=>txt += "- "+money(k)+" x "+counts[k]+"\n");
-  if(change >= 0) txt += "\nÀ redonner : " + money(change);
-  else txt += "\nIl manque : " + money(Math.abs(change));
-  document.getElementById("paymentBreakdown").innerText = txt;
+  document.getElementById("payDue").innerText=money(due);
+  document.getElementById("payReceived").innerText=money(receivedTotal);
+  document.getElementById("payChange").innerText=money(required);
+
+  renderReceivedButtons();
+  renderChangeButtons();
+
+  let recText="Argent reçu :\n"+formatCounts(counts(receivedClicks));
+  if(manque>0) recText+="\n\nIl manque encore : "+money(manque);
+  else recText+="\n\nMontant suffisant.";
+
+  let chText="Change sélectionné :\n"+formatCounts(counts(changeClicks));
+  chText+="\n\nChange requis : "+money(required);
+  chText+="\nChange sélectionné : "+money(changeTotal);
+
+  if(Number(changeTotal.toFixed(2))>required){
+    chText+="\n\n⚠️ Trop de change sélectionné.";
+  }else if(Number(changeTotal.toFixed(2))<required){
+    chText+="\n\nIl reste à redonner : "+money(required-changeTotal);
+  }else{
+    chText+="\n\nChange exact.";
+  }
+
+  document.getElementById("receivedBreakdown").innerText=recText;
+  document.getElementById("changeBreakdown").innerText=chText;
+}
+function canRemoveFromDrawer(changeCounts, simulatedDrawer){
+  for(const k in changeCounts){
+    if(Number(simulatedDrawer[k]||0)<Number(changeCounts[k]||0))return false;
+  }
+  return true;
 }
 function confirmCashPayment(){
-  const total = totalCart();
-  if(receivedTotal < total){alert("Montant reçu insuffisant.");return}
-  const change = receivedTotal - total;
+  const total=totalCart();
+  if(receivedTotal<total){alert("Montant reçu insuffisant.");return}
+  const required=Number((receivedTotal-total).toFixed(2));
+  if(Number(changeTotal.toFixed(2))!==required){
+    alert("Erreur de change : le montant redonné doit être exactement " + money(required) + ".");
+    return;
+  }
 
-  const beforeProducts = JSON.parse(JSON.stringify(products));
-  const beforeCash = JSON.parse(JSON.stringify(cash));
+  const beforeCash=JSON.parse(JSON.stringify(cash));
+  const beforeProducts=JSON.parse(JSON.stringify(products));
+  const recCounts=counts(receivedClicks), chCounts=counts(changeClicks);
+  const simulated=JSON.parse(JSON.stringify(cash.drawer));
+  for(const k in recCounts) simulated[k]=Number(simulated[k]||0)+Number(recCounts[k]||0);
 
-  // La caisse finale augmente seulement du montant de la vente, car le change est redonné.
-  cash.current += total;
-  cash.cashSales += total;
+  if(!canRemoveFromDrawer(chCounts,simulated)){
+    alert("Tu n'as pas assez de billets/pièces dans la caisse pour redonner ce change.");
+    return;
+  }
 
-  recordSale("cash", total, receivedTotal, change, beforeProducts, beforeCash);
+  for(const k in recCounts) cash.drawer[k]=Number(cash.drawer[k]||0)+Number(recCounts[k]||0);
+  for(const k in chCounts) cash.drawer[k]=Number(cash.drawer[k]||0)-Number(chCounts[k]||0);
+
+  cash.current=drawerTotal();
+  cash.cashSales+=total;
+
+  recordSale("cash",total,receivedTotal,required,beforeProducts,beforeCash,recCounts,chCounts);
   closePayment();
 }
 function finalizeInteracSale(){
-  const total = totalCart();
-  const beforeProducts = JSON.parse(JSON.stringify(products));
-  const beforeCash = JSON.parse(JSON.stringify(cash));
-  cash.interacSales += total;
-  recordSale("interac", total, 0, 0, beforeProducts, beforeCash);
+  const total=totalCart();
+  const beforeCash=JSON.parse(JSON.stringify(cash));
+  const beforeProducts=JSON.parse(JSON.stringify(products));
+  cash.interacSales+=total;
+  recordSale("interac",total,0,0,beforeProducts,beforeCash,{}, {});
 }
-function recordSale(mode,total,received,change,beforeProducts,beforeCash){
-  history.push({
-    date:new Date().toLocaleString("fr-CA"),
-    pay:mode,
-    total,
-    received,
-    change,
-    items:cart.map(x=>({...x})),
-    productsBefore: beforeProducts,
-    cashBefore: beforeCash
-  });
-  cart=[];
-  save();
-  renderAll();
+function recordSale(mode,total,received,change,beforeProducts,beforeCash,receivedCounts,changeCounts){
+  history.push({date:new Date().toLocaleString("fr-CA"),pay:mode,total,received,change,items:cart.map(x=>({...x})),productsBefore:beforeProducts,cashBefore:beforeCash,receivedCounts,changeCounts});
+  cart=[];save();renderAll();
 }
-
 function renderCash(){
+  cash.current=drawerTotal();
   document.getElementById("cashInitial").innerText=money(cash.initial);
   document.getElementById("cashCurrent").innerText=money(cash.current);
   document.getElementById("cashSales").innerText=money(cash.cashSales);
   document.getElementById("interacSales").innerText=money(cash.interacSales);
+  renderDrawerSmall();
 }
-function openCash(){
-  const box=document.getElementById("denoms"); box.innerHTML="";
+function renderDrawerSmall(){
+  const box=document.getElementById("drawerSmall");box.innerHTML="";
   denoms.forEach(d=>{
-    const div=document.createElement("div"); div.className="denom";
-    div.innerHTML=`<label>${money(d)}</label><input type="number" value="0" data-v="${d}" oninput="countCash()">`;
+    const div=document.createElement("div");div.className="drawerItem";
+    div.innerHTML="<small>"+money(d)+"</small><strong>x "+Number(cash.drawer[String(d)]||0)+"</strong>";
     box.appendChild(div);
   });
-  document.getElementById("cashModal").style.display="flex"; countCash();
 }
+let cashEditMode = "init";
+
+function openInitCash(){
+  cashEditMode = "init";
+  document.getElementById("cashModalTitle").innerText = "Initialiser la caisse";
+  document.getElementById("cashModalHelp").innerText = "Entre le nombre de billets/pièces au début de la soirée. Cela remet les ventes cash/interac à 0.";
+  document.getElementById("cashSaveBtn").innerText = "Initialiser la caisse";
+  buildCashInputs(false);
+}
+
+function openEditCash(){
+  cashEditMode = "edit";
+  document.getElementById("cashModalTitle").innerText = "Modifier la caisse";
+  document.getElementById("cashModalHelp").innerText = "Corrige le nombre de billets/pièces actuellement dans le tiroir. Les ventes ne seront pas remises à zéro.";
+  document.getElementById("cashSaveBtn").innerText = "Enregistrer modification";
+  buildCashInputs(true);
+}
+
+function buildCashInputs(useCurrentValues){
+  const box=document.getElementById("denoms");
+  box.innerHTML="";
+  denoms.forEach(d=>{
+    const currentQty = useCurrentValues ? Number(cash.drawer[String(d)] || 0) : 0;
+    const div=document.createElement("div");
+    div.className="denom";
+    div.innerHTML=`<label>${money(d)}</label><input type="number" value="${currentQty}" data-v="${d}" oninput="countCash()">`;
+    box.appendChild(div);
+  });
+  document.getElementById("cashModal").style.display="flex";
+  countCash();
+}
+
 function closeCash(){document.getElementById("cashModal").style.display="none"}
+
 function countCash(){
-  let t=0; document.querySelectorAll("#denoms input").forEach(i=>t+=(parseFloat(i.value)||0)*parseFloat(i.dataset.v));
-  document.getElementById("cashCount").innerText=money(t); return t;
+  let t=0;
+  document.querySelectorAll("#denoms input").forEach(i=>t+=(parseFloat(i.value)||0)*parseFloat(i.dataset.v));
+  document.getElementById("cashCount").innerText=money(t);
+  return t;
 }
-function saveCashInitial(){const t=countCash();cash={initial:t,current:t,cashSales:0,interacSales:0};save();renderAll();closeCash()}
+
+function saveCashInitial(){
+  const drawer={};
+  denoms.forEach(d=>drawer[String(d)]=0);
+  document.querySelectorAll("#denoms input").forEach(i=>drawer[String(i.dataset.v)]=parseFloat(i.value)||0);
+
+  cash.drawer=drawer;
+  cash.current=drawerTotal(drawer);
+
+  if(cashEditMode === "init"){
+    cash.initial=cash.current;
+    cash.cashSales=0;
+    cash.interacSales=0;
+  }
+
+  save();
+  renderAll();
+  closeCash();
+}
+
+function resetSalesOnly(){
+  if(!confirm("Initialiser les ventes? Cela efface l'historique, remet ventes cash/interac à 0 et remet les compteurs vendus à 0. L'inventaire et la caisse restent comme ils sont.")) return;
+
+  history = [];
+  cash.cashSales = 0;
+  cash.interacSales = 0;
+  products.forEach(p => p.sold = 0);
+
+  save();
+  renderAll();
+}
+
+
+function tipsTotal(){
+  return 0; // L'échange pourboire ne garde pas un solde séparé; il met à jour le tiroir-caisse directement.
+}
+
+function renderTips(){
+  const el = document.getElementById("tipsTotal");
+  if(el) el.innerText = "Mode échange";
+}
+
+function openTipsModal(){
+  const inBox = document.getElementById("tipsInDenoms");
+  const outBox = document.getElementById("tipsOutDenoms");
+  inBox.innerHTML = "";
+  outBox.innerHTML = "";
+
+  denoms.forEach(d=>{
+    const divIn = document.createElement("div");
+    divIn.className = "denom";
+    divIn.innerHTML = `<label>${money(d)}</label><input type="number" value="0" data-v="${d}" oninput="countTipsExchange()">`;
+    inBox.appendChild(divIn);
+
+    const currentQty = Number(cash.drawer[String(d)] || 0);
+    const divOut = document.createElement("div");
+    divOut.className = "denom";
+    divOut.innerHTML = `<label>${money(d)} <small style="color:#cbd5e1">(dispo: ${currentQty})</small></label><input type="number" value="0" data-v="${d}" oninput="countTipsExchange()">`;
+    outBox.appendChild(divOut);
+  });
+
+  document.getElementById("tipsModal").style.display = "flex";
+  countTipsExchange();
+}
+
+function closeTipsModal(){
+  document.getElementById("tipsModal").style.display = "none";
+}
+
+function countTipsExchange(){
+  let inTotal = 0;
+  let outTotal = 0;
+
+  document.querySelectorAll("#tipsInDenoms input").forEach(i=>{
+    inTotal += (parseFloat(i.value) || 0) * parseFloat(i.dataset.v);
+  });
+
+  document.querySelectorAll("#tipsOutDenoms input").forEach(i=>{
+    outTotal += (parseFloat(i.value) || 0) * parseFloat(i.dataset.v);
+  });
+
+  document.getElementById("tipsInTotal").innerText = money(inTotal);
+  document.getElementById("tipsOutTotal").innerText = money(outTotal);
+
+  let text = "Résumé échange\\n";
+  text += "Argent remis dans la caisse : " + money(inTotal) + "\\n";
+  text += "Argent pris par la serveuse : " + money(outTotal) + "\\n";
+
+  const diff = Number((inTotal - outTotal).toFixed(2));
+  if(diff > 0){
+    text += "Différence qui reste dans la caisse : +" + money(diff);
+  }else if(diff < 0){
+    text += "⚠️ La serveuse prend " + money(Math.abs(diff)) + " de plus que le verre.";
+  }else{
+    text += "Échange balancé.";
+  }
+
+  document.getElementById("tipsExchangeSummary").innerText = text;
+  return {inTotal, outTotal, diff};
+}
+
+function confirmTipsExchange(){
+  const inCounts = {};
+  const outCounts = {};
+
+  document.querySelectorAll("#tipsInDenoms input").forEach(i=>{
+    inCounts[String(i.dataset.v)] = parseFloat(i.value) || 0;
+  });
+
+  document.querySelectorAll("#tipsOutDenoms input").forEach(i=>{
+    outCounts[String(i.dataset.v)] = parseFloat(i.value) || 0;
+  });
+
+  let inTotal = 0;
+  let outTotal = 0;
+
+  denoms.forEach(d=>{
+    const k = String(d);
+    inTotal += d * Number(inCounts[k] || 0);
+    outTotal += d * Number(outCounts[k] || 0);
+  });
+
+  if(inTotal <= 0 && outTotal <= 0){
+    alert("Aucun montant entré.");
+    return;
+  }
+
+  // Simule le tiroir après avoir ajouté le verre, puis vérifie si la serveuse peut retirer ses billets.
+  const simulated = JSON.parse(JSON.stringify(cash.drawer));
+
+  denoms.forEach(d=>{
+    const k = String(d);
+    simulated[k] = Number(simulated[k] || 0) + Number(inCounts[k] || 0);
+  });
+
+  for(const d of denoms){
+    const k = String(d);
+    if(Number(outCounts[k] || 0) > Number(simulated[k] || 0)){
+      alert("Impossible : pas assez de " + money(d) + " dans la caisse pour la serveuse.");
+      return;
+    }
+  }
+
+  if(Number(inTotal.toFixed(2)) !== Number(outTotal.toFixed(2))){
+    const ok = confirm("L'échange n'est pas balancé.\\n\\nVerre remis : " + money(inTotal) + "\\nPris par serveuse : " + money(outTotal) + "\\n\\nContinuer quand même?");
+    if(!ok) return;
+  }
+
+  const beforeCash = JSON.parse(JSON.stringify(cash));
+
+  denoms.forEach(d=>{
+    const k = String(d);
+    cash.drawer[k] = Number(cash.drawer[k] || 0) + Number(inCounts[k] || 0) - Number(outCounts[k] || 0);
+  });
+
+  cash.current = drawerTotal();
+
+  history.push({
+    date: new Date().toLocaleString("fr-CA"),
+    pay: "pourboire",
+    total: 0,
+    received: inTotal,
+    change: outTotal,
+    items: [{name:"Échange pourboire serveuse", qty:1, price:0}],
+    productsBefore: JSON.parse(JSON.stringify(products)),
+    cashBefore: beforeCash,
+    tipsInCounts: inCounts,
+    tipsOutCounts: outCounts
+  });
+
+  save();
+  renderAll();
+  closeTipsModal();
+  alert("Échange pourboire effectué. La caisse est mise à jour.");
+}
 
 function renderHistory(){
-  const ul=document.getElementById("historyList"); ul.innerHTML="";
+  const ul=document.getElementById("historyList");ul.innerHTML="";
   history.slice().reverse().forEach(s=>{
     const li=document.createElement("li");
-    let payTxt = s.pay.toUpperCase();
-    if(s.pay==="cash") payTxt += ` reçu ${money(s.received)} change ${money(s.change)}`;
+    let payTxt=s.pay.toUpperCase();
+    if(s.pay==="cash")payTxt+=` reçu ${money(s.received)} change ${money(s.change)}`;
+    if(s.pay==="pourboire")payTxt=`POURBOIRE remis ${money(s.received)} / serveuse prend ${money(s.change)}`;
     li.innerText=`${s.date} — ${payTxt} — ${s.items.map(i=>i.name+" x"+i.qty).join(", ")} — Total: ${money(s.total)}`;
     ul.appendChild(li);
   });
 }
 function undoLastSale(){
-  if(history.length === 0){
-    alert("Aucune transaction à annuler.");
-    return;
-  }
-
-  if(!confirm("Annuler la dernière transaction? Le stock, les vendus et la caisse vont revenir comme avant cette vente.")){
-    return;
-  }
-
-  const last = history.pop();
-
-  // Remet le stock et les compteurs vendus selon les recettes de la transaction.
-  if(last.items){
-    last.items.forEach(line=>{
-      restoreRecipe(line.recipe, line.qty);
-
-      if(line.name === "6 Corona"){
-        const combo = findP("6 Corona");
-        if(combo) combo.sold = Math.max(0, combo.sold - line.qty);
-      }
-
-      if(line.name.includes("Rhum & Pepsi")){
-        const rhumPepsi = findP("Rhum & Pepsi");
-        if(rhumPepsi) rhumPepsi.sold = Math.max(0, rhumPepsi.sold - line.qty);
-      }
-
-      if(line.name.includes("Rhum & 7-Up")){
-        const rhum7 = findP("Rhum & 7-Up");
-        if(rhum7) rhum7.sold = Math.max(0, rhum7.sold - line.qty);
-      }
-    });
-  }
-
-  if(last.pay === "cash"){
-    cash.current = Math.max(cash.initial, cash.current - last.total);
-    cash.cashSales = Math.max(0, cash.cashSales - last.total);
-  } else {
-    cash.interacSales = Math.max(0, cash.interacSales - last.total);
-  }
-
-  cart = [];
-  save();
-  renderAll();
-  alert("Dernière transaction annulée. Le stock vendu est revenu comme avant.");
+  if(!history.length){alert("Aucune transaction à annuler.");return}
+  if(!confirm("Annuler la dernière transaction? Le stock, les vendus, les billets/pièces et la caisse vont revenir comme avant cette vente."))return;
+  const last=history.pop();
+  if(last.productsBefore)products=JSON.parse(JSON.stringify(last.productsBefore));
+  if(last.cashBefore)cash=JSON.parse(JSON.stringify(last.cashBefore));
+  cart=[];save();renderAll();
+  alert("Dernière transaction annulée.");
 }
-
 function resetData(){
   if(!confirm("Effacer historique et cash de soirée?"))return;
-  history=[];cash={initial:cash.initial,current:cash.initial,cashSales:0,interacSales:0};save();renderAll()
+  history=[];cash.cashSales=0;cash.interacSales=0;save();renderAll();
 }
-function exportCSV(){
-  let csv="Date,Paiement,Recu,Change,Produit,Quantite,Prix,Total\n";
-  history.forEach(s=>s.items.forEach(i=>csv+=`"${s.date}","${s.pay}",${Number(s.received||0).toFixed(2)},${Number(s.change||0).toFixed(2)},"${i.name}",${i.qty},${i.price.toFixed(2)},${s.total.toFixed(2)}\n`));
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), a=document.getElementById("download");
-  a.href=url; a.download="ventes_bar.csv"; a.click(); URL.revokeObjectURL(url);
+function exportCSV() {
+
+  let csv = "Date;Paiement;Recu;Change;Produit;Quantite;Prix;Total\n";
+
+  history.forEach(sale => {
+
+    sale.items.forEach(item => {
+
+      csv += [
+        sale.date,
+        sale.pay,
+        sale.received || 0,
+        sale.change || 0,
+        item.name,
+        item.qty,
+        item.price.toFixed(2),
+        sale.total.toFixed(2)
+      ].join(";") + "\n";
+
+    });
+
+  });
+
+  const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const link = document.createElement("a");
+
+  link.href = URL.createObjectURL(blob);
+
+  link.download = "ventes_bar.csv";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
 }
+
 function openReport(){
-  let txt="RAPPORT FIN DE SOIRÉE\n------------------------\n";
-  txt+="Cash initial : "+money(cash.initial)+"\nCash final : "+money(cash.current)+"\nVentes cash : "+money(cash.cashSales)+"\nVentes Interac : "+money(cash.interacSales)+"\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\n\nINVENTAIRE RESTANT\n";
-  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\n`);
+  cash.current=drawerTotal();
+  let txt="RAPPORT FIN DE SOIRÉE\\n------------------------\\n";
+  txt+="Cash initial : "+money(cash.initial)+"\\nCash final : "+money(cash.current)+"\\nVentes cash : "+money(cash.cashSales)+"\\nVentes Interac : "+money(cash.interacSales)+"\\nTotal ventes : "+money(cash.cashSales+cash.interacSales)+"\\n\\nBILLETS / PIÈCES DANS LA CAISSE\\n";
+  denoms.forEach(d=>txt+=money(d)+" x "+Number(cash.drawer[String(d)]||0)+"\\n");
+  txt+="\\nINVENTAIRE RESTANT\\n";
+  products.forEach(p=>txt+=`${p.name} : ${p.stock} restant | vendu ${p.sold}\\n`);
   document.getElementById("reportText").innerText=txt;
   document.getElementById("reportModal").style.display="flex";
 }
 function closeReport(){document.getElementById("reportModal").style.display="none"}
 function copyReport(){navigator.clipboard.writeText(document.getElementById("reportText").innerText);alert("Rapport copié.")}
-function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderHistory()}
+function renderAll(){renderProducts();renderCart();renderInventory();renderCash();renderTips();renderHistory()}
 window.onload=()=>{renderAll();setPay("cash")}
 </script>
 </body>
