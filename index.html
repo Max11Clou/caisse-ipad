@@ -327,6 +327,22 @@ select{
   color:#facc15;
   font-weight:bold;
 }
+
+.validation-result{
+  background:#0f172a;
+  border:1px solid #334155;
+  border-radius:14px;
+  padding:12px;
+  margin-top:12px;
+  white-space:pre-wrap;
+  text-align:left;
+  color:#e5e7eb;
+}
+.file-input{
+  background:#0f172a;
+  border:1px solid #334155;
+  color:white;
+}
 </style>
 </head>
 <body>
@@ -460,6 +476,22 @@ select{
           <button class="gray" onclick="showErrorLogs()">Voir erreurs</button>
         </div>
         <div id="errorLogList"></div>
+      </div>
+    </section>
+
+    <section class="section collapsible admin-only" id="backupSection">
+      <h2 class="collapsible-header" onclick="toggleCollapse('backupSection')">Sauvegarde / Validation <span>▼</span></h2>
+      <div class="collapsible-body">
+        <div class="actions">
+          <button class="blue" onclick="exportBackupJSON()">Sauvegarde JSON</button>
+          <button class="gray" onclick="document.getElementById('backupImportFile').click()">Importer JSON</button>
+        </div>
+        <input id="backupImportFile" class="file-input" type="file" accept=".json,application/json" style="display:none" onchange="importBackupJSON(event)">
+
+        <div class="actions">
+          <button class="green" onclick="openValidateNight()">Valider fin de soirée</button>
+          <button class="gray" onclick="openReport()">Rapport pro</button>
+        </div>
       </div>
     </section>
 
@@ -602,6 +634,26 @@ select{
 
     <button class="blue" onclick="confirmComp()">Confirmer consommation offerte</button>
     <button class="gray" onclick="closeCompModal()">Fermer</button>
+  </div>
+</div>
+
+
+<div class="modalbg" id="validateModal">
+  <div class="modal">
+    <h2>Validation fin de soirée</h2>
+    <p style="color:#cbd5e1">
+      Compte physiquement la caisse et entre le nombre de billets/pièces. Le système compare avec la caisse théorique.
+    </p>
+
+    <div id="validateDenoms"></div>
+
+    <div class="cashbox"><small>Cash réellement compté</small><strong id="validateCountTotal">0.00 $</strong></div>
+    <div class="cashbox" style="margin-top:10px;"><small>Cash théorique système</small><strong id="validateSystemTotal">0.00 $</strong></div>
+
+    <div id="validationResult" class="validation-result"></div>
+
+    <button class="green" onclick="saveValidationReport()">Enregistrer validation</button>
+    <button class="gray" onclick="closeValidateNight()">Fermer</button>
   </div>
 </div>
 
@@ -878,6 +930,8 @@ let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
 const ERROR_KEY = "caisse_errors_" + VERSION;
 let errorLogs = JSON.parse(localStorage.getItem(ERROR_KEY) || "[]");
 let currentErrorType = "";
+const VALIDATION_KEY = "caisse_validations_" + VERSION;
+let validations = JSON.parse(localStorage.getItem(VALIDATION_KEY) || "[]");
 const denoms = [100,50,20,10,5,2,1,0.25];
 
 let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {
@@ -917,6 +971,7 @@ function save(){
   localStorage.setItem(HISTORY_KEY,JSON.stringify(history));
   localStorage.setItem(CASH_KEY,JSON.stringify(cash));
   localStorage.setItem(ERROR_KEY,JSON.stringify(errorLogs));
+  localStorage.setItem(VALIDATION_KEY,JSON.stringify(validations));
 }
 function findP(name){return products.find(p=>p.name===name)}
 function sid(name){return name.replace(/[^a-zA-Z0-9]/g,"_")}
@@ -1308,6 +1363,7 @@ function resetSalesOnly(){
 
   history = [];
   errorLogs = [];
+  validations = [];
   cash.cashSales = 0;
   cash.interacSales = 0;
   products.forEach(p => p.sold = 0);
@@ -1612,6 +1668,155 @@ function renderErrorLogs(){
   if(wrap.innerHTML.trim()) showErrorLogs();
 }
 
+
+function collectBackupData(){
+  return {
+    version: VERSION,
+    dateBackup: new Date().toLocaleString("fr-CA"),
+    products,
+    history,
+    cash,
+    errorLogs,
+    validations,
+    users
+  };
+}
+
+function exportBackupJSON(){
+  if(!requireAdmin()) return;
+
+  const data = collectBackupData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sauvegarde_caisse_bar_" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importBackupJSON(event){
+  if(!requireAdmin()) return;
+
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+
+      if(!confirm("Importer cette sauvegarde? Cela remplacera les produits, ventes, caisse, erreurs, validations et employés actuels.")){
+        event.target.value = "";
+        return;
+      }
+
+      if(data.products) products = data.products;
+      if(data.history) history = data.history;
+      if(data.cash) cash = data.cash;
+      if(data.errorLogs) errorLogs = data.errorLogs;
+      if(data.validations) validations = data.validations;
+      if(data.users) users = data.users;
+
+      saveUsers();
+      save();
+      renderAll();
+      applyUserSession();
+
+      alert("Sauvegarde importée avec succès.");
+    }catch(err){
+      alert("Fichier JSON invalide.");
+    }
+
+    event.target.value = "";
+  };
+
+  reader.readAsText(file);
+}
+
+function openValidateNight(){
+  if(!requireAdmin()) return;
+
+  const box = document.getElementById("validateDenoms");
+  box.innerHTML = "";
+
+  denoms.forEach(d=>{
+    const currentQty = Number(cash.drawer[String(d)] || 0);
+    const div = document.createElement("div");
+    div.className = "denom";
+    div.innerHTML = `<label>${money(d)} <small style="color:#cbd5e1">(système: ${currentQty})</small></label><input type="number" value="0" data-v="${d}" oninput="calculateValidation()">`;
+    box.appendChild(div);
+  });
+
+  document.getElementById("validateSystemTotal").innerText = money(drawerTotal());
+  document.getElementById("validateModal").style.display = "flex";
+  calculateValidation();
+}
+
+function closeValidateNight(){
+  document.getElementById("validateModal").style.display = "none";
+}
+
+function calculateValidation(){
+  let counted = 0;
+  const countedDrawer = {};
+
+  denoms.forEach(d=>countedDrawer[String(d)] = 0);
+
+  document.querySelectorAll("#validateDenoms input").forEach(i=>{
+    const qty = parseFloat(i.value) || 0;
+    const val = parseFloat(i.dataset.v);
+    countedDrawer[String(val)] = qty;
+    counted += qty * val;
+  });
+
+  const system = drawerTotal();
+  const diff = Number((counted - system).toFixed(2));
+
+  document.getElementById("validateCountTotal").innerText = money(counted);
+  document.getElementById("validateSystemTotal").innerText = money(system);
+
+  let text = "Résultat validation\\n";
+  text += "------------------------\\n";
+  text += "Cash système : " + money(system) + "\\n";
+  text += "Cash compté : " + money(counted) + "\\n";
+  text += "Différence : " + money(diff) + "\\n\\n";
+
+  if(diff === 0){
+    text += "✅ Caisse balancée.";
+  }else if(diff > 0){
+    text += "⚠️ Surplus de caisse : +" + money(diff);
+  }else{
+    text += "⚠️ Manque de caisse : -" + money(Math.abs(diff));
+  }
+
+  document.getElementById("validationResult").innerText = text;
+
+  return {counted, system, diff, countedDrawer};
+}
+
+function saveValidationReport(){
+  if(!requireAdmin()) return;
+
+  const result = calculateValidation();
+
+  validations.push({
+    date: new Date().toLocaleString("fr-CA"),
+    employee: currentUser ? currentUser.name : "",
+    counted: result.counted,
+    system: result.system,
+    diff: result.diff,
+    countedDrawer: result.countedDrawer,
+    systemDrawer: JSON.parse(JSON.stringify(cash.drawer))
+  });
+
+  save();
+  alert("Validation fin de soirée enregistrée.");
+  closeValidateNight();
+}
+
 function renderHistory(){
   const ul=document.getElementById("historyList");ul.innerHTML="";
   history.slice().reverse().forEach(s=>{
@@ -1760,6 +1965,14 @@ function openReport(){
   const tips = history.filter(s=>s.pay==="pourboire");
   if(!tips.length) txt+="Aucun échange pourboire.\n";
   tips.forEach(s=>txt+=`${s.date} | ${s.employee || ""} | remis caisse: ${money(s.received)} | pris serveuse: ${money(s.change)}\n`);
+  txt+="\n";
+
+  txt+="VALIDATIONS FIN DE SOIRÉE\n";
+  txt+="------------------------\n";
+  if(!validations.length) txt+="Aucune validation enregistrée.\n";
+  validations.forEach(v=>{
+    txt+=`${v.date} | ${v.employee || ""} | Compté: ${money(v.counted)} | Système: ${money(v.system)} | Diff: ${money(v.diff)}\n`;
+  });
   txt+="\n";
 
   txt+="ERREURS / OFFERTS\n";
