@@ -6,55 +6,315 @@
   <title>Caisse Bar Dek Hockey</title>
   <style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #111827; color: white; }
-    header { background: #020617; padding: 14px; text-align: center; border-bottom: 3px solid #facc15; }
-    header h1 { margin: 0; font-size: 30px; color: #facc15; text-transform: uppercase; }
-    .container { display: grid; grid-template-columns: 1fr 420px; gap: 16px; padding: 16px; }
-    .section { background: #1f2937; border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
-    .section h2 { margin-top: 0; color: #facc15; border-bottom: 1px solid #374151; padding-bottom: 8px; }
-    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; }
-    .product { border: none; border-radius: 14px; padding: 12px; min-height: 104px; color: white; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; text-align: left; transition: transform 0.1s, opacity 0.1s; }
-    .product:active { transform: scale(0.96); opacity: 0.85; }
-    .beer { background: #2563eb; }
-    .drink { background: #16a34a; }
-    .rhum { background: #7c2d12; }
-    .food { background: #dc2626; }
-    .special { background: #b91c1c; }
-    .price { font-size: 23px; color: #fff7ed; }
-    .stock { font-size: 12px; color: #e5e7eb; font-weight: normal; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
-    th, td { padding: 7px; border-bottom: 1px solid #374151; text-align: left; }
-    th { color: #facc15; }
-    button { cursor: pointer; border: none; border-radius: 10px; padding: 10px 12px; font-weight: bold; font-size: 14px; }
-    .delete-btn { background: #ef4444; color: white; }
-    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .primary { background: #22c55e; color: white; }
-    .warning { background: #f97316; color: white; }
-    .danger { background: #dc2626; color: white; }
-    .gray { background: #6b7280; color: white; }
-    .blue { background: #2563eb; color: white; }
-    .total-box { font-size: 32px; font-weight: bold; color: #facc15; text-align: right; margin-top: 12px; }
-    input, select { width: 100%; padding: 11px; font-size: 17px; border-radius: 10px; border: none; margin-top: 6px; }
-    .change { font-size: 22px; color: #22c55e; font-weight: bold; margin-top: 10px; text-align: right; }
-    .option-box { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; justify-content: center; align-items: center; padding: 14px; }
-    .option-card { background: #1f2937; border: 2px solid #facc15; border-radius: 18px; padding: 22px; width: min(520px, 94vw); text-align: center; max-height: 92vh; overflow: auto; }
-    .option-card h2 { color: #facc15; margin-top: 0; }
-    .option-card button { width: 100%; margin-top: 10px; font-size: 18px; padding: 15px; }
-    ul { max-height: 180px; overflow-y: auto; padding-left: 20px; font-size: 12px; }
-    .cash-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .cash-box { background:#0f172a; border-radius:12px; padding:10px; }
-    .cash-box small { color:#cbd5e1; display:block; }
-    .cash-box strong { color:#facc15; font-size:20px; }
-    .inv-actions { display:flex; gap:6px; align-items:center; }
-    .inv-actions input { width:70px; padding:7px; font-size:14px; margin:0; }
-    .inv-actions button { padding:7px 9px; }
-    .modal-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; }
-    .cash-denom { display:grid; grid-template-columns: 1fr 70px; gap:8px; align-items:center; margin-bottom:8px; text-align:left; }
-    .cash-denom label { font-weight:bold; }
-    .cash-denom input { margin:0; }
-    .radio-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
-    .radio-row button.active { outline:3px solid #facc15; }
-    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+    body {
+      margin: 0;
+      background: #0b1120;
+      color: white;
+    }
+
+    header {
+      background: linear-gradient(90deg, #020617, #111827);
+      padding: 18px;
+      text-align: center;
+      border-bottom: 4px solid #facc15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 34px;
+      color: #facc15;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .section {
+      background: #1e293b;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      border: 1px solid #334155;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      color: #facc15;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 10px;
+      font-size: 23px;
+    }
+
+    .category-title {
+      margin: 18px 0 10px;
+      font-size: 18px;
+      color: #e5e7eb;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 12px;
+    }
+
+    .product {
+      border: none;
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 118px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      transition: transform 0.08s, opacity 0.08s;
+      box-shadow: inset 0 -5px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .product:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+
+    .beer { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .drink { background: linear-gradient(135deg, #16a34a, #15803d); }
+    .rhum { background: linear-gradient(135deg, #9a3412, #7c2d12); }
+    .food { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+    .special { background: linear-gradient(135deg, #ef4444, #991b1b); }
+
+    .price {
+      font-size: 27px;
+      color: #fff7ed;
+      margin-top: 8px;
+    }
+
+    .stock {
+      font-size: 12px;
+      color: #e5e7eb;
+      font-weight: normal;
+      margin-top: 8px;
+    }
+
+    .right-side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #334155;
+      text-align: left;
+    }
+
+    th {
+      color: #facc15;
+      font-size: 13px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-weight: bold;
+      font-size: 14px;
+      color: white;
+    }
+
+    .delete-btn { background: #ef4444; }
+    .primary { background: #22c55e; }
+    .warning { background: #f97316; }
+    .danger { background: #dc2626; }
+    .gray { background: #64748b; }
+    .blue { background: #2563eb; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .total-box {
+      font-size: 40px;
+      font-weight: bold;
+      color: #facc15;
+      text-align: right;
+      margin-top: 12px;
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      margin-top: 6px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .change {
+      font-size: 24px;
+      color: #22c55e;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: right;
+      min-height: 30px;
+    }
+
+    .radio-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .active {
+      outline: 3px solid #facc15;
+      box-shadow: 0 0 12px rgba(250,204,21,0.45);
+    }
+
+    .cash-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .cash-box {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid #334155;
+    }
+
+    .cash-box small {
+      color: #cbd5e1;
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .cash-box strong {
+      color: #facc15;
+      font-size: 22px;
+    }
+
+    .inventory-scroll {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .inv-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .inv-actions input {
+      width: 64px;
+      padding: 7px;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .inv-actions button {
+      padding: 7px 9px;
+    }
+
+    ul {
+      max-height: 180px;
+      overflow-y: auto;
+      padding-left: 20px;
+      font-size: 12px;
+    }
+
+    .option-box {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .option-card {
+      background: #1e293b;
+      border: 2px solid #facc15;
+      border-radius: 20px;
+      padding: 24px;
+      width: min(540px, 94vw);
+      text-align: center;
+      max-height: 92vh;
+      overflow: auto;
+    }
+
+    .option-card h2 {
+      color: #facc15;
+      margin-top: 0;
+    }
+
+    .option-card button {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 19px;
+      padding: 16px;
+    }
+
+    .cash-denom {
+      display: grid;
+      grid-template-columns: 1fr 90px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .cash-denom input { margin: 0; }
+
+    .empty-note {
+      color: #94a3b8;
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1050px) {
+      .container { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -63,16 +323,24 @@
   <div class="container">
     <div class="section">
       <h2>Produits</h2>
-      <div id="products" class="products-grid"></div>
+      <div class="category-title">🍺 Bières</div>
+      <div id="beer-products" class="products-grid"></div>
+      <div class="category-title">🥤 Boissons</div>
+      <div id="drink-products" class="products-grid"></div>
+      <div class="category-title">🥃 Rhum</div>
+      <div id="rhum-products" class="products-grid"></div>
+      <div class="category-title">🍫 Collations</div>
+      <div id="food-products" class="products-grid"></div>
     </div>
 
-    <div>
+    <div class="right-side">
       <div class="section">
         <h2>Facture</h2>
         <table>
           <thead><tr><th>Article</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr></thead>
           <tbody id="cart-body"></tbody>
         </table>
+        <div id="empty-cart" class="empty-note">Aucun produit dans la facture</div>
         <div class="total-box" id="total">0.00 $</div>
 
         <div class="radio-row">
@@ -80,8 +348,8 @@
           <button id="btn-interac" class="gray" onclick="setPaymentMode('interac')">Interac</button>
         </div>
 
-        <label>Argent reçu</label>
-        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()" />
+        <label id="received-label">Argent reçu</label>
+        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()">
         <div class="change" id="change-display"></div>
 
         <div class="action-row">
@@ -90,7 +358,7 @@
         </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Caisse Cash</h2>
         <div class="cash-summary">
           <div class="cash-box"><small>Cash initial</small><strong id="cash-initial">0.00 $</strong></div>
@@ -104,15 +372,17 @@
         </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Inventaire</h2>
-        <table>
-          <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
-          <tbody id="inventory-body"></tbody>
-        </table>
+        <div class="inventory-scroll">
+          <table>
+            <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Historique</h2>
         <ul id="sale-log"></ul>
         <div class="action-row">
@@ -134,10 +404,10 @@
 
   <div id="cash-modal" class="option-box">
     <div class="option-card">
-      <h2>Fonds de caisse initial</h2>
-      <p style="color:#cbd5e1;">Entre le nombre de billets/pièces au début de la soirée.</p>
+      <h2>Entrée de caisse initiale</h2>
+      <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
       <div id="denoms-list"></div>
-      <div class="cash-box" style="margin-top:10px;"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
+      <div class="cash-box" style="margin-top:10px"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
       <button class="primary" onclick="saveInitialCash()">Enregistrer cash initial</button>
       <button class="gray" onclick="closeCashModal()">Fermer</button>
     </div>
@@ -146,8 +416,8 @@
   <div id="report-modal" class="option-box">
     <div class="option-card">
       <h2>Rapport fin de soirée</h2>
-      <pre id="report-text" style="text-align:left; white-space:pre-wrap; background:#0f172a; padding:12px; border-radius:12px;"></pre>
-      <button class="gray" onclick="copyReport()">Copier le rapport</button>
+      <pre id="report-text" style="text-align:left;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:12px"></pre>
+      <button class="gray" onclick="copyReport()">Copier rapport</button>
       <button class="gray" onclick="closeReport()">Fermer</button>
     </div>
   </div>
@@ -158,357 +428,276 @@
     let cart = [];
     let pendingRhum = null;
     let paymentMode = 'cash';
-
     let history = JSON.parse(localStorage.getItem('history') || '[]');
-    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || {
-      initial: 0,
-      current: 0,
-      cashSales: 0,
-      interacSales: 0
-    };
-
-    const denominations = [100, 50, 20, 10, 5, 2, 1, 0.25];
+    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || { initial:0, current:0, cashSales:0, interacSales:0 };
+    const denominations = [100,50,20,10,5,2,1,0.25];
 
     const products = [
-      { name: 'Corona', price: 4.00, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Bud', price: 3.50, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Bud Light', price: 3.50, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Ultra', price: 4.00, category: 'beer', stock: 0, sold: 0 },
-      { name: '6 Corona', price: 20.00, category: 'special', stock: 0, sold: 0, consumes: { 'Corona': 6 } },
-      { name: 'Pepsi', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: '7-Up', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Eau', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Gatorade', price: 3.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Rhum', price: 0.00, category: 'other', stock: 0, sold: 0, hidden: true },
-      { name: 'Rhum & Pepsi', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: 'Pepsi' },
-      { name: 'Rhum & 7-Up', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: '7-Up' },
-      { name: 'Chips', price: 2.00, category: 'food', stock: 0, sold: 0 },
-      { name: 'Chocolat', price: 2.00, category: 'food', stock: 0, sold: 0 }
+      { name:'Corona', price:4.00, category:'beer', stock:0, sold:0 },
+      { name:'Bud', price:3.50, category:'beer', stock:0, sold:0 },
+      { name:'Bud Light', price:3.50, category:'beer', stock:0, sold:0 },
+      { name:'Ultra', price:4.00, category:'beer', stock:0, sold:0 },
+      { name:'6 Corona', price:20.00, category:'beer', special:true, stock:0, sold:0, consumes:{'Corona':6} },
+      { name:'Pepsi', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'7-Up', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'Eau', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'Gatorade', price:3.00, category:'drink', stock:0, sold:0 },
+      { name:'Rhum', price:0.00, category:'hidden', stock:0, sold:0 },
+      { name:'Rhum & Pepsi', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'Pepsi' },
+      { name:'Rhum & 7-Up', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'7-Up' },
+      { name:'Chips', price:2.00, category:'food', stock:0, sold:0 },
+      { name:'Chocolat', price:2.00, category:'food', stock:0, sold:0 }
     ];
 
-    function money(n) { return Number(n || 0).toFixed(2) + ' $'; }
-    function idName(name) { return name.replaceAll(' ', '_').replaceAll('&', 'and').replaceAll('-', '_'); }
+    function money(n){ return Number(n||0).toFixed(2)+' $'; }
+    function idName(name){ return name.replace(/[^a-zA-Z0-9]/g,'_'); }
+    function saveProducts(){ localStorage.setItem('products', JSON.stringify(products)); }
+    function saveCash(){ localStorage.setItem('cashData', JSON.stringify(cashData)); }
 
-    function saveProducts() { localStorage.setItem('products', JSON.stringify(products)); }
-    function saveCash() { localStorage.setItem('cashData', JSON.stringify(cashData)); }
-
-    function loadProducts() {
+    function loadProducts(){
       const saved = JSON.parse(localStorage.getItem('products') || 'null');
-      if (!saved) return;
-      saved.forEach(savedItem => {
-        const item = products.find(p => p.name === savedItem.name);
-        if (item) {
-          item.stock = savedItem.stock ?? item.stock;
-          item.sold = savedItem.sold ?? item.sold;
-        }
+      if(!saved) return;
+      saved.forEach(s=>{
+        const item = products.find(p=>p.name===s.name);
+        if(item){ item.stock = s.stock ?? item.stock; item.sold = s.sold ?? item.sold; }
       });
     }
 
-    function renderProducts() {
-      const wrap = document.getElementById('products');
-      wrap.innerHTML = '';
-      products.filter(p => !p.hidden).forEach((item) => {
-        const index = products.indexOf(item);
-        const btn = document.createElement('button');
-        btn.className = `product ${item.category}`;
-        btn.onclick = () => addProduct(index);
-        btn.innerHTML = `
-          <span>${item.name}</span>
-          <span class="price">${money(item.price)}</span>
-          <span class="stock">Vendu: <span id="sold-${index}">${item.sold}</span> | Stock: ${item.stock}</span>
-        `;
-        wrap.appendChild(btn);
+    function renderProducts(){
+      const zones = {
+        beer: document.getElementById('beer-products'),
+        drink: document.getElementById('drink-products'),
+        rhum: document.getElementById('rhum-products'),
+        food: document.getElementById('food-products')
+      };
+      Object.values(zones).forEach(z => z.innerHTML = '');
+
+      products.filter(p=>p.category !== 'hidden').forEach(item=>{
+        const index=products.indexOf(item);
+        const btn=document.createElement('button');
+        btn.className=`product ${item.special ? 'special' : item.category}`;
+        btn.onclick=()=>addProduct(index);
+        btn.innerHTML=`<span>${item.name}</span><span class="price">${money(item.price)}</span><span class="stock">Vendu: ${item.sold} | Stock: ${item.stock}</span>`;
+        zones[item.category].appendChild(btn);
       });
     }
 
-    function renderInventory() {
-      const tbody = document.getElementById('inventory-body');
-      tbody.innerHTML = '';
-      products.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.sold}</td>
-          <td>${item.stock}</td>
-          <td>
-            <div class="inv-actions">
-              <input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
-              <button class="primary" onclick="addInventory(${index})">+</button>
-              <button class="danger" onclick="removeInventory(${index})">-</button>
-            </div>
-          </td>
-        `;
+    function renderInventory(){
+      const tbody=document.getElementById('inventory-body');
+      tbody.innerHTML='';
+      products.forEach((item,index)=>{
+        const row=document.createElement('tr');
+        row.innerHTML=`
+          <td>${item.name}</td><td>${item.sold}</td><td>${item.stock}</td>
+          <td><div class="inv-actions"><input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
+          <button class="primary" onclick="addInventory(${index})">+</button>
+          <button class="danger" onclick="removeInventory(${index})">-</button></div></td>`;
         tbody.appendChild(row);
       });
     }
 
-    function addInventory(index) {
-      const item = products[index];
-      const input = document.getElementById(`inv-${idName(item.name)}`);
-      const qty = parseFloat(input.value) || 1;
+    function addInventory(index){
+      const item=products[index];
+      const input=document.getElementById(`inv-${idName(item.name)}`);
+      const qty=parseFloat(input.value)||1;
       item.stock += qty;
-      input.value = '';
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      input.value='';
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function removeInventory(index) {
-      const item = products[index];
-      const input = document.getElementById(`inv-${idName(item.name)}`);
-      const qty = parseFloat(input.value) || 1;
+    function removeInventory(index){
+      const item=products[index];
+      const input=document.getElementById(`inv-${idName(item.name)}`);
+      const qty=parseFloat(input.value)||1;
       item.stock -= qty;
-      input.value = '';
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      input.value='';
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function addProduct(index) {
-      const item = products[index];
-      if (item.isRhum) {
-        pendingRhum = index;
-        document.getElementById('rhum-title').innerText = item.name;
-        document.getElementById('rhum-options').style.display = 'flex';
+    function addProduct(index){
+      const item=products[index];
+      if(item.isRhum){
+        pendingRhum=index;
+        document.getElementById('rhum-title').innerText=item.name;
+        document.getElementById('rhum-options').style.display='flex';
         return;
       }
-      addToCart(item.name, item.price);
-      applyInventory(item, 1);
+      addToCart(item.name,item.price);
+      applyInventory(item,1);
     }
 
-    function confirmRhum(double) {
-      if (pendingRhum === null) return;
-      const item = products[pendingRhum];
-      const rhumOz = double ? 2 : 1;
-      const price = double ? 6.00 : 4.50;
-      const name = double ? `${item.name} Double` : item.name;
-      addToCart(name, price);
+    function confirmRhum(double){
+      if(pendingRhum===null) return;
+      const item=products[pendingRhum];
+      const rhumOz=double?2:1;
+      const price=double?6.00:4.50;
+      const name=double?`${item.name} Double`:item.name;
+      addToCart(name,price);
       item.sold += 1;
-      const rhumInventory = products.find(p => p.name === 'Rhum');
-      if (rhumInventory) rhumInventory.stock -= rhumOz;
-      const mix = products.find(p => p.name === item.mix);
-      if (mix) mix.stock -= 0.5;
-      saveProducts();
-      renderProducts();
-      renderInventory();
-      closeRhumOptions();
+      const rhumInventory=products.find(p=>p.name==='Rhum');
+      if(rhumInventory) rhumInventory.stock -= rhumOz;
+      const mix=products.find(p=>p.name===item.mix);
+      if(mix) mix.stock -= 0.5;
+      saveProducts(); renderProducts(); renderInventory(); closeRhumOptions();
     }
 
-    function closeRhumOptions() {
-      pendingRhum = null;
-      document.getElementById('rhum-options').style.display = 'none';
-    }
+    function closeRhumOptions(){ pendingRhum=null; document.getElementById('rhum-options').style.display='none'; }
 
-    function addToCart(name, price) {
-      const existing = cart.find(p => p.name === name && p.price === price);
-      if (existing) existing.qty += 1;
-      else cart.push({ name, price, qty: 1 });
+    function addToCart(name,price){
+      const existing=cart.find(p=>p.name===name && p.price===price);
+      if(existing) existing.qty += 1;
+      else cart.push({name,price,qty:1});
       renderCart();
     }
 
-    function applyInventory(item, qty) {
+    function applyInventory(item,qty){
       item.sold += qty;
-      if (item.consumes) {
-        Object.keys(item.consumes).forEach(productName => {
-          const consumedItem = products.find(p => p.name === productName);
-          if (consumedItem) consumedItem.stock -= item.consumes[productName];
+      if(item.consumes){
+        Object.keys(item.consumes).forEach(productName=>{
+          const consumed=products.find(p=>p.name===productName);
+          if(consumed) consumed.stock -= item.consumes[productName];
         });
       } else item.stock -= qty;
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function renderCart() {
-      const tbody = document.getElementById('cart-body');
-      tbody.innerHTML = '';
-      let total = 0;
-      cart.forEach((item, i) => {
-        const row = document.createElement('tr');
-        const lineTotal = item.qty * item.price;
-        total += lineTotal;
-        row.innerHTML = `
-          <td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td>
-          <td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
+    function renderCart(){
+      const tbody=document.getElementById('cart-body'); tbody.innerHTML='';
+      let total=0;
+      document.getElementById('empty-cart').style.display = cart.length === 0 ? 'block' : 'none';
+      cart.forEach((item,i)=>{
+        const lineTotal=item.qty*item.price; total+=lineTotal;
+        const row=document.createElement('tr');
+        row.innerHTML=`<td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td><td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
         tbody.appendChild(row);
       });
-      document.getElementById('total').innerText = money(total);
+      document.getElementById('total').innerText=money(total);
       calculateChange();
     }
 
-    function removeLine(i) { cart.splice(i, 1); renderCart(); }
+    function removeLine(i){ cart.splice(i,1); renderCart(); }
 
-    function setPaymentMode(mode) {
-      paymentMode = mode;
-      document.getElementById('btn-cash').className = mode === 'cash' ? 'blue active' : 'gray';
-      document.getElementById('btn-interac').className = mode === 'interac' ? 'blue active' : 'gray';
-      document.getElementById('received').style.display = mode === 'cash' ? 'block' : 'none';
+    function setPaymentMode(mode){
+      paymentMode=mode;
+      document.getElementById('btn-cash').className=mode==='cash'?'blue active':'gray';
+      document.getElementById('btn-interac').className=mode==='interac'?'blue active':'gray';
+      document.getElementById('received').style.display=mode==='cash'?'block':'none';
+      document.getElementById('received-label').style.display=mode==='cash'?'block':'none';
       calculateChange();
     }
 
-    function calculateChange() {
-      const received = parseFloat(document.getElementById('received').value) || 0;
-      const total = cart.reduce((s,p) => s + p.qty * p.price, 0);
-      const display = document.getElementById('change-display');
-      if (paymentMode === 'interac') { display.innerText = 'Paiement Interac'; return; }
-      if (received > 0) display.innerText = `Change : ${money(received - total)}`;
-      else display.innerText = '';
+    function calculateChange(){
+      const received=parseFloat(document.getElementById('received').value)||0;
+      const total=cart.reduce((s,p)=>s+p.qty*p.price,0);
+      const display=document.getElementById('change-display');
+      if(paymentMode==='interac'){ display.innerText='Paiement Interac'; return; }
+      if(received>0) display.innerText=`Change : ${money(received-total)}`; else display.innerText='';
     }
 
-    function finaliserFacture() {
-      if (cart.length === 0) return;
-      const totalNumber = cart.reduce((s,p) => s + p.qty * p.price, 0);
-      const received = parseFloat(document.getElementById('received').value) || totalNumber;
-      const change = paymentMode === 'cash' ? received - totalNumber : 0;
-      if (paymentMode === 'cash' && change < 0) { alert('Montant reçu insuffisant.'); return; }
-
-      if (paymentMode === 'cash') {
-        cashData.current += totalNumber;
-        cashData.cashSales += totalNumber;
-      } else {
-        cashData.interacSales += totalNumber;
-      }
+    function finaliserFacture(){
+      if(cart.length===0) return;
+      const totalNumber=cart.reduce((s,p)=>s+p.qty*p.price,0);
+      const received=parseFloat(document.getElementById('received').value)||totalNumber;
+      const change=paymentMode==='cash'?received-totalNumber:0;
+      if(paymentMode==='cash' && change<0){ alert('Montant reçu insuffisant.'); return; }
+      if(paymentMode==='cash'){ cashData.current += totalNumber; cashData.cashSales += totalNumber; }
+      else cashData.interacSales += totalNumber;
       saveCash();
-
-      const now = new Date().toLocaleString('fr-CA');
-      const ligne = `${now} – ${paymentMode.toUpperCase()} – ` + cart
-        .map(p => `${p.name} x${p.qty} = ${money(p.qty * p.price)}`)
-        .join(', ') + ` | Total: ${money(totalNumber)}`;
+      const now=new Date().toLocaleString('fr-CA');
+      const ligne=`${now} – ${paymentMode.toUpperCase()} – `+cart.map(p=>`${p.name} x${p.qty} = ${money(p.qty*p.price)}`).join(', ')+` | Total: ${money(totalNumber)}`;
       history.push(ligne);
-      localStorage.setItem('history', JSON.stringify(history));
-      updateHistory();
-      cart = [];
-      renderCart();
-      document.getElementById('received').value = '';
-      document.getElementById('change-display').innerText = '';
-      renderCash();
+      localStorage.setItem('history',JSON.stringify(history));
+      cart=[];
+      document.getElementById('received').value='';
+      document.getElementById('change-display').innerText='';
+      updateHistory(); renderCart(); renderCash();
     }
 
-    function resetCart() {
-      cart = [];
-      renderCart();
-      document.getElementById('received').value = '';
-      document.getElementById('change-display').innerText = '';
+    function resetCart(){ cart=[]; renderCart(); document.getElementById('received').value=''; document.getElementById('change-display').innerText=''; }
+
+    function updateHistory(){
+      const ul=document.getElementById('sale-log'); ul.innerHTML='';
+      history.slice().reverse().forEach(entry=>{ const li=document.createElement('li'); li.innerText=entry; ul.appendChild(li); });
     }
 
-    function updateHistory() {
-      const ul = document.getElementById('sale-log');
-      ul.innerHTML = '';
-      history.slice().reverse().forEach(entry => {
-        const li = document.createElement('li');
-        li.innerText = entry;
-        ul.appendChild(li);
-      });
+    function resetData(){
+      if(!confirm('Effacer l’historique et le cash de soirée?')) return;
+      localStorage.removeItem('history'); history=[];
+      cashData={initial:cashData.initial,current:cashData.initial,cashSales:0,interacSales:0};
+      saveCash(); updateHistory(); renderCash();
     }
 
-    function resetData() {
-      if (!confirm('Voulez-vous vraiment effacer tout l’historique des ventes et le cash de soirée?')) return;
-      localStorage.removeItem('history');
-      history = [];
-      cashData = { initial: cashData.initial, current: cashData.initial, cashSales: 0, interacSales: 0 };
-      saveCash();
-      updateHistory();
-      renderCash();
+    function renderCash(){
+      document.getElementById('cash-initial').innerText=money(cashData.initial);
+      document.getElementById('cash-current').innerText=money(cashData.current);
+      document.getElementById('cash-sales').innerText=money(cashData.cashSales);
+      document.getElementById('interac-sales').innerText=money(cashData.interacSales);
     }
 
-    function renderCash() {
-      document.getElementById('cash-initial').innerText = money(cashData.initial);
-      document.getElementById('cash-current').innerText = money(cashData.current);
-      document.getElementById('cash-sales').innerText = money(cashData.cashSales);
-      document.getElementById('interac-sales').innerText = money(cashData.interacSales);
-    }
-
-    function openCashModal() {
-      const list = document.getElementById('denoms-list');
-      list.innerHTML = '';
-      denominations.forEach(d => {
-        const row = document.createElement('div');
-        row.className = 'cash-denom';
-        row.innerHTML = `<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
+    function openCashModal(){
+      const list=document.getElementById('denoms-list'); list.innerHTML='';
+      denominations.forEach(d=>{
+        const row=document.createElement('div');
+        row.className='cash-denom';
+        row.innerHTML=`<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
         list.appendChild(row);
       });
-      document.getElementById('cash-modal').style.display = 'flex';
+      document.getElementById('cash-modal').style.display='flex';
       calcCashCount();
     }
 
-    function closeCashModal() { document.getElementById('cash-modal').style.display = 'none'; }
+    function closeCashModal(){ document.getElementById('cash-modal').style.display='none'; }
 
-    function calcCashCount() {
-      let total = 0;
-      document.querySelectorAll('#denoms-list input').forEach(inp => {
-        total += (parseFloat(inp.value) || 0) * parseFloat(inp.dataset.value);
-      });
-      document.getElementById('cash-count-total').innerText = money(total);
+    function calcCashCount(){
+      let total=0;
+      document.querySelectorAll('#denoms-list input').forEach(inp=>{ total+=(parseFloat(inp.value)||0)*parseFloat(inp.dataset.value); });
+      document.getElementById('cash-count-total').innerText=money(total);
       return total;
     }
 
-    function saveInitialCash() {
-      const total = calcCashCount();
-      cashData.initial = total;
-      cashData.current = total;
-      cashData.cashSales = 0;
-      cashData.interacSales = 0;
-      saveCash();
-      renderCash();
-      closeCashModal();
+    function saveInitialCash(){
+      const total=calcCashCount();
+      cashData.initial=total; cashData.current=total; cashData.cashSales=0; cashData.interacSales=0;
+      saveCash(); renderCash(); closeCashModal();
     }
 
-    function openReport() {
-      const totalSales = cashData.cashSales + cashData.interacSales;
-      const diff = cashData.current - cashData.initial;
-      let text = `RAPPORT FIN DE SOIRÉE
+    function openReport(){
+      const totalSales=cashData.cashSales+cashData.interacSales;
+      let text=`RAPPORT FIN DE SOIRÉE
+------------------------
 `;
-      text += `------------------------
+      text+=`Cash initial : ${money(cashData.initial)}
 `;
-      text += `Cash initial : ${money(cashData.initial)}
+      text+=`Cash final : ${money(cashData.current)}
 `;
-      text += `Cash final : ${money(cashData.current)}
+      text+=`Ventes cash : ${money(cashData.cashSales)}
 `;
-      text += `Ventes cash : ${money(cashData.cashSales)}
+      text+=`Ventes Interac : ${money(cashData.interacSales)}
 `;
-      text += `Ventes Interac : ${money(cashData.interacSales)}
-`;
-      text += `Total ventes : ${money(totalSales)}
-`;
-      text += `Différence cash : ${money(diff)}
+      text+=`Total ventes : ${money(totalSales)}
 
+INVENTAIRE RESTANT
 `;
-      text += `INVENTAIRE RESTANT
-`;
-      products.forEach(p => text += `${p.name} : ${p.stock} restant | vendu ${p.sold}
+      products.forEach(p=>text+=`${p.name} : ${p.stock} restant | vendu ${p.sold}
 `);
-      document.getElementById('report-text').innerText = text;
-      document.getElementById('report-modal').style.display = 'flex';
+      document.getElementById('report-text').innerText=text;
+      document.getElementById('report-modal').style.display='flex';
     }
 
-    function closeReport() { document.getElementById('report-modal').style.display = 'none'; }
+    function closeReport(){ document.getElementById('report-modal').style.display='none'; }
+    function copyReport(){ navigator.clipboard.writeText(document.getElementById('report-text').innerText); alert('Rapport copié.'); }
 
-    function copyReport() {
-      navigator.clipboard.writeText(document.getElementById('report-text').innerText);
-      alert('Rapport copié.');
-    }
-
-    function exportCSV() {
-      let csv = 'Date,Vente
+    function exportCSV(){
+      let csv='Date,Vente
 ';
-      history.forEach(line => csv += `"${line.replace(/"/g, '""')}"
+      history.forEach(line=>csv+=`"${line.replace(/"/g,'""')}"
 `);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.getElementById('download-link');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'ventes_bar.csv';
-      link.click();
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const link=document.getElementById('download-link');
+      link.href=URL.createObjectURL(blob); link.download='ventes_bar.csv'; link.click();
     }
 
-    window.onload = () => {
-      loadProducts();
-      updateHistory();
-      renderProducts();
-      renderInventory();
-      renderCart();
-      renderCash();
-      setPaymentMode('cash');
-    };
+    window.onload=()=>{ loadProducts(); updateHistory(); renderProducts(); renderInventory(); renderCart(); renderCash(); setPaymentMode('cash'); };
   </script>
 </body>
 </html>
@@ -520,55 +709,315 @@
   <title>Caisse Bar Dek Hockey</title>
   <style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #111827; color: white; }
-    header { background: #020617; padding: 14px; text-align: center; border-bottom: 3px solid #facc15; }
-    header h1 { margin: 0; font-size: 30px; color: #facc15; text-transform: uppercase; }
-    .container { display: grid; grid-template-columns: 1fr 420px; gap: 16px; padding: 16px; }
-    .section { background: #1f2937; border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.35); }
-    .section h2 { margin-top: 0; color: #facc15; border-bottom: 1px solid #374151; padding-bottom: 8px; }
-    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 12px; }
-    .product { border: none; border-radius: 14px; padding: 12px; min-height: 104px; color: white; font-size: 17px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; text-align: left; transition: transform 0.1s, opacity 0.1s; }
-    .product:active { transform: scale(0.96); opacity: 0.85; }
-    .beer { background: #2563eb; }
-    .drink { background: #16a34a; }
-    .rhum { background: #7c2d12; }
-    .food { background: #dc2626; }
-    .special { background: #b91c1c; }
-    .price { font-size: 23px; color: #fff7ed; }
-    .stock { font-size: 12px; color: #e5e7eb; font-weight: normal; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
-    th, td { padding: 7px; border-bottom: 1px solid #374151; text-align: left; }
-    th { color: #facc15; }
-    button { cursor: pointer; border: none; border-radius: 10px; padding: 10px 12px; font-weight: bold; font-size: 14px; }
-    .delete-btn { background: #ef4444; color: white; }
-    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .primary { background: #22c55e; color: white; }
-    .warning { background: #f97316; color: white; }
-    .danger { background: #dc2626; color: white; }
-    .gray { background: #6b7280; color: white; }
-    .blue { background: #2563eb; color: white; }
-    .total-box { font-size: 32px; font-weight: bold; color: #facc15; text-align: right; margin-top: 12px; }
-    input, select { width: 100%; padding: 11px; font-size: 17px; border-radius: 10px; border: none; margin-top: 6px; }
-    .change { font-size: 22px; color: #22c55e; font-weight: bold; margin-top: 10px; text-align: right; }
-    .option-box { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 50; justify-content: center; align-items: center; padding: 14px; }
-    .option-card { background: #1f2937; border: 2px solid #facc15; border-radius: 18px; padding: 22px; width: min(520px, 94vw); text-align: center; max-height: 92vh; overflow: auto; }
-    .option-card h2 { color: #facc15; margin-top: 0; }
-    .option-card button { width: 100%; margin-top: 10px; font-size: 18px; padding: 15px; }
-    ul { max-height: 180px; overflow-y: auto; padding-left: 20px; font-size: 12px; }
-    .cash-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .cash-box { background:#0f172a; border-radius:12px; padding:10px; }
-    .cash-box small { color:#cbd5e1; display:block; }
-    .cash-box strong { color:#facc15; font-size:20px; }
-    .inv-actions { display:flex; gap:6px; align-items:center; }
-    .inv-actions input { width:70px; padding:7px; font-size:14px; margin:0; }
-    .inv-actions button { padding:7px 9px; }
-    .modal-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; }
-    .cash-denom { display:grid; grid-template-columns: 1fr 70px; gap:8px; align-items:center; margin-bottom:8px; text-align:left; }
-    .cash-denom label { font-weight:bold; }
-    .cash-denom input { margin:0; }
-    .radio-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
-    .radio-row button.active { outline:3px solid #facc15; }
-    @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
+    body {
+      margin: 0;
+      background: #0b1120;
+      color: white;
+    }
+
+    header {
+      background: linear-gradient(90deg, #020617, #111827);
+      padding: 18px;
+      text-align: center;
+      border-bottom: 4px solid #facc15;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 34px;
+      color: #facc15;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .section {
+      background: #1e293b;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      border: 1px solid #334155;
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      color: #facc15;
+      border-bottom: 1px solid #475569;
+      padding-bottom: 10px;
+      font-size: 23px;
+    }
+
+    .category-title {
+      margin: 18px 0 10px;
+      font-size: 18px;
+      color: #e5e7eb;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 12px;
+    }
+
+    .product {
+      border: none;
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 118px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      transition: transform 0.08s, opacity 0.08s;
+      box-shadow: inset 0 -5px rgba(0,0,0,0.18), 0 4px 10px rgba(0,0,0,0.25);
+    }
+
+    .product:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+
+    .beer { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .drink { background: linear-gradient(135deg, #16a34a, #15803d); }
+    .rhum { background: linear-gradient(135deg, #9a3412, #7c2d12); }
+    .food { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+    .special { background: linear-gradient(135deg, #ef4444, #991b1b); }
+
+    .price {
+      font-size: 27px;
+      color: #fff7ed;
+      margin-top: 8px;
+    }
+
+    .stock {
+      font-size: 12px;
+      color: #e5e7eb;
+      font-weight: normal;
+      margin-top: 8px;
+    }
+
+    .right-side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      border-bottom: 1px solid #334155;
+      text-align: left;
+    }
+
+    th {
+      color: #facc15;
+      font-size: 13px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-weight: bold;
+      font-size: 14px;
+      color: white;
+    }
+
+    .delete-btn { background: #ef4444; }
+    .primary { background: #22c55e; }
+    .warning { background: #f97316; }
+    .danger { background: #dc2626; }
+    .gray { background: #64748b; }
+    .blue { background: #2563eb; }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .total-box {
+      font-size: 40px;
+      font-weight: bold;
+      color: #facc15;
+      text-align: right;
+      margin-top: 12px;
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: none;
+      margin-top: 6px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .change {
+      font-size: 24px;
+      color: #22c55e;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: right;
+      min-height: 30px;
+    }
+
+    .radio-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .active {
+      outline: 3px solid #facc15;
+      box-shadow: 0 0 12px rgba(250,204,21,0.45);
+    }
+
+    .cash-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .cash-box {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid #334155;
+    }
+
+    .cash-box small {
+      color: #cbd5e1;
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .cash-box strong {
+      color: #facc15;
+      font-size: 22px;
+    }
+
+    .inventory-scroll {
+      max-height: 320px;
+      overflow-y: auto;
+    }
+
+    .inv-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .inv-actions input {
+      width: 64px;
+      padding: 7px;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .inv-actions button {
+      padding: 7px 9px;
+    }
+
+    ul {
+      max-height: 180px;
+      overflow-y: auto;
+      padding-left: 20px;
+      font-size: 12px;
+    }
+
+    .option-box {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .option-card {
+      background: #1e293b;
+      border: 2px solid #facc15;
+      border-radius: 20px;
+      padding: 24px;
+      width: min(540px, 94vw);
+      text-align: center;
+      max-height: 92vh;
+      overflow: auto;
+    }
+
+    .option-card h2 {
+      color: #facc15;
+      margin-top: 0;
+    }
+
+    .option-card button {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 19px;
+      padding: 16px;
+    }
+
+    .cash-denom {
+      display: grid;
+      grid-template-columns: 1fr 90px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .cash-denom input { margin: 0; }
+
+    .empty-note {
+      color: #94a3b8;
+      text-align: center;
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1050px) {
+      .container { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -577,16 +1026,24 @@
   <div class="container">
     <div class="section">
       <h2>Produits</h2>
-      <div id="products" class="products-grid"></div>
+      <div class="category-title">🍺 Bières</div>
+      <div id="beer-products" class="products-grid"></div>
+      <div class="category-title">🥤 Boissons</div>
+      <div id="drink-products" class="products-grid"></div>
+      <div class="category-title">🥃 Rhum</div>
+      <div id="rhum-products" class="products-grid"></div>
+      <div class="category-title">🍫 Collations</div>
+      <div id="food-products" class="products-grid"></div>
     </div>
 
-    <div>
+    <div class="right-side">
       <div class="section">
         <h2>Facture</h2>
         <table>
           <thead><tr><th>Article</th><th>Qté</th><th>Prix</th><th>Total</th><th></th></tr></thead>
           <tbody id="cart-body"></tbody>
         </table>
+        <div id="empty-cart" class="empty-note">Aucun produit dans la facture</div>
         <div class="total-box" id="total">0.00 $</div>
 
         <div class="radio-row">
@@ -594,8 +1051,8 @@
           <button id="btn-interac" class="gray" onclick="setPaymentMode('interac')">Interac</button>
         </div>
 
-        <label>Argent reçu</label>
-        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()" />
+        <label id="received-label">Argent reçu</label>
+        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()">
         <div class="change" id="change-display"></div>
 
         <div class="action-row">
@@ -604,7 +1061,7 @@
         </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Caisse Cash</h2>
         <div class="cash-summary">
           <div class="cash-box"><small>Cash initial</small><strong id="cash-initial">0.00 $</strong></div>
@@ -618,15 +1075,17 @@
         </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Inventaire</h2>
-        <table>
-          <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
-          <tbody id="inventory-body"></tbody>
-        </table>
+        <div class="inventory-scroll">
+          <table>
+            <thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="section" style="margin-top:16px;">
+      <div class="section">
         <h2>Historique</h2>
         <ul id="sale-log"></ul>
         <div class="action-row">
@@ -648,10 +1107,10 @@
 
   <div id="cash-modal" class="option-box">
     <div class="option-card">
-      <h2>Fonds de caisse initial</h2>
-      <p style="color:#cbd5e1;">Entre le nombre de billets/pièces au début de la soirée.</p>
+      <h2>Entrée de caisse initiale</h2>
+      <p style="color:#cbd5e1">Entre le nombre de billets/pièces au début.</p>
       <div id="denoms-list"></div>
-      <div class="cash-box" style="margin-top:10px;"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
+      <div class="cash-box" style="margin-top:10px"><small>Total calculé</small><strong id="cash-count-total">0.00 $</strong></div>
       <button class="primary" onclick="saveInitialCash()">Enregistrer cash initial</button>
       <button class="gray" onclick="closeCashModal()">Fermer</button>
     </div>
@@ -660,8 +1119,8 @@
   <div id="report-modal" class="option-box">
     <div class="option-card">
       <h2>Rapport fin de soirée</h2>
-      <pre id="report-text" style="text-align:left; white-space:pre-wrap; background:#0f172a; padding:12px; border-radius:12px;"></pre>
-      <button class="gray" onclick="copyReport()">Copier le rapport</button>
+      <pre id="report-text" style="text-align:left;white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:12px"></pre>
+      <button class="gray" onclick="copyReport()">Copier rapport</button>
       <button class="gray" onclick="closeReport()">Fermer</button>
     </div>
   </div>
@@ -672,357 +1131,276 @@
     let cart = [];
     let pendingRhum = null;
     let paymentMode = 'cash';
-
     let history = JSON.parse(localStorage.getItem('history') || '[]');
-    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || {
-      initial: 0,
-      current: 0,
-      cashSales: 0,
-      interacSales: 0
-    };
-
-    const denominations = [100, 50, 20, 10, 5, 2, 1, 0.25];
+    let cashData = JSON.parse(localStorage.getItem('cashData') || 'null') || { initial:0, current:0, cashSales:0, interacSales:0 };
+    const denominations = [100,50,20,10,5,2,1,0.25];
 
     const products = [
-      { name: 'Corona', price: 4.00, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Bud', price: 3.50, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Bud Light', price: 3.50, category: 'beer', stock: 0, sold: 0 },
-      { name: 'Ultra', price: 4.00, category: 'beer', stock: 0, sold: 0 },
-      { name: '6 Corona', price: 20.00, category: 'special', stock: 0, sold: 0, consumes: { 'Corona': 6 } },
-      { name: 'Pepsi', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: '7-Up', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Eau', price: 2.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Gatorade', price: 3.00, category: 'drink', stock: 0, sold: 0 },
-      { name: 'Rhum', price: 0.00, category: 'other', stock: 0, sold: 0, hidden: true },
-      { name: 'Rhum & Pepsi', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: 'Pepsi' },
-      { name: 'Rhum & 7-Up', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: '7-Up' },
-      { name: 'Chips', price: 2.00, category: 'food', stock: 0, sold: 0 },
-      { name: 'Chocolat', price: 2.00, category: 'food', stock: 0, sold: 0 }
+      { name:'Corona', price:4.00, category:'beer', stock:0, sold:0 },
+      { name:'Bud', price:3.50, category:'beer', stock:0, sold:0 },
+      { name:'Bud Light', price:3.50, category:'beer', stock:0, sold:0 },
+      { name:'Ultra', price:4.00, category:'beer', stock:0, sold:0 },
+      { name:'6 Corona', price:20.00, category:'beer', special:true, stock:0, sold:0, consumes:{'Corona':6} },
+      { name:'Pepsi', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'7-Up', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'Eau', price:2.00, category:'drink', stock:0, sold:0 },
+      { name:'Gatorade', price:3.00, category:'drink', stock:0, sold:0 },
+      { name:'Rhum', price:0.00, category:'hidden', stock:0, sold:0 },
+      { name:'Rhum & Pepsi', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'Pepsi' },
+      { name:'Rhum & 7-Up', price:4.50, category:'rhum', stock:0, sold:0, isRhum:true, mix:'7-Up' },
+      { name:'Chips', price:2.00, category:'food', stock:0, sold:0 },
+      { name:'Chocolat', price:2.00, category:'food', stock:0, sold:0 }
     ];
 
-    function money(n) { return Number(n || 0).toFixed(2) + ' $'; }
-    function idName(name) { return name.replaceAll(' ', '_').replaceAll('&', 'and').replaceAll('-', '_'); }
+    function money(n){ return Number(n||0).toFixed(2)+' $'; }
+    function idName(name){ return name.replace(/[^a-zA-Z0-9]/g,'_'); }
+    function saveProducts(){ localStorage.setItem('products', JSON.stringify(products)); }
+    function saveCash(){ localStorage.setItem('cashData', JSON.stringify(cashData)); }
 
-    function saveProducts() { localStorage.setItem('products', JSON.stringify(products)); }
-    function saveCash() { localStorage.setItem('cashData', JSON.stringify(cashData)); }
-
-    function loadProducts() {
+    function loadProducts(){
       const saved = JSON.parse(localStorage.getItem('products') || 'null');
-      if (!saved) return;
-      saved.forEach(savedItem => {
-        const item = products.find(p => p.name === savedItem.name);
-        if (item) {
-          item.stock = savedItem.stock ?? item.stock;
-          item.sold = savedItem.sold ?? item.sold;
-        }
+      if(!saved) return;
+      saved.forEach(s=>{
+        const item = products.find(p=>p.name===s.name);
+        if(item){ item.stock = s.stock ?? item.stock; item.sold = s.sold ?? item.sold; }
       });
     }
 
-    function renderProducts() {
-      const wrap = document.getElementById('products');
-      wrap.innerHTML = '';
-      products.filter(p => !p.hidden).forEach((item) => {
-        const index = products.indexOf(item);
-        const btn = document.createElement('button');
-        btn.className = `product ${item.category}`;
-        btn.onclick = () => addProduct(index);
-        btn.innerHTML = `
-          <span>${item.name}</span>
-          <span class="price">${money(item.price)}</span>
-          <span class="stock">Vendu: <span id="sold-${index}">${item.sold}</span> | Stock: ${item.stock}</span>
-        `;
-        wrap.appendChild(btn);
+    function renderProducts(){
+      const zones = {
+        beer: document.getElementById('beer-products'),
+        drink: document.getElementById('drink-products'),
+        rhum: document.getElementById('rhum-products'),
+        food: document.getElementById('food-products')
+      };
+      Object.values(zones).forEach(z => z.innerHTML = '');
+
+      products.filter(p=>p.category !== 'hidden').forEach(item=>{
+        const index=products.indexOf(item);
+        const btn=document.createElement('button');
+        btn.className=`product ${item.special ? 'special' : item.category}`;
+        btn.onclick=()=>addProduct(index);
+        btn.innerHTML=`<span>${item.name}</span><span class="price">${money(item.price)}</span><span class="stock">Vendu: ${item.sold} | Stock: ${item.stock}</span>`;
+        zones[item.category].appendChild(btn);
       });
     }
 
-    function renderInventory() {
-      const tbody = document.getElementById('inventory-body');
-      tbody.innerHTML = '';
-      products.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.sold}</td>
-          <td>${item.stock}</td>
-          <td>
-            <div class="inv-actions">
-              <input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
-              <button class="primary" onclick="addInventory(${index})">+</button>
-              <button class="danger" onclick="removeInventory(${index})">-</button>
-            </div>
-          </td>
-        `;
+    function renderInventory(){
+      const tbody=document.getElementById('inventory-body');
+      tbody.innerHTML='';
+      products.forEach((item,index)=>{
+        const row=document.createElement('tr');
+        row.innerHTML=`
+          <td>${item.name}</td><td>${item.sold}</td><td>${item.stock}</td>
+          <td><div class="inv-actions"><input type="number" id="inv-${idName(item.name)}" placeholder="Qté">
+          <button class="primary" onclick="addInventory(${index})">+</button>
+          <button class="danger" onclick="removeInventory(${index})">-</button></div></td>`;
         tbody.appendChild(row);
       });
     }
 
-    function addInventory(index) {
-      const item = products[index];
-      const input = document.getElementById(`inv-${idName(item.name)}`);
-      const qty = parseFloat(input.value) || 1;
+    function addInventory(index){
+      const item=products[index];
+      const input=document.getElementById(`inv-${idName(item.name)}`);
+      const qty=parseFloat(input.value)||1;
       item.stock += qty;
-      input.value = '';
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      input.value='';
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function removeInventory(index) {
-      const item = products[index];
-      const input = document.getElementById(`inv-${idName(item.name)}`);
-      const qty = parseFloat(input.value) || 1;
+    function removeInventory(index){
+      const item=products[index];
+      const input=document.getElementById(`inv-${idName(item.name)}`);
+      const qty=parseFloat(input.value)||1;
       item.stock -= qty;
-      input.value = '';
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      input.value='';
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function addProduct(index) {
-      const item = products[index];
-      if (item.isRhum) {
-        pendingRhum = index;
-        document.getElementById('rhum-title').innerText = item.name;
-        document.getElementById('rhum-options').style.display = 'flex';
+    function addProduct(index){
+      const item=products[index];
+      if(item.isRhum){
+        pendingRhum=index;
+        document.getElementById('rhum-title').innerText=item.name;
+        document.getElementById('rhum-options').style.display='flex';
         return;
       }
-      addToCart(item.name, item.price);
-      applyInventory(item, 1);
+      addToCart(item.name,item.price);
+      applyInventory(item,1);
     }
 
-    function confirmRhum(double) {
-      if (pendingRhum === null) return;
-      const item = products[pendingRhum];
-      const rhumOz = double ? 2 : 1;
-      const price = double ? 6.00 : 4.50;
-      const name = double ? `${item.name} Double` : item.name;
-      addToCart(name, price);
+    function confirmRhum(double){
+      if(pendingRhum===null) return;
+      const item=products[pendingRhum];
+      const rhumOz=double?2:1;
+      const price=double?6.00:4.50;
+      const name=double?`${item.name} Double`:item.name;
+      addToCart(name,price);
       item.sold += 1;
-      const rhumInventory = products.find(p => p.name === 'Rhum');
-      if (rhumInventory) rhumInventory.stock -= rhumOz;
-      const mix = products.find(p => p.name === item.mix);
-      if (mix) mix.stock -= 0.5;
-      saveProducts();
-      renderProducts();
-      renderInventory();
-      closeRhumOptions();
+      const rhumInventory=products.find(p=>p.name==='Rhum');
+      if(rhumInventory) rhumInventory.stock -= rhumOz;
+      const mix=products.find(p=>p.name===item.mix);
+      if(mix) mix.stock -= 0.5;
+      saveProducts(); renderProducts(); renderInventory(); closeRhumOptions();
     }
 
-    function closeRhumOptions() {
-      pendingRhum = null;
-      document.getElementById('rhum-options').style.display = 'none';
-    }
+    function closeRhumOptions(){ pendingRhum=null; document.getElementById('rhum-options').style.display='none'; }
 
-    function addToCart(name, price) {
-      const existing = cart.find(p => p.name === name && p.price === price);
-      if (existing) existing.qty += 1;
-      else cart.push({ name, price, qty: 1 });
+    function addToCart(name,price){
+      const existing=cart.find(p=>p.name===name && p.price===price);
+      if(existing) existing.qty += 1;
+      else cart.push({name,price,qty:1});
       renderCart();
     }
 
-    function applyInventory(item, qty) {
+    function applyInventory(item,qty){
       item.sold += qty;
-      if (item.consumes) {
-        Object.keys(item.consumes).forEach(productName => {
-          const consumedItem = products.find(p => p.name === productName);
-          if (consumedItem) consumedItem.stock -= item.consumes[productName];
+      if(item.consumes){
+        Object.keys(item.consumes).forEach(productName=>{
+          const consumed=products.find(p=>p.name===productName);
+          if(consumed) consumed.stock -= item.consumes[productName];
         });
       } else item.stock -= qty;
-      saveProducts();
-      renderProducts();
-      renderInventory();
+      saveProducts(); renderProducts(); renderInventory();
     }
 
-    function renderCart() {
-      const tbody = document.getElementById('cart-body');
-      tbody.innerHTML = '';
-      let total = 0;
-      cart.forEach((item, i) => {
-        const row = document.createElement('tr');
-        const lineTotal = item.qty * item.price;
-        total += lineTotal;
-        row.innerHTML = `
-          <td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td>
-          <td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
+    function renderCart(){
+      const tbody=document.getElementById('cart-body'); tbody.innerHTML='';
+      let total=0;
+      document.getElementById('empty-cart').style.display = cart.length === 0 ? 'block' : 'none';
+      cart.forEach((item,i)=>{
+        const lineTotal=item.qty*item.price; total+=lineTotal;
+        const row=document.createElement('tr');
+        row.innerHTML=`<td>${item.name}</td><td>${item.qty}</td><td>${money(item.price)}</td><td>${money(lineTotal)}</td><td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>`;
         tbody.appendChild(row);
       });
-      document.getElementById('total').innerText = money(total);
+      document.getElementById('total').innerText=money(total);
       calculateChange();
     }
 
-    function removeLine(i) { cart.splice(i, 1); renderCart(); }
+    function removeLine(i){ cart.splice(i,1); renderCart(); }
 
-    function setPaymentMode(mode) {
-      paymentMode = mode;
-      document.getElementById('btn-cash').className = mode === 'cash' ? 'blue active' : 'gray';
-      document.getElementById('btn-interac').className = mode === 'interac' ? 'blue active' : 'gray';
-      document.getElementById('received').style.display = mode === 'cash' ? 'block' : 'none';
+    function setPaymentMode(mode){
+      paymentMode=mode;
+      document.getElementById('btn-cash').className=mode==='cash'?'blue active':'gray';
+      document.getElementById('btn-interac').className=mode==='interac'?'blue active':'gray';
+      document.getElementById('received').style.display=mode==='cash'?'block':'none';
+      document.getElementById('received-label').style.display=mode==='cash'?'block':'none';
       calculateChange();
     }
 
-    function calculateChange() {
-      const received = parseFloat(document.getElementById('received').value) || 0;
-      const total = cart.reduce((s,p) => s + p.qty * p.price, 0);
-      const display = document.getElementById('change-display');
-      if (paymentMode === 'interac') { display.innerText = 'Paiement Interac'; return; }
-      if (received > 0) display.innerText = `Change : ${money(received - total)}`;
-      else display.innerText = '';
+    function calculateChange(){
+      const received=parseFloat(document.getElementById('received').value)||0;
+      const total=cart.reduce((s,p)=>s+p.qty*p.price,0);
+      const display=document.getElementById('change-display');
+      if(paymentMode==='interac'){ display.innerText='Paiement Interac'; return; }
+      if(received>0) display.innerText=`Change : ${money(received-total)}`; else display.innerText='';
     }
 
-    function finaliserFacture() {
-      if (cart.length === 0) return;
-      const totalNumber = cart.reduce((s,p) => s + p.qty * p.price, 0);
-      const received = parseFloat(document.getElementById('received').value) || totalNumber;
-      const change = paymentMode === 'cash' ? received - totalNumber : 0;
-      if (paymentMode === 'cash' && change < 0) { alert('Montant reçu insuffisant.'); return; }
-
-      if (paymentMode === 'cash') {
-        cashData.current += totalNumber;
-        cashData.cashSales += totalNumber;
-      } else {
-        cashData.interacSales += totalNumber;
-      }
+    function finaliserFacture(){
+      if(cart.length===0) return;
+      const totalNumber=cart.reduce((s,p)=>s+p.qty*p.price,0);
+      const received=parseFloat(document.getElementById('received').value)||totalNumber;
+      const change=paymentMode==='cash'?received-totalNumber:0;
+      if(paymentMode==='cash' && change<0){ alert('Montant reçu insuffisant.'); return; }
+      if(paymentMode==='cash'){ cashData.current += totalNumber; cashData.cashSales += totalNumber; }
+      else cashData.interacSales += totalNumber;
       saveCash();
-
-      const now = new Date().toLocaleString('fr-CA');
-      const ligne = `${now} – ${paymentMode.toUpperCase()} – ` + cart
-        .map(p => `${p.name} x${p.qty} = ${money(p.qty * p.price)}`)
-        .join(', ') + ` | Total: ${money(totalNumber)}`;
+      const now=new Date().toLocaleString('fr-CA');
+      const ligne=`${now} – ${paymentMode.toUpperCase()} – `+cart.map(p=>`${p.name} x${p.qty} = ${money(p.qty*p.price)}`).join(', ')+` | Total: ${money(totalNumber)}`;
       history.push(ligne);
-      localStorage.setItem('history', JSON.stringify(history));
-      updateHistory();
-      cart = [];
-      renderCart();
-      document.getElementById('received').value = '';
-      document.getElementById('change-display').innerText = '';
-      renderCash();
+      localStorage.setItem('history',JSON.stringify(history));
+      cart=[];
+      document.getElementById('received').value='';
+      document.getElementById('change-display').innerText='';
+      updateHistory(); renderCart(); renderCash();
     }
 
-    function resetCart() {
-      cart = [];
-      renderCart();
-      document.getElementById('received').value = '';
-      document.getElementById('change-display').innerText = '';
+    function resetCart(){ cart=[]; renderCart(); document.getElementById('received').value=''; document.getElementById('change-display').innerText=''; }
+
+    function updateHistory(){
+      const ul=document.getElementById('sale-log'); ul.innerHTML='';
+      history.slice().reverse().forEach(entry=>{ const li=document.createElement('li'); li.innerText=entry; ul.appendChild(li); });
     }
 
-    function updateHistory() {
-      const ul = document.getElementById('sale-log');
-      ul.innerHTML = '';
-      history.slice().reverse().forEach(entry => {
-        const li = document.createElement('li');
-        li.innerText = entry;
-        ul.appendChild(li);
-      });
+    function resetData(){
+      if(!confirm('Effacer l’historique et le cash de soirée?')) return;
+      localStorage.removeItem('history'); history=[];
+      cashData={initial:cashData.initial,current:cashData.initial,cashSales:0,interacSales:0};
+      saveCash(); updateHistory(); renderCash();
     }
 
-    function resetData() {
-      if (!confirm('Voulez-vous vraiment effacer tout l’historique des ventes et le cash de soirée?')) return;
-      localStorage.removeItem('history');
-      history = [];
-      cashData = { initial: cashData.initial, current: cashData.initial, cashSales: 0, interacSales: 0 };
-      saveCash();
-      updateHistory();
-      renderCash();
+    function renderCash(){
+      document.getElementById('cash-initial').innerText=money(cashData.initial);
+      document.getElementById('cash-current').innerText=money(cashData.current);
+      document.getElementById('cash-sales').innerText=money(cashData.cashSales);
+      document.getElementById('interac-sales').innerText=money(cashData.interacSales);
     }
 
-    function renderCash() {
-      document.getElementById('cash-initial').innerText = money(cashData.initial);
-      document.getElementById('cash-current').innerText = money(cashData.current);
-      document.getElementById('cash-sales').innerText = money(cashData.cashSales);
-      document.getElementById('interac-sales').innerText = money(cashData.interacSales);
-    }
-
-    function openCashModal() {
-      const list = document.getElementById('denoms-list');
-      list.innerHTML = '';
-      denominations.forEach(d => {
-        const row = document.createElement('div');
-        row.className = 'cash-denom';
-        row.innerHTML = `<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
+    function openCashModal(){
+      const list=document.getElementById('denoms-list'); list.innerHTML='';
+      denominations.forEach(d=>{
+        const row=document.createElement('div');
+        row.className='cash-denom';
+        row.innerHTML=`<label>${money(d)}</label><input type="number" min="0" value="0" data-value="${d}" oninput="calcCashCount()">`;
         list.appendChild(row);
       });
-      document.getElementById('cash-modal').style.display = 'flex';
+      document.getElementById('cash-modal').style.display='flex';
       calcCashCount();
     }
 
-    function closeCashModal() { document.getElementById('cash-modal').style.display = 'none'; }
+    function closeCashModal(){ document.getElementById('cash-modal').style.display='none'; }
 
-    function calcCashCount() {
-      let total = 0;
-      document.querySelectorAll('#denoms-list input').forEach(inp => {
-        total += (parseFloat(inp.value) || 0) * parseFloat(inp.dataset.value);
-      });
-      document.getElementById('cash-count-total').innerText = money(total);
+    function calcCashCount(){
+      let total=0;
+      document.querySelectorAll('#denoms-list input').forEach(inp=>{ total+=(parseFloat(inp.value)||0)*parseFloat(inp.dataset.value); });
+      document.getElementById('cash-count-total').innerText=money(total);
       return total;
     }
 
-    function saveInitialCash() {
-      const total = calcCashCount();
-      cashData.initial = total;
-      cashData.current = total;
-      cashData.cashSales = 0;
-      cashData.interacSales = 0;
-      saveCash();
-      renderCash();
-      closeCashModal();
+    function saveInitialCash(){
+      const total=calcCashCount();
+      cashData.initial=total; cashData.current=total; cashData.cashSales=0; cashData.interacSales=0;
+      saveCash(); renderCash(); closeCashModal();
     }
 
-    function openReport() {
-      const totalSales = cashData.cashSales + cashData.interacSales;
-      const diff = cashData.current - cashData.initial;
-      let text = `RAPPORT FIN DE SOIRÉE
+    function openReport(){
+      const totalSales=cashData.cashSales+cashData.interacSales;
+      let text=`RAPPORT FIN DE SOIRÉE
+------------------------
 `;
-      text += `------------------------
+      text+=`Cash initial : ${money(cashData.initial)}
 `;
-      text += `Cash initial : ${money(cashData.initial)}
+      text+=`Cash final : ${money(cashData.current)}
 `;
-      text += `Cash final : ${money(cashData.current)}
+      text+=`Ventes cash : ${money(cashData.cashSales)}
 `;
-      text += `Ventes cash : ${money(cashData.cashSales)}
+      text+=`Ventes Interac : ${money(cashData.interacSales)}
 `;
-      text += `Ventes Interac : ${money(cashData.interacSales)}
-`;
-      text += `Total ventes : ${money(totalSales)}
-`;
-      text += `Différence cash : ${money(diff)}
+      text+=`Total ventes : ${money(totalSales)}
 
+INVENTAIRE RESTANT
 `;
-      text += `INVENTAIRE RESTANT
-`;
-      products.forEach(p => text += `${p.name} : ${p.stock} restant | vendu ${p.sold}
+      products.forEach(p=>text+=`${p.name} : ${p.stock} restant | vendu ${p.sold}
 `);
-      document.getElementById('report-text').innerText = text;
-      document.getElementById('report-modal').style.display = 'flex';
+      document.getElementById('report-text').innerText=text;
+      document.getElementById('report-modal').style.display='flex';
     }
 
-    function closeReport() { document.getElementById('report-modal').style.display = 'none'; }
+    function closeReport(){ document.getElementById('report-modal').style.display='none'; }
+    function copyReport(){ navigator.clipboard.writeText(document.getElementById('report-text').innerText); alert('Rapport copié.'); }
 
-    function copyReport() {
-      navigator.clipboard.writeText(document.getElementById('report-text').innerText);
-      alert('Rapport copié.');
-    }
-
-    function exportCSV() {
-      let csv = 'Date,Vente
+    function exportCSV(){
+      let csv='Date,Vente
 ';
-      history.forEach(line => csv += `"${line.replace(/"/g, '""')}"
+      history.forEach(line=>csv+=`"${line.replace(/"/g,'""')}"
 `);
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.getElementById('download-link');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'ventes_bar.csv';
-      link.click();
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const link=document.getElementById('download-link');
+      link.href=URL.createObjectURL(blob); link.download='ventes_bar.csv'; link.click();
     }
 
-    window.onload = () => {
-      loadProducts();
-      updateHistory();
-      renderProducts();
-      renderInventory();
-      renderCart();
-      renderCash();
-      setPaymentMode('cash');
-    };
+    window.onload=()=>{ loadProducts(); updateHistory(); renderProducts(); renderInventory(); renderCart(); renderCash(); setPaymentMode('cash'); };
   </script>
 </body>
 </html>
