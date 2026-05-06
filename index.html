@@ -1,276 +1,557 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Caisse Bar Maxime</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caisse Bar Dek Hockey</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .product { border: 1px solid #ccc; padding: 10px; margin: 10px; width: 220px; display: inline-block; vertical-align: top; cursor: pointer; }
-    .product.out { opacity: 0.45; }
-    .product.stock-only { cursor: default; background: #fafafa; }
-    .stock-controls { display: flex; gap: 5px; align-items: center; margin-top: 6px; }
-    .stock-controls input { width: 75px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    .input-row { margin-top: 20px; }
-    .input-row input, .input-row button { padding: 8px; font-size: 16px; margin: 4px; }
-    #change-display { margin-top: 10px; font-weight: bold; }
-    #history { margin-top: 40px; }
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #111827;
+      color: white;
+    }
+
+    header {
+      background: #020617;
+      padding: 16px;
+      text-align: center;
+      border-bottom: 3px solid #facc15;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      color: #facc15;
+      text-transform: uppercase;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .section {
+      background: #1f2937;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: #facc15;
+      border-bottom: 1px solid #374151;
+      padding-bottom: 8px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .product {
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 110px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+
+    .product:active {
+      transform: scale(0.96);
+      opacity: 0.85;
+    }
+
+    .beer { background: #2563eb; }
+    .drink { background: #16a34a; }
+    .rhum { background: #7c2d12; }
+    .food { background: #dc2626; }
+    .other { background: #6b7280; }
+    .special { background: #b91c1c; }
+
+    .price {
+      font-size: 24px;
+      color: #fff7ed;
+    }
+
+    .stock {
+      font-size: 13px;
+      color: #e5e7eb;
+      font-weight: normal;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #374151;
+      text-align: left;
+    }
+
+    th {
+      color: #facc15;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+      color: white;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .primary {
+      background: #22c55e;
+      color: white;
+    }
+
+    .warning {
+      background: #f97316;
+      color: white;
+    }
+
+    .danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .gray {
+      background: #6b7280;
+      color: white;
+    }
+
+    .total-box {
+      font-size: 32px;
+      font-weight: bold;
+      color: #facc15;
+      text-align: right;
+      margin-top: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 20px;
+      border-radius: 10px;
+      border: none;
+      margin-top: 6px;
+    }
+
+    .change {
+      font-size: 24px;
+      color: #22c55e;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    .option-box {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 50;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .option-card {
+      background: #1f2937;
+      border: 2px solid #facc15;
+      border-radius: 18px;
+      padding: 24px;
+      width: min(420px, 90vw);
+      text-align: center;
+    }
+
+    .option-card h2 {
+      color: #facc15;
+      margin-top: 0;
+    }
+
+    .option-card button {
+      width: 100%;
+      margin-top: 12px;
+      font-size: 22px;
+      padding: 18px;
+    }
+
+    ul {
+      max-height: 220px;
+      overflow-y: auto;
+      padding-left: 20px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Caisse du Bar (Cash)</h1>
-  <div id="products"></div>
+  <header>
+    <h1>Caisse Bar Dek Hockey</h1>
+  </header>
 
-  <div id="cart">
-    <h2>Facture</h2>
-    <table>
-      <thead>
-        <tr><th>Produit</th><th>Qté</th><th>Prix</th><th>Total</th><th>Action</th></tr>
-      </thead>
-      <tbody id="cart-body"></tbody>
-      <tfoot>
-        <tr><td colspan="4">Total</td><td id="total">0.00 $</td></tr>
-      </tfoot>
-    </table>
-    <div class="input-row">
-      <label for="received">Argent reçu : </label>
-      <input type="number" id="received" placeholder="ex: 50">
-      <button onclick="calculateChange()">Calculer le change</button>
-      <button onclick="finaliserFacture()">Finaliser la facture</button>
-      <button onclick="resetCart()">Vider la facture</button>
+  <div class="container">
+    <div class="section">
+      <h2>Produits</h2>
+      <div id="products" class="products-grid"></div>
     </div>
-    <div id="change-display"></div>
+
+    <div>
+      <div class="section">
+        <h2>Facture</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Article</th>
+              <th>Qté</th>
+              <th>Prix</th>
+              <th>Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cart-body"></tbody>
+        </table>
+
+        <div class="total-box" id="total">0.00 $</div>
+
+        <label>Argent reçu</label>
+        <input type="number" id="received" placeholder="Ex: 20" oninput="calculateChange()" />
+        <div class="change" id="change-display"></div>
+
+        <div class="action-row">
+          <button class="primary" onclick="finaliserFacture()">Finaliser</button>
+          <button class="warning" onclick="resetCart()">Vider facture</button>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:16px;">
+        <h2>Inventaire</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Vendu</th>
+              <th>Restant</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-body"></tbody>
+        </table>
+      </div>
+
+      <div class="section" style="margin-top:16px;">
+        <h2>Historique</h2>
+        <ul id="sale-log"></ul>
+        <div class="action-row">
+          <button class="gray" onclick="exportCSV()">Exporter CSV</button>
+          <button class="danger" onclick="resetData()">Effacer historique</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="history">
-    <h2>Historique des ventes</h2>
-    <button onclick="exportCSV()">Exporter CSV</button>
-    <button onclick="resetData()">Réinitialiser les ventes</button>
-    <ul id="sale-log"></ul>
+  <div id="rhum-options" class="option-box">
+    <div class="option-card">
+      <h2 id="rhum-title">Choisir l'option</h2>
+      <button class="rhum" onclick="confirmRhum(false)">Simple — 4,50 $</button>
+      <button class="special" onclick="confirmRhum(true)">Double — 6,00 $</button>
+      <button class="gray" onclick="closeRhumOptions()">Annuler</button>
+    </div>
   </div>
 
   <a id="download-link" style="display:none"></a>
 
-<script>
-const savedStock = JSON.parse(localStorage.getItem('stock') || '{}');
-const savedSold = JSON.parse(localStorage.getItem('sold') || '{}');
-let history = JSON.parse(localStorage.getItem('history') || '[]');
-let cart = [];
+  <script>
+    let cart = [];
+    let pendingRhum = null;
 
-const products = [
-  { name: 'Corona', price: 4.00 },
-  { name: 'Bud', price: 3.50 },
-  { name: 'Ultra', price: 3.50 },
-  { name: 'Bud Light', price: 3.50 },
-  { name: 'Corona Sans Alcool', price: 3.00 },
-  { name: 'Pepsi', price: 2.00 },
-  { name: '7up', price: 2.00 },
-  { name: 'Gatorade', price: 2.50 },
-  { name: 'Chip', price: 1.75 },
-  { name: 'Chocolat', price: 1.75 },
-  { name: 'Eau', price: 1.50 },
-  { name: 'Fromage', price: 2.50 },
-  { name: 'Rhum', price: 0.00, stockOnly: true },
-  { name: '6 Corona pour 22$', price: 22.00, recipe: [{ name: 'Corona', qty: 6 }] },
-  { name: 'Rhum/Pepsi', price: 4.50, recipe: [{ name: 'Rhum', qty: 1 }, { name: 'Pepsi', qty: 0.5 }], doublePrice: 6.00, doubleRecipe: [{ name: 'Rhum', qty: 2 }, { name: 'Pepsi', qty: 0.5 }] },
-  { name: 'Rhum/7up', price: 4.50, recipe: [{ name: 'Rhum', qty: 1 }, { name: '7up', qty: 0.5 }], doublePrice: 6.00, doubleRecipe: [{ name: 'Rhum', qty: 2 }, { name: '7up', qty: 0.5 }] }
-];
+    let history = JSON.parse(localStorage.getItem('history') || '[]');
 
-products.forEach(p => {
-  p.stock = savedStock[p.name] ?? 10;
-  p.sold = savedSold[p.name] ?? 0;
-});
+    const products = [
+      { name: 'Corona', price: 4.00, category: 'beer', stock: 0, sold: 0 },
+      { name: 'Bud', price: 3.50, category: 'beer', stock: 0, sold: 0 },
+      { name: 'Bud Light', price: 3.50, category: 'beer', stock: 0, sold: 0 },
+      { name: 'Ultra', price: 4.00, category: 'beer', stock: 0, sold: 0 },
+      { name: '6 Corona', price: 20.00, category: 'special', stock: 0, sold: 0, consumes: { 'Corona': 6 } },
 
-function renderProducts() {
-  const container = document.getElementById('products');
-  container.innerHTML = '';
+      { name: 'Pepsi', price: 2.00, category: 'drink', stock: 0, sold: 0 },
+      { name: '7-Up', price: 2.00, category: 'drink', stock: 0, sold: 0 },
+      { name: 'Eau', price: 2.00, category: 'drink', stock: 0, sold: 0 },
+      { name: 'Gatorade', price: 3.00, category: 'drink', stock: 0, sold: 0 },
 
-  products.forEach((item, index) => {
-    const div = document.createElement('div');
-    div.className = 'product' + (item.stock <= 0 ? ' out' : '') + (item.stockOnly ? ' stock-only' : '');
+      { name: 'Rhum & Pepsi', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: 'Pepsi' },
+      { name: 'Rhum & 7-Up', price: 4.50, category: 'rhum', stock: 0, sold: 0, isRhum: true, mix: '7-Up' },
 
-    div.innerHTML = `
-      <strong>${item.name}</strong><br>
-      ${item.price.toFixed(2)} $<br>
-      Stock: <span>${item.stock}</span><br>
-      Vendus: <span>${item.sold}</span>
-      <div class="stock-controls">
-        <input type="number" id="input-${index}" placeholder="Ajout rapide" onclick="event.stopPropagation();">
-        <button onclick="event.stopPropagation(); updateStock(${index}, true)">+</button>
-        <button onclick="event.stopPropagation(); updateStock(${index}, false)">-</button>
-      </div>
-    `;
+      { name: 'Hot-dog', price: 2.50, category: 'food', stock: 0, sold: 0 },
+      { name: 'Hamburger', price: 5.00, category: 'food', stock: 0, sold: 0 },
+      { name: 'Chips', price: 2.00, category: 'food', stock: 0, sold: 0 },
+      { name: 'Chocolat', price: 2.00, category: 'food', stock: 0, sold: 0 }
+    ];
 
-    if (!item.stockOnly) div.onclick = () => addToCart(index);
-    container.appendChild(div);
-  });
-}
+    function saveProducts() {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
 
-function updateStock(index, isAdd) {
-  const input = document.getElementById(`input-${index}`);
-  const value = parseFloat(input.value);
-  const amount = (!isNaN(value) && value > 0) ? value : 1;
+    function loadProducts() {
+      const saved = JSON.parse(localStorage.getItem('products') || 'null');
+      if (!saved) return;
 
-  products[index].stock += isAdd ? amount : -amount;
-  if (products[index].stock < 0) products[index].stock = 0;
+      saved.forEach(savedItem => {
+        const item = products.find(p => p.name === savedItem.name);
+        if (item) {
+          item.stock = savedItem.stock ?? item.stock;
+          item.sold = savedItem.sold ?? item.sold;
+        }
+      });
+    }
 
-  input.value = '';
-  saveStock();
-  renderProducts();
-}
+    function renderProducts() {
+      const wrap = document.getElementById('products');
+      wrap.innerHTML = '';
 
-function addToCart(index) {
-  const item = products[index];
+      products.forEach((item, index) => {
+        const btn = document.createElement('button');
+        btn.className = `product ${item.category}`;
+        btn.onclick = () => addProduct(index);
+        btn.innerHTML = `
+          <span>${item.name}</span>
+          <span class="price">${item.price.toFixed(2)} $</span>
+          <span class="stock">Vendu: <span id="sold-${index}">${item.sold}</span></span>
+        `;
+        wrap.appendChild(btn);
+      });
+    }
 
-  let useDouble = false;
+    function renderInventory() {
+      const tbody = document.getElementById('inventory-body');
+      tbody.innerHTML = '';
 
-  if (item.name === 'Rhum/Pepsi' || item.name === 'Rhum/7up') {
-    useDouble = confirm('OK = Double 2 oz (6$)
-Annuler = Régulier 1 oz (4.50$)');
-  }
+      products.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.sold}</td>
+          <td>${item.stock}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
 
-  if (item.recipe) {
-    const activeRecipe = useDouble && item.doubleRecipe ? item.doubleRecipe : item.recipe;
+    function addProduct(index) {
+      const item = products[index];
 
-    for (const part of activeRecipe) {
-      const stockItem = products.find(p => p.name === part.name);
-      if (!stockItem || stockItem.stock < part.qty) {
-        alert('Stock insuffisant pour ' + part.name);
+      if (item.isRhum) {
+        pendingRhum = index;
+        document.getElementById('rhum-title').innerText = item.name;
+        document.getElementById('rhum-options').style.display = 'flex';
         return;
       }
+
+      addToCart(item.name, item.price);
+      applyInventory(item, 1);
     }
-    for (const part of activeRecipe) {
-      const stockItem = products.find(p => p.name === part.name);
-      stockItem.stock -= part.qty;
+
+    function confirmRhum(double) {
+      if (pendingRhum === null) return;
+
+      const item = products[pendingRhum];
+      const rhumOz = double ? 2 : 1;
+      const price = double ? 6.00 : 4.50;
+      const name = double ? `${item.name} Double` : item.name;
+
+      addToCart(name, price);
+
+      item.sold += 1;
+
+      const rhumInventory = products.find(p => p.name === 'Rhum');
+      if (rhumInventory) rhumInventory.stock -= rhumOz;
+
+      const mix = products.find(p => p.name === item.mix);
+      if (mix) mix.stock -= 0.5;
+
+      document.getElementById(`sold-${pendingRhum}`).innerText = item.sold;
+
+      saveProducts();
+      renderInventory();
+      closeRhumOptions();
     }
-  } else {
-    if (item.stock <= 0) return;
-    item.stock -= 1;
-  }
 
-  item.sold += 1;
+    function closeRhumOptions() {
+      pendingRhum = null;
+      document.getElementById('rhum-options').style.display = 'none';
+    }
 
-  const finalPrice = useDouble && item.doublePrice ? item.doublePrice : item.price;
-  const finalName = useDouble ? item.name + ' DOUBLE' : item.name;
+    function addToCart(name, price) {
+      const existing = cart.find(p => p.name === name && p.price === price);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ name, price, qty: 1 });
+      }
+      renderCart();
+    }
 
-  const existing = cart.find(p => p.name === finalName);
+    function applyInventory(item, qty) {
+      item.sold += qty;
 
-  if (existing) existing.qty += 1;
-  else cart.push({ name: finalName, price: finalPrice, qty: 1 });
+      if (item.consumes) {
+        Object.keys(item.consumes).forEach(productName => {
+          const consumedItem = products.find(p => p.name === productName);
+          if (consumedItem) consumedItem.stock -= item.consumes[productName];
+        });
+      } else {
+        item.stock -= qty;
+      }
 
-  saveStock();
-  saveSold();
-  renderProducts();
-  renderCart();
-}
+      saveProducts();
+      renderProducts();
+      renderInventory();
+    }
 
-function renderCart() {
-  const tbody = document.getElementById('cart-body');
-  tbody.innerHTML = '';
-  let total = 0;
+    function renderCart() {
+      const tbody = document.getElementById('cart-body');
+      tbody.innerHTML = '';
+      let total = 0;
 
-  cart.forEach((item, i) => {
-    const lineTotal = item.qty * item.price;
-    total += lineTotal;
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${item.name}</td>
-      <td>${item.qty}</td>
-      <td>${item.price.toFixed(2)} $</td>
-      <td>${lineTotal.toFixed(2)} $</td>
-      <td><button onclick="removeLine(${i})">Supprimer</button></td>
-    `;
-    tbody.appendChild(row);
-  });
-  document.getElementById('total').innerText = total.toFixed(2) + ' $';
-}
+      cart.forEach((item, i) => {
+        const row = document.createElement('tr');
+        const lineTotal = item.qty * item.price;
+        total += lineTotal;
 
-function removeLine(i) {
-  cart.splice(i, 1);
-  renderCart();
-}
+        row.innerHTML = `
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>${item.price.toFixed(2)} $</td>
+          <td>${lineTotal.toFixed(2)} $</td>
+          <td><button class="delete-btn" onclick="removeLine(${i})">X</button></td>
+        `;
 
-function calculateChange() {
-  const received = parseFloat(document.getElementById('received').value);
-  const total = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-  if (isNaN(received)) {
-    document.getElementById('change-display').innerText = 'Entre un montant reçu.';
-    return;
-  }
-  const change = received - total;
-  document.getElementById('change-display').innerText = change >= 0 ? `Change : ${change.toFixed(2)} $` : 'Montant insuffisant';
-}
+        tbody.appendChild(row);
+      });
 
-function finaliserFacture() {
-  if (cart.length === 0) return;
-  const now = new Date().toLocaleString();
-  const ligne = `${now} – ` + cart.map(p => `${p.name} x${p.qty} = ${(p.qty * p.price).toFixed(2)} $`).join(', ');
-  history.push(ligne);
-  localStorage.setItem('history', JSON.stringify(history));
-  cart = [];
-  renderCart();
-  updateHistory();
-  document.getElementById('received').value = '';
-  document.getElementById('change-display').innerText = '';
-}
+      document.getElementById('total').innerText = total.toFixed(2) + ' $';
+      calculateChange();
+    }
 
-function resetCart() {
-  cart = [];
-  renderCart();
-  document.getElementById('received').value = '';
-  document.getElementById('change-display').innerText = '';
-}
+    function removeLine(i) {
+      cart.splice(i, 1);
+      renderCart();
+    }
 
-function updateHistory() {
-  const ul = document.getElementById('sale-log');
-  ul.innerHTML = '';
-  history.forEach(entry => {
-    const li = document.createElement('li');
-    li.innerText = entry;
-    ul.appendChild(li);
-  });
-}
+    function calculateChange() {
+      const received = parseFloat(document.getElementById('received').value) || 0;
+      const total = parseFloat(document.getElementById('total').innerText) || 0;
+      const change = received - total;
 
-function resetData() {
-  if (confirm('Réinitialiser seulement l’historique et les compteurs vendus ?')) {
-    localStorage.removeItem('history');
-    localStorage.removeItem('sold');
-    history = [];
-    products.forEach(p => p.sold = 0);
-    saveSold();
-    updateHistory();
-    renderProducts();
-  }
-}
+      if (received > 0) {
+        document.getElementById('change-display').innerText = `Change : ${change.toFixed(2)} $`;
+      } else {
+        document.getElementById('change-display').innerText = '';
+      }
+    }
 
-function exportCSV() {
-  let csv = 'Date,Article,Qté,Total\n';
-  history.forEach(line => csv += line.replace(/ – | = |\$/g, ',').replace(/, /g, ',') + '\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const link = document.getElementById('download-link');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'ventes.csv';
-  link.click();
-}
+    function finaliserFacture() {
+      if (cart.length === 0) return;
 
-function saveStock() {
-  const data = {};
-  products.forEach(p => data[p.name] = p.stock);
-  localStorage.setItem('stock', JSON.stringify(data));
-}
+      const now = new Date().toLocaleString('fr-CA');
+      const total = document.getElementById('total').innerText;
+      const ligne = `${now} – ` + cart
+        .map(p => `${p.name} x${p.qty} = ${(p.qty * p.price).toFixed(2)} $`)
+        .join(', ') + ` | Total: ${total}`;
 
-function saveSold() {
-  const data = {};
-  products.forEach(p => data[p.name] = p.sold);
-  localStorage.setItem('sold', JSON.stringify(data));
-}
+      history.push(ligne);
+      localStorage.setItem('history', JSON.stringify(history));
+      updateHistory();
 
-window.onload = () => {
-  updateHistory();
-  renderProducts();
-  renderCart();
-};
-</script>
+      cart = [];
+      renderCart();
+      document.getElementById('received').value = '';
+      document.getElementById('change-display').innerText = '';
+    }
+
+    function resetCart() {
+      cart = [];
+      renderCart();
+      document.getElementById('received').value = '';
+      document.getElementById('change-display').innerText = '';
+    }
+
+    function updateHistory() {
+      const ul = document.getElementById('sale-log');
+      ul.innerHTML = '';
+
+      history.slice().reverse().forEach(entry => {
+        const li = document.createElement('li');
+        li.innerText = entry;
+        ul.appendChild(li);
+      });
+    }
+
+    function resetData() {
+      if (!confirm('Voulez-vous vraiment effacer tout l\'historique des ventes?')) return;
+      localStorage.removeItem('history');
+      history = [];
+      updateHistory();
+    }
+
+    function exportCSV() {
+      let csv = 'Date,Vente\n';
+      history.forEach(line => {
+        csv += `"${line.replace(/"/g, '""')}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.getElementById('download-link');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'ventes_bar.csv';
+      link.click();
+    }
+
+    window.onload = () => {
+      loadProducts();
+      updateHistory();
+      renderProducts();
+      renderInventory();
+      renderCart();
+    };
+  </script>
 </body>
 </html>
