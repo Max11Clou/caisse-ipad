@@ -731,7 +731,7 @@ input,select{
       <div class="total" id="total">0.00 $</div>
 
       <div class="payrow">
-        <button id="cashBtn" class="blue active" onclick="setPay('cash')">Cash</button>
+        <button id="cashBtn" class="gray active" onclick="setPay('cash')">Cash</button>
         <button id="interacBtn" class="gray" onclick="setPay('interac')">Interac</button>
       </div>
 
@@ -897,6 +897,15 @@ input,select{
         <h2>1. Argent reçu du client</h2>
         <p style="color:#cbd5e1;margin-top:0">Clique seulement les billets/pièces que le client te donne.</p>
         <div class="denomsBtns" id="receivedButtons"></div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button class="green" onclick="quickCash(25)">25 $ → 2$ + 1$</button>
+          <button class="green" onclick="quickCash(30)">30 $ → 5$ + 2$ + 1$</button>
+        </div>
+        <div class="actions">
+          <button class="green" onclick="quickCash(40)">40 $ → 10$ + 5$ + 2$ + 1$</button>
+          <button class="green" onclick="quickCash(50)">50 $ rapide</button>
+        </div>
         <div class="breakdown" id="receivedBreakdown"></div>
         <div class="actions">
           <button class="gray" onclick="resetReceived()">Reset reçu</button>
@@ -1294,7 +1303,7 @@ let errorLogs = JSON.parse(localStorage.getItem(ERROR_KEY) || "[]");
 let currentErrorType = "";
 const VALIDATION_KEY = "caisse_validations_" + VERSION;
 let validations = JSON.parse(localStorage.getItem(VALIDATION_KEY) || "[]");
-const denoms = [100,50,20,10,5,2,1,0.25];
+const denoms = [0.25,1,2,5,10,20,50,100];
 
 let cash = JSON.parse(localStorage.getItem(CASH_KEY) || "null") || {
   initial:0,
@@ -1504,7 +1513,7 @@ function clearCart(){
 }
 function setPay(m){
   payMode=m;
-  document.getElementById("cashBtn").className=m==="cash"?"blue active":"gray";
+  document.getElementById("cashBtn").className=m==="cash"?"gray active":"gray";
   document.getElementById("interacBtn").className=m==="interac"?"blue active":"gray";
   calcChange();
 }
@@ -1633,6 +1642,54 @@ function canRemoveFromDrawer(changeCounts, simulatedDrawer){
   }
   return true;
 }
+
+function makeChangeGreedy(amount){
+  let remaining = Number(amount.toFixed(2));
+  const result = [];
+  const order = [100,50,20,10,5,2,1,0.25];
+
+  for(const d of order){
+    while(remaining + 0.0001 >= d){
+      result.push(d);
+      remaining = Number((remaining - d).toFixed(2));
+    }
+  }
+
+  return result;
+}
+
+function quickCash(amount){
+  resetReceived();
+  resetGivenChange();
+
+  if(amount === 25){
+    receivedClicks = [20,5];
+  }else if(amount === 30){
+    receivedClicks = [20,10];
+  }else if(amount === 40){
+    receivedClicks = [20,20];
+  }else if(amount === 50){
+    receivedClicks = [50];
+  }else{
+    receivedClicks = [amount];
+  }
+
+  receivedTotal = receivedClicks.reduce((s,v)=>s+v,0);
+
+  const due = totalCart();
+  const changeRequired = Number((receivedTotal - due).toFixed(2));
+
+  if(changeRequired > 0){
+    changeClicks = makeChangeGreedy(changeRequired);
+    changeTotal = changeClicks.reduce((s,v)=>s+v,0);
+  }else{
+    changeClicks = [];
+    changeTotal = 0;
+  }
+
+  refreshPaymentModal();
+}
+
 function confirmCashPayment(){
   const total=totalCart();
   if(receivedTotal<total){alert("Montant reçu insuffisant.");return}
