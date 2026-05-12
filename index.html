@@ -684,6 +684,21 @@ input,select{
   .product{min-height:138px !important}
 }
 
+
+/* Inventaire toujours utilisable */
+#inventorySection .collapsible-body{
+  display:block;
+}
+#inventorySection{
+  min-height:360px;
+}
+#inventoryBody tr{
+  display:table-row;
+}
+#inventoryBody td{
+  vertical-align:middle;
+}
+
 </style>
 </head>
 <body>
@@ -775,7 +790,7 @@ input,select{
       </div>
     </section>
 
-    <section class="section collapsible" id="inventorySection">
+    <section class="section collapsible open" id="inventorySection">
       <h2 class="collapsible-header" onclick="toggleCollapse('inventorySection')">Inventaire <span>▼</span></h2>
       <div class="collapsible-body scroll">
         <table><thead><tr><th>Produit</th><th>Vendu</th><th>Restant</th><th>Ajouter</th></tr></thead><tbody id="inventoryBody"></tbody></table>
@@ -897,15 +912,6 @@ input,select{
         <h2>1. Argent reçu du client</h2>
         <p style="color:#cbd5e1;margin-top:0">Clique seulement les billets/pièces que le client te donne.</p>
         <div class="denomsBtns" id="receivedButtons"></div>
-
-        <div class="actions" style="margin-top:12px;">
-          <button class="green" onclick="quickCash(25)">25 $ → 2$ + 1$</button>
-          <button class="green" onclick="quickCash(30)">30 $ → 5$ + 2$ + 1$</button>
-        </div>
-        <div class="actions">
-          <button class="green" onclick="quickCash(40)">40 $ → 10$ + 5$ + 2$ + 1$</button>
-          <button class="green" onclick="quickCash(50)">50 $ rapide</button>
-        </div>
         <div class="breakdown" id="receivedBreakdown"></div>
         <div class="actions">
           <button class="gray" onclick="resetReceived()">Reset reçu</button>
@@ -917,6 +923,10 @@ input,select{
         <h2>2. Change redonné au client</h2>
         <p style="color:#cbd5e1;margin-top:0">Clique seulement ce que tu sors de la caisse pour redonner au client.</p>
         <div class="denomsBtns" id="changeButtons"></div>
+
+        <div class="actions" style="margin-top:12px;">
+          <button class="green" onclick="autoSelectChange()">Sélectionner le change optimal</button>
+        </div>
         <div class="breakdown" id="changeBreakdown"></div>
         <div class="actions">
           <button class="gray" onclick="resetGivenChange()">Reset change</button>
@@ -1323,7 +1333,7 @@ let products = JSON.parse(localStorage.getItem(PRODUCTS_KEY) || "null") || [
   {name:"Bud",price:3.50,category:"beer",stock:0,sold:0,profit:1.65},
   {name:"Bud Light",price:3.50,category:"beer",stock:0,sold:0,profit:1.65},
   {name:"Ultra",price:3.50,category:"beer",stock:0,sold:0,profit:1.66},
-  {name:"6 Corona",price:22.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6,profit:8.44}},
+  {name:"6 Corona",price:22.00,category:"beer",special:true,stock:0,sold:0,consumes:{"Corona":6},profit:8.44},
   {name:"Pepsi",price:2.00,category:"drink",stock:0,sold:0,profit:1.25},
   {name:"7-Up",price:2.00,category:"drink",stock:0,sold:0,profit:0},
   {name:"Eau",price:2.00,category:"drink",stock:0,sold:0,profit:1.23},
@@ -1365,6 +1375,16 @@ products.forEach(p=>{
 
 
 products.forEach(p=>{ if(p.profit === undefined) p.profit = 0; });
+
+
+// Correction automatique si l'ancien produit 6 Corona a été sauvegardé avec une mauvaise recette
+products.forEach(p=>{
+  if(p.name === "6 Corona"){
+    p.consumes = {"Corona":6};
+    p.profit = 8.44;
+  }
+});
+
 
 
 function money(n){return Number(n||0).toFixed(2)+" $"}
@@ -1412,11 +1432,33 @@ function renderProducts(){
   });
 }
 function renderInventory(){
-  const body=document.getElementById("inventoryBody"); body.innerHTML="";
+  const body=document.getElementById("inventoryBody");
+  if(!body) return;
+
+  body.innerHTML="";
+
+  if(!Array.isArray(products) || products.length===0){
+    body.innerHTML='<tr><td colspan="4">Aucun produit trouvé</td></tr>';
+    return;
+  }
+
   products.forEach((p,i)=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${p.name}</td><td>${p.sold}</td><td>${p.stock}</td>
-    <td><div class="invact"><input id="inv_${sid(p.name)}" type="number" placeholder="Qté"><button class="green" onclick="adjustInv(${i},1)">+</button><button class="red" onclick="adjustInv(${i},-1)">−</button>${p.name==="Rhum" ? '<button class="blue" onclick="addRhumBottle()">+1 bouteille</button>' : ''}</div></td>`;
+
+    tr.innerHTML=`
+      <td>${p.name}</td>
+      <td>${p.sold || 0}</td>
+      <td>${p.stock || 0}</td>
+      <td>
+        <div class="invact">
+          <input id="inv_${sid(p.name)}" type="number" placeholder="Qté">
+          <button class="green" onclick="adjustInv(${i},1)">+</button>
+          <button class="red" onclick="adjustInv(${i},-1)">−</button>
+          ${p.name==="Rhum" ? '<button class="blue" onclick="addRhumBottle()">+1 bouteille</button>' : ''}
+        </div>
+      </td>
+    `;
+
     body.appendChild(tr);
   });
 }
@@ -1643,17 +1685,106 @@ function canRemoveFromDrawer(changeCounts, simulatedDrawer){
   return true;
 }
 
-function makeChangeGreedy(amount){
-  let remaining = Number(amount.toFixed(2));
-  const result = [];
-  const order = [100,50,20,10,5,2,1,0.25];
 
-  for(const d of order){
-    while(remaining + 0.0001 >= d){
-      result.push(d);
-      remaining = Number((remaining - d).toFixed(2));
+
+function makeChangeGreedy(amount){
+  const cents = Math.round(Number(amount || 0) * 100);
+
+  if(cents <= 0) return [];
+
+  const values = [10000,5000,2000,1000,500,200,100,25];
+
+  // Minimum à garder dans le tiroir pour certaines coupures.
+  // Exemple : si tu as 5 x 1$, le système ne proposera PAS de donner un 1$.
+  const minReserve = {
+    1000: 5, // garder minimum 5 billets de 10$
+    500: 5,  // garder minimum 5 billets de 5$
+    200: 5,  // garder minimum 5 pièces de 2$
+    100: 5   // garder minimum 5 pièces de 1$
+  };
+
+  // On regarde le vrai tiroir disponible APRÈS l'argent reçu et le change déjà sélectionné.
+  const availableDrawer = drawerAfterReceivedAndChange();
+
+  const available = {};
+  values.forEach(v=>{
+    const realQty = Number(availableDrawer[String(v/100)] || 0);
+    const reserve = Number(minReserve[v] || 0);
+
+    // On garde la réserve. Les 0.25$, 20$, 50$, 100$ n'ont pas de réserve.
+    available[v] = Math.max(0, realQty - reserve);
+  });
+
+  let best = null;
+
+  function scoreCombo(combo){
+    let pieces = 0;
+    let penalty = 0;
+
+    Object.entries(combo).forEach(([value, qty])=>{
+      const v = Number(value);
+      const q = Number(qty || 0);
+      pieces += q;
+
+      // Petite pénalité pour éviter de brûler trop de 0.25$ si une autre solution existe.
+      if(v === 25) penalty += q * 0.05;
+    });
+
+    return pieces + penalty;
+  }
+
+  function search(index, remaining, current){
+    if(remaining === 0){
+      const score = scoreCombo(current);
+
+      if(!best || score < best.score){
+        best = {
+          combo:{...current},
+          score
+        };
+      }
+
+      return;
+    }
+
+    if(index >= values.length) return;
+
+    const value = values[index];
+
+    const maxUse = Math.min(
+      available[value],
+      Math.floor(remaining / value)
+    );
+
+    // On essaie toutes les combinaisons possibles.
+    for(let qty=maxUse; qty>=0; qty--){
+      current[value] = qty;
+
+      search(
+        index + 1,
+        remaining - qty * value,
+        current
+      );
+
+      current[value] = 0;
     }
   }
+
+  search(0, cents, {});
+
+  if(!best){
+    alert("Impossible de rendre le change exact avec le tiroir actuel en gardant la réserve minimum de 5.");
+    return [];
+  }
+
+  const result = [];
+
+  values.forEach(value=>{
+    const qty = Number(best.combo[value] || 0);
+    for(let i=0;i<qty;i++){
+      result.push(value / 100);
+    }
+  });
 
   return result;
 }
@@ -1686,6 +1817,31 @@ function quickCash(amount){
     changeClicks = [];
     changeTotal = 0;
   }
+
+  refreshPaymentModal();
+}
+
+
+function autoSelectChange(){
+  resetGivenChange();
+
+  const due = totalCart();
+  const required = Number(Math.max(0, receivedTotal - due).toFixed(2));
+
+  if(required <= 0){
+    refreshPaymentModal();
+    return;
+  }
+
+  const combo = makeChangeGreedy(required);
+
+  if(!combo.length){
+    refreshPaymentModal();
+    return;
+  }
+
+  changeClicks = combo;
+  changeTotal = combo.reduce((s,v)=>s+v,0);
 
   refreshPaymentModal();
 }
@@ -2490,7 +2646,7 @@ function toggleCollapse(id){
   el.classList.toggle("open");
 }
 
-window.onload=()=>{renderAll();setPay("cash");applyUserSession()}
+window.onload=()=>{renderAll();setPay("cash");applyUserSession(); const inv=document.getElementById("inventorySection"); if(inv) inv.classList.add("open");}
 </script>
 </body>
 </html>
